@@ -1,5 +1,4 @@
 import click
-from flask.ext.script import Manager
 from click import Group, echo, secho
 
 from syrtis.cli import execute_sql, header, message
