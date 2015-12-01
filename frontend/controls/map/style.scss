@@ -1,0 +1,103 @@
+$strike-dip: lighten(#ff0000,20%);
+$hovered: darken(#ff0000,10%);
+$selected: darken(lightgreen,10%);
+
+.map .data-layer {
+    pointer-events: all;
+    //display: table-cell;
+    //@include span(9 of 12 omega);
+    //cursor: move;
+    #markerCircle circle, #markerArrow path {
+      fill: $strike-dip;
+    }
+    #hoverCircle circle, #hoverArrow path {
+      fill: $hovered;
+    }
+    #selectedArrow path {
+      fill: $selected;
+    }
+    .features,.markers {
+      cursor: crosshair;
+    }
+    .features {
+      $strike-dip-feature: darken($strike-dip,30%);
+      $selected-feature: darken($selected,30%);
+      $hovered-feature: darken($hovered,20%);
+      path {
+        fill: transparent;
+        stroke: transparentize($strike-dip-feature, 0.5);
+        stroke-width: 2;
+        &.Polygon {
+          fill: transparentize($strike-dip-feature, 0.7);
+          &.selected {
+            fill: transparentize($selected-feature, 0.3);
+            &.hovered {
+              fill: transparentize(darken($selected-feature,10%), 0.3);
+            }
+          }
+          &.hovered {
+            fill: transparentize($hovered-feature, 0.5);
+          }
+        }
+        &.hovered {
+          stroke: $hovered-feature;
+          stroke-width: 3px;
+        }
+        &.selected {
+          stroke: $selected-feature;
+          &.hovered {
+            stroke: darken($selected-feature,10%);
+          }
+        }
+      }
+    }
+    .markers {
+      line {
+        stroke-width: 1px;
+      }
+      .hovered {
+        circle, line {
+          fill: $hovered;
+          stroke-width: 2px;
+          stroke: $hovered;
+        }
+      }
+      .selected {
+        circle, line {
+          fill: $selected;
+          stroke: $selected;
+        }
+        &.hovered {
+          $c: darken($selected, 10%);
+          circle, line {
+            stroke: $c;
+            fill: $c;
+          }
+        }
+      }
+   }
+}
+
+.leaflet-container {
+  .leaflet-control-layers-toggle {
+    background: none;
+    &:before {
+      font-family: FontAwesome;
+      content: "\f0c9";
+    }
+    width: 26px;
+    height: 26px;
+    line-height: 26px;
+    text-align: center;
+    font-size: 22px;
+    color: black;
+  }
+}
+
+.leaflet-control, .leaflet-control a {
+  border-radius: 0 !important;
+}
+
+.leaflet-control-scale-line {
+  box-sizing: content-box;
+}

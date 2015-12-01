@@ -1,0 +1,60 @@
+@import "list/style";
+
+.sidebar {
+  display: flex;
+  img {
+    max-width: 100%;
+  }
+  min-width: 20rem;
+  margin: 1rem;
+  div.controls {
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .more {
+      margin-top: 0.2em;
+      color: #888888;
+    }
+  }
+  li.hovered {
+    background-color: #dddddd;
+  }
+  &>div {
+    @extend .flex-container;
+  }
+  div.stereonet {
+    min-width: 30rem;
+  }
+  div.data-viewer {
+    height: 30rem;
+    width: 40rem;
+  }
+}
+
+ul.selection-list { flex: 1; }
+
+.selection-sidebar {
+  display: flex;
+  width: 20rem;
+}
+
+.selection-control {
+  display: flex;
+
+  &>div {
+    @extend .flex-container;
+  }
+
+  h3 { margin-top: 0; }
+  &>* {
+    flex: none;
+  }
+  position: relative;
+  .modal-controls {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 1.5em;
+  }
+}

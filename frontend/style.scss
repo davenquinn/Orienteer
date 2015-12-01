@@ -1,0 +1,44 @@
+$button-color: lighten(dodgerblue,30%);
+$button-active-color: lighten(dodgerblue,15%);
+$button-hover-color: dodgerblue;
+$button-active-hover-color: darken(dodgerblue,15%);
+
+@import "endpoints/attitudes/style";
+@import "controls/info-box/style";
+@import "controls/selection/style";
+@import "controls/toggle/style";
+@import "controls/data-panel/style";
+@import "controls/map/style";
+@import "controls/stereonet/style";
+
+#main {
+  justify-content: center;
+}
+
+.page-main {
+  flex: 0 1 auto;
+  align-self: center;
+  text-align: center;
+  font-size: 2em;
+  ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+
+  li {
+    font-size: 2rem;
+    font-weight: 200;
+    a {
+      display: inline-block;
+      width: 30rem;
+      padding: 2rem 5rem;
+      margin-top: 1rem;
+      background: $button-color;
+      &:hover {
+        background: $button-hover-color;
+        text-decoration: none;
+        color: white;
+      }
+    }
+  }
+}

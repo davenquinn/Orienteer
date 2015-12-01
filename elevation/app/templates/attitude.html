@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ object.id }} — {{ object.dataset_id }}</h1>
+<div class=navigation>
+    <a class="btn btn-default" href="/attitude/{{ object.id - 1 }}">⟪ Previous</a>
+    <a class="btn btn-default" href="/attitude/{{ object.id + 1}}">Next ⟫</a>
+</div>
+
+<div class=row>
+    <div class=col-md-4>
+        <dl class="dl-horizontal">
+            <dt>Strike</dt><dd>{{ format_float(object.strike) }}º</dd>
+            <dt>Dip</dt><dd>{{ format_float(object.dip) }}º</dd>
+            <dt>Correlation Coefficient</dt>
+            <dd>{{ object.correlation_coefficient }}</dd>
+            <dt>Number of coordinates</dt>
+            <dd>{{ object.extracted|length }}</dd>
+        </dl>
+        <img src="error.svg" />
+    </div>
+    <div class=col-md-8>
+        <img src="context.png" width=600 height=600 />
+    </div>
+
+<div>
+{% endblock %}

@@ -1,0 +1,14 @@
+<div class="id">{{id}}</div>
+<div class="strike-dip">
+  <div class="symbol">⋌</div>
+  <div>
+    {{strike}}º<br/>{{dip}}º
+  </div>
+</div>
+{{#if showTags}}
+<ul class="tag-list">
+{{#each tags}}
+  <li>{{ this }}</li>
+{{/each}}
+</ul>
+{{/if}}
