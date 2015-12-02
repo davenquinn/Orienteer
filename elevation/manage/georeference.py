@@ -8,9 +8,9 @@ from nimble import compute_transform, align_image
 from nimble.sql import transform_geometry, endpoints
 
 from ..models import Dataset, DatasetFeature, DatasetOffset
-from syrtis.cli import run
-from syrtis.core import db
-from syrtis.core.proj import srid
+from ..util.cli import run
+from ..database import db
+from ..app.proj import srid
 
 def tiepoints(dataset):
     # Get tiepoints

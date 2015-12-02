@@ -7,8 +7,7 @@ from sqlalchemy.exc import ProgrammingError
 from click import echo, secho, style
 from flask import current_app
 
-from syrtis.cli import working_directory, run, quote, execute_sql
-
+from ....util.cli import working_directory, run, quote, execute_sql
 from ...base import db
 from ...feature.manage import create_features
 from ....app.proj import Projection, srid

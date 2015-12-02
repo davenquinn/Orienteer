@@ -7,12 +7,7 @@ from click import echo, style, secho
 from flask import current_app as app
 from ..models.dataset import Dataset
 from ..database import db
-
-from syrtis.cli import execute_sql, working_directory, run, quote
-
-BASEDIR = app.config.get("PROJECT_DIR")
-CONFIG_DIR = app.config.get("CONFIG_DIR")
-DB_NAME = app.config.get("DB_NAME")
+from ..util.cli import execute_sql, working_directory, run, quote
 
 hirise_datasets = lambda: (Dataset.query
         .filter_by(instrument="HiRISE")
@@ -20,6 +15,7 @@ hirise_datasets = lambda: (Dataset.query
 
 def build_vrt():
     """Builds virtual rasters"""
+    BASEDIR = app.config.get("PROJECT_DIR")
     with working_directory(BASEDIR):
         run("mkdir -p", "virtual_mosaics")
 
@@ -53,6 +49,9 @@ def import_datasets(ids, extract=False, rebuild=False):
     Imports all datasets from configuration file,
     creating where necessary.
     """
+    CONFIG_DIR = app.config.get("CONFIG_DIR")
+    DB_NAME = app.config.get("DB_NAME")
+
     echo("["+style("Importing data", "red")+"]")
 
     try:

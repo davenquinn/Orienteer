@@ -3,8 +3,9 @@ import os
 import errno
 import functools
 import shlex
-from syrtis.cli import run, quote, message, header, execute_sql, working_directory
 from click import echo, style
+
+from .cli import run, quote, message, header, execute_sql, working_directory
 
 def listify(f):
     @functools.wraps(f)
