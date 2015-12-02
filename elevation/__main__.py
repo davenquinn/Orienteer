@@ -1,8 +1,8 @@
-from app import setup_app
 from IPython import embed
 from click import echo, style
 
-from .manage import ElevationCommand
+from elevation.app import setup_app
+from elevation.manage import ElevationCommand
 
 @ElevationCommand.command()
 def shell():
@@ -14,6 +14,13 @@ def shell():
     _ = style("Elevation",fg="green")
     echo("Welcome to the "+_+" application!")
     embed()
+
+@ElevationCommand.command()
+def serve():
+    """
+    Run a basic development server for the application.
+    """
+    app.run()
 
 app = setup_app()
 with app.app_context():
