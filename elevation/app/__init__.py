@@ -40,12 +40,15 @@ def error_ellipse(id):
     fig = attitude.error_ellipse()
     return image(fig)
 
-def setup_app():
-    app = Flask(__name__)
+def __setup_endpoints(app, db):
     app.register_blueprint(elevation,url_prefix="/elevation")
     app.register_blueprint(api,url_prefix="/api")
+    init_projection(app,db)
+
+def setup_app():
+    app = Flask(__name__)
     app.config.from_object('elevation.config')
     app.config.from_envvar('ELEVATION_CONFIG',silent=True)
     db.init_app(app)
-    init_projection(app,db)
+    __setup_endpoints(app,db)
     return app
