@@ -1,4 +1,4 @@
-from syrtis.core import app
+from app import setup_app
 from IPython import embed
 from click import echo, style
 
@@ -15,5 +15,6 @@ def shell():
     echo("Welcome to the "+_+" application!")
     embed()
 
+app = setup_app()
 with app.app_context():
     ElevationCommand()

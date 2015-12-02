@@ -11,7 +11,7 @@ import numpy as N
 from shapely.geometry import asShape
 from shapely.ops import transform
 from rasterio.features import shapes
-from syrtis.core.proj import Projection, srid, transformation
+from ...app.proj import Projection, srid, transformation
 
 class DatasetOffset(BaseModel):
     """

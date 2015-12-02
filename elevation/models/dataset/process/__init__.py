@@ -16,7 +16,7 @@ from .images import convert_image
 
 from rasterio.warp import reproject, RESAMPLING
 
-from syrtis.core.proj import Projection, srid
+from ....app.proj import Projection, srid
 
 def build_downsampled(dataset):
     """

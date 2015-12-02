@@ -11,7 +11,7 @@ from shapely.geometry import mapping, shape
 from shapely.ops import transform
 from . import wkb
 from ...database import db
-from syrtis.core.proj import Projection, srid
+from ...app.proj import Projection, srid
 from geoalchemy2.shape import from_shape, to_shape
 from sqlalchemy.sql.expression import func
 

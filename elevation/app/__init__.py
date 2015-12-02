@@ -2,13 +2,12 @@ from flask import Flask, Blueprint, Response
 from cStringIO import StringIO
 
 from ..database import db
-from ..models import Attitude, AttitudeGroup
-from .api import api
 from .proj import init_projection
 
 elevation = Blueprint('elevation',__name__)
 
 def get_attitude(id):
+    from ..models import Attitude, AttitudeGroup
     cls = Attitude
     try:
         id = int(id)
@@ -41,6 +40,8 @@ def error_ellipse(id):
     return image(fig)
 
 def __setup_endpoints(app, db):
+    from .api import api
+
     app.register_blueprint(elevation,url_prefix="/elevation")
     app.register_blueprint(api,url_prefix="/api")
     init_projection(app,db)
