@@ -4,8 +4,10 @@ import yaml
 import click
 from click import echo, style, secho
 
-from syrtis.core import app, db
+from flask import current_app as app
 from ..models.dataset import Dataset
+from ..database import db
+
 from syrtis.cli import execute_sql, working_directory, run, quote
 
 BASEDIR = app.config.get("PROJECT_DIR")

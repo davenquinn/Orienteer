@@ -2,7 +2,7 @@ import click
 from click import Group, echo, secho
 
 from syrtis.cli import execute_sql, header, message
-from syrtis.core import db
+from ..database import db
 from .dataset import import_datasets, build_contours
 from .georeference import georeference
 

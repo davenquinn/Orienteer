@@ -11,12 +11,11 @@ from syrtis.cli import working_directory, run, quote, execute_sql
 
 from ...base import db
 from ...feature.manage import create_features
+from ....app.proj import Projection, srid
 from ...attitude import Attitude
 from .images import convert_image
 
 from rasterio.warp import reproject, RESAMPLING
-
-from ....app.proj import Projection, srid
 
 def build_downsampled(dataset):
     """

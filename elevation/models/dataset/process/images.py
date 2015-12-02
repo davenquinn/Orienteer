@@ -2,8 +2,8 @@ from __future__ import print_function
 import os
 from click import echo,style, secho
 
-from ....util import run,quote
-from syrtis.core.proj import Projection, srid
+from ....app.proj import Projection, srid
+from ....util import run, quote
 
 _mapping = {
     "Figure of Merit": "fom",
