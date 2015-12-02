@@ -1,17 +1,12 @@
-from flask import render_template, Blueprint, Response, jsonify
+from flask import Flask, Blueprint, Response
 from cStringIO import StringIO
 
 from ..database import db
 from ..models import Attitude, AttitudeGroup
 from .api import api
+from .proj import init_projection
 
-elevation = Blueprint('elevation',
-        __name__,
-        template_folder="templates")
-
-@elevation.route("/")
-def index():
-    return render_template("elevation/index.html")
+elevation = Blueprint('elevation',__name__)
 
 def get_attitude(id):
     cls = Attitude
@@ -44,3 +39,13 @@ def error_ellipse(id):
     attitude = get_attitude(id)
     fig = attitude.error_ellipse()
     return image(fig)
+
+def setup_app():
+    app = Flask(__name__)
+    app.register_blueprint(elevation,url_prefix="/elevation")
+    app.register_blueprint(api,url_prefix="/api")
+    app.config.from_object('elevation.config')
+    app.config.from_envvar('ELEVATION_CONFIG',silent=True)
+    db.init_app(app)
+    init_projection(app,db)
+    return app

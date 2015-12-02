@@ -1,6 +1,6 @@
 from pg_projector import PGProjector, transformation, srid
 
-from . import app, db
-
 # Setup common SRIDs from configuration
-Projection = PGProjector(app, db)
+Projection = None
+def init_projection(app, db):
+    Projection = PGProjector(app, db)
