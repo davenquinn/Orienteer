@@ -1,7 +1,19 @@
+$strike-dip: lighten(#ff0000,20%);
+$hovered: lighten(#ff0000,10%);
+$selected: lightgreen;
+
 $button-color: lighten(dodgerblue,30%);
 $button-active-color: lighten(dodgerblue,15%);
 $button-hover-color: dodgerblue;
 $button-active-hover-color: darken(dodgerblue,15%);
+
+@import "bootstrap-sass/assets/stylesheets/bootstrap";
+@import "shared/loading";
+@import "shared/layout";
+@import "shared/map/style";
+
+$fa-font-path: "../../node_modules/font-awesome/fonts";
+@import "font-awesome/scss/font-awesome";
 
 @import "endpoints/attitudes/style";
 @import "controls/info-box/style";
@@ -42,3 +54,69 @@ $button-active-hover-color: darken(dodgerblue,15%);
     }
   }
 }
+
+.btn:focus {
+  outline: none;
+}
+
+#wrap {
+    margin: 50px auto;
+    width: 80%;
+    max-width: 1140px;
+}
+
+.table-hover tbody tr {
+    cursor: pointer;
+}
+
+.container {
+  //position: relative;
+}
+
+h1,h2,h3 {
+  font-weight: 200;
+}
+
+.tag-list {
+  li {
+    cursor: pointer;
+    padding: 0.1em 0.2em;
+    display: inline-block;
+    margin-right: 0.5em;
+    background: #ddd;
+    margin-bottom: 0.2em;
+  }
+  list-style: none;
+  padding-left: 0;
+}
+
+.tag-manager {
+  ul {
+    @extend .tag-list;
+  }
+  li {
+    .remove {
+      margin-left: 0.25em;
+    }
+    &.all {
+      background: lighten(dodgerblue, 20%);
+    }
+  }
+}
+
+.filter-data {
+  .tag-list li {
+    &.none {
+      background-color: lighten(red,40%);
+    }
+    &.all {
+      background-color: lightgreen;
+    }
+  }
+}
+
+.leaflet-control-scale-line {
+-moz-box-sizing: content-box;
+box-sizing: content-box;
+}
+
