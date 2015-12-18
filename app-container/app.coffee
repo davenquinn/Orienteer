@@ -2,6 +2,7 @@ _ = require 'underscore'
 app = require 'app'
 BrowserWindow = require 'browser-window'
 queue = require 'queue-async'
+config = require 'config'
 
 startServer = require './server'
 watchCommand = require './watch'
@@ -46,9 +47,9 @@ startApp = (url)->
 
 # Load the application window after the server is
 # set up
-module.exports = (url, config)->
-  defaults = watch: false
-  app.config = _.defaults(config or {}, defaults)
+module.exports = (url, cfg)->
+  config = _.defaults(cfg or {}, config)
+  app.config = config
 
   q = queue().defer setupApp
   if app.config.watch

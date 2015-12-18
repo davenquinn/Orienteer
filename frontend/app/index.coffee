@@ -5,6 +5,8 @@ Data = require "./data"
 AttitudePage = require "../endpoints/attitudes"
 NotesPage = require "../endpoints/notes"
 
+remote = require "remote"
+
 erf = (request, textStatus, errorThrown)->
   console.log request, textStatus, errorThrown
 
@@ -14,6 +16,10 @@ class App extends Spine.Controller
     window.app = @
     @API = require "./api"
     @opts = require "./options"
+
+    # Share config from main process
+    # Config can't be edited at runtime
+    @config = remote.require("app").config
 
     if @routes?
       @routes
