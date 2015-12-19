@@ -10,7 +10,7 @@ from sqlalchemy.sql.expression import func, text
 from ..base import db, BaseModel
 from ..tag import Tag, feature_tag
 
-from ...app.proj import srid
+from ...core.proj import srid
 
 def wkb(shape):
     """Creates a WKB representation of the

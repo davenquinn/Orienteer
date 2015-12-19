@@ -13,7 +13,7 @@ from geoalchemy2.shape import from_shape, to_shape
 from shapely.geometry import shape, mapping, asShape, LineString
 from shapely.ops import transform
 
-from ...app.proj import Projection, transformation
+from ...core.proj import Projection, transformation
 
 def clean_coordinates(coords, silent=False):
     """

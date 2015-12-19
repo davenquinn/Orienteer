@@ -11,7 +11,8 @@ import numpy as N
 from shapely.geometry import asShape
 from shapely.ops import transform
 from rasterio.features import shapes
-from ...app.proj import Projection, srid, transformation
+from flask import current_app as app
+from ...core.proj import Projection, srid, transformation
 
 class DatasetOffset(BaseModel):
     """
@@ -59,7 +60,6 @@ class Dataset(BaseModel):
 
     @property
     def basedir(self):
-        from ..... import app
         BASEDIR = app.config.get("PROJECT_DIR")
         return os.path.join(BASEDIR,self.id)
 

@@ -2,7 +2,7 @@ from __future__ import print_function
 import os
 from click import echo,style, secho
 
-from ....app.proj import Projection, srid
+from ....core.proj import Projection, srid
 from ....util import run, quote
 
 _mapping = {

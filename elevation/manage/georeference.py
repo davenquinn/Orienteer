@@ -10,7 +10,7 @@ from nimble.sql import transform_geometry, endpoints
 from ..models import Dataset, DatasetFeature, DatasetOffset
 from ..util.cli import run
 from ..database import db
-from ..app.proj import srid
+from ..core.proj import srid
 
 def tiepoints(dataset):
     # Get tiepoints

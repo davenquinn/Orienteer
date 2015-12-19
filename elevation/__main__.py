@@ -1,9 +1,6 @@
 from IPython import embed
 from click import echo, style
 
-from elevation.app import setup_app
-app = setup_app()
-
 from elevation.manage import ElevationCommand
 
 @ElevationCommand.command()

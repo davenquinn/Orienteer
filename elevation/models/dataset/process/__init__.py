@@ -10,7 +10,7 @@ from flask import current_app
 from ....util.cli import working_directory, run, quote, execute_sql
 from ...base import db
 from ...feature.manage import create_features
-from ....app.proj import Projection, srid
+from ....core.proj import Projection, srid
 from ...attitude import Attitude
 from .images import convert_image
 

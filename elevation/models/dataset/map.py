@@ -1,4 +1,4 @@
-from ...app.proj import transformation, Projection, srid
+from ...core.proj import transformation, Projection, srid
 from ....maps.styles import RegionalMap
 import mapnik as M
 
