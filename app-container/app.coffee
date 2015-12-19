@@ -2,10 +2,10 @@ _ = require 'underscore'
 app = require 'app'
 BrowserWindow = require 'browser-window'
 queue = require 'queue-async'
-config = require 'config'
 
 startServer = require './server'
 watchCommand = require './watch'
+setupConfig = require './config'
 
 # Keep a global reference of the window object, if you don't, the window will
 # be closed automatically when the JavaScript object is garbage collected.
@@ -48,6 +48,10 @@ startApp = (url)->
 # Load the application window after the server is
 # set up
 module.exports = (url, cfg)->
+
+  # Right now, the environment variable "NODE_MAP_CONFIG"
+  # should point to the config file
+  config = setupConfig process.env.ELEVATION_NODE_CONFIG
   config = _.defaults(cfg or {}, config)
   app.config = config
 

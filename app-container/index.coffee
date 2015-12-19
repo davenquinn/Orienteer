@@ -12,7 +12,7 @@ startApp "file://#{__dirname}/render/index.html",
         '--error-logfile'
         '-'
         '-b :8000'
-        'elevation.wsgi:application'
+        'elevation:app'
       ]
   # Style file that will be compiled as part
   # of building the application
