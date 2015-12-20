@@ -56,8 +56,6 @@ class Dataset(BaseModel):
     features = db.relationship("DatasetFeature", backref="dataset")
     attitudes = db.relationship("Attitude")
 
-    from .process import import_data, build_contours, compute_residuals
-
     @property
     def basedir(self):
         BASEDIR = app.config.get("PROJECT_DIR")

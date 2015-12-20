@@ -3,15 +3,9 @@ from click import Group, echo, secho
 
 from ..util.cli import execute_sql, header, message
 from ..database import db
-from .dataset import import_datasets, build_contours
-from .georeference import georeference
 
 ElevationCommand = Group(
-    help="Deals with elevation models",
-    commands={
-        "import-datasets": import_datasets,
-        "build-contours": build_contours,
-        "georeference": georeference})
+    help="Deals with elevation models")
 
 @ElevationCommand.command()
 def extract():
@@ -66,12 +60,3 @@ def recalculate(extract=False):
             db.session.add(attitude)
         db.session.commit()
 
-@ElevationCommand.command()
-@click.option("--rebuild", is_flag=True, default=False)
-def residuals(rebuild=False):
-    """
-    Calculates elevation residuals from MOLA for each dataset.
-    """
-    from ..models import Dataset
-    for dataset in Dataset.query.all():
-        dataset.compute_residuals(rebuild)

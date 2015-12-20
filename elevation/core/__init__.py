@@ -40,6 +40,7 @@ def error_ellipse(id):
     return image(fig)
 
 def __setup_endpoints(app, db):
+    init_projection(app,db)
     from .api import api
     app.register_blueprint(elevation,url_prefix="/elevation")
     app.register_blueprint(api,url_prefix="/api")
@@ -49,6 +50,5 @@ def setup_app():
     app.config.from_object('elevation.config')
     app.config.from_envvar('ELEVATION_CONFIG',silent=True)
     db.init_app(app)
-    init_projection(app,db)
     __setup_endpoints(app,db)
     return app
