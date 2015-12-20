@@ -14,33 +14,6 @@ from rasterio.features import shapes
 from flask import current_app as app
 from ...core.proj import Projection, srid, transformation
 
-class DatasetOffset(BaseModel):
-    """
-    A model to manage offsets in georeferenced image networks
-    """
-    __tablename__ = "dataset_offset"
-    id = db.Column(db.Integer, primary_key=True)
-    from_dataset = db.Column(
-            db.String(64),
-            db.ForeignKey('dataset.id',ondelete='CASCADE'),
-            nullable=False)
-
-    # If this column is defined, offsets will be additive
-    # with any defined for the to_dataset, allowing for a
-    # geodetic framework to be progressively assembled for
-    # nested image references. If not defined, the image
-    # will be shifted against the global frame.
-    to_dataset = db.Column(
-            db.String(64),
-            db.ForeignKey('dataset.id',ondelete='CASCADE'),
-            nullable=True)
-
-    # Column to show movement between original georeference
-    # (first endpoint of the line) to secondary georeference
-    # (second endpoint). Assumes that a full affine translation
-    # is unnecessary.
-    geometry = db.Column(Geometry("LINESTRING", srid=srid.local))
-
 class Dataset(BaseModel):
     __tablename__ = "dataset"
     id = db.Column(db.String(64), primary_key=True)
@@ -53,7 +26,6 @@ class Dataset(BaseModel):
     manage_footprint = db.Column(db.Boolean, default=True)
 
     # Foreign key constraints
-    features = db.relationship("DatasetFeature", backref="dataset")
     attitudes = db.relationship("Attitude")
 
     @property

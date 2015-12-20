@@ -39,16 +39,14 @@ class DatasetFeature(BaseModel):
         secondary=feature_tag,
         backref='features')
     tags = association_proxy('_tags','name')
+    features = db.relationship("Dataset",
+        backref="dataset")
 
     @property
     def __geo_interface__(self):
         return dict(
             type="Feature",
             geometry=mapping(to_shape(self.geometry)))
-
-    # The geometry tied to the image before
-    # network georeferencing is applied
-    original_geometry = db.Column(Geometry(srid=srid.world))
 
     dataset_id = db.Column(db.String(64), db.ForeignKey('dataset.id'))
     extracted = db.Column(ARRAY(db.Float, dimensions=2,zero_indexes=True))
