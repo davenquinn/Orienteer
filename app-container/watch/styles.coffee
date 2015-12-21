@@ -9,6 +9,7 @@ path = require 'path'
 
 module.exports = (src,dstDir) ->
   return ->
+    console.log "Compiling styles", src, dstDir
     # Function to compile styles
     debug = (if global.dist then false else true)
     pipeline = gulp.src(src)

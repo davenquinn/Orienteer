@@ -16,8 +16,8 @@ startApp "file://#{__dirname}/render/index.html",
       ]
   # Style file that will be compiled as part
   # of building the application
-  styleEndpoint: 'elevation/frontend/style.scss'
-  buildDir: "_static"
+  styleEndpoint: 'frontend/style.scss'
+  buildDir: "build"
   watch:
     styles: "./**/*.scss"
     scripts: list

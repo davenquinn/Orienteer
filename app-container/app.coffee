@@ -1,4 +1,5 @@
 _ = require 'underscore'
+path = require 'path'
 app = require 'app'
 BrowserWindow = require 'browser-window'
 queue = require 'queue-async'
@@ -55,6 +56,14 @@ module.exports = (url, cfg)->
   config = _.defaults(cfg or {}, config)
   app.config = config
 
+  # Setup style directories (based on some
+  # assumptions about internal structure currently)
+  build = app.config.buildDir
+  fn =  app.config.styleEndpoint
+  ex = path.extname fn
+  fn = path.basename fn,ex
+  styleName = path.join '../..', build,'styles',fn+'.css'
+
   q = queue().defer setupApp
   if app.config.watch
     q.defer watchCommand
@@ -62,4 +71,5 @@ module.exports = (url, cfg)->
   q.await (e,ready,bs)->
       if bs?
         global.BROWSER_SYNC_CLIENT_URL = bs.url
+        global.STYLESHEET_URL = styleName
       startApp(url)

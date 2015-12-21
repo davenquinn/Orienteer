@@ -35,5 +35,6 @@ module.exports = (cb)->
     bs.url =  getClientUrl(bs.options)
 
     console.log "Setting up CSS compilation"
+    compileStyles()
     gulp.watch styles, compileStyles
     cb(err,bs)
