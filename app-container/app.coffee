@@ -56,14 +56,6 @@ module.exports = (url, cfg)->
   config = _.defaults(cfg or {}, config)
   app.config = config
 
-  # Setup style directories (based on some
-  # assumptions about internal structure currently)
-  build = app.config.buildDir
-  fn =  app.config.styleEndpoint
-  ex = path.extname fn
-  fn = path.basename fn,ex
-  app.config.styleName = path.join build,'styles',fn+'.css'
-
   q = queue().defer setupApp
   if app.config.watch
     q.defer watchCommand
@@ -71,6 +63,6 @@ module.exports = (url, cfg)->
   q.await (e,ready,bs)->
       if bs?
         global.BROWSER_SYNC_CLIENT_URL = bs.url
-        global.STYLESHEET_URL = path.join(
-          '..','..',app.config.styleName)
+        global.STYLE_PATH = path.join(
+          process.env.PWD, app.config.buildDir, 'styles')
       startApp(url)

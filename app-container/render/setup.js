@@ -3,8 +3,12 @@ require("node-cjsx/register")
 require("handlebars")
 require.extensions['.html'] = require.extensions['.hbs']
 remote = require("remote")
+path = require("path")
+
 client_url = remote.getGlobal("BROWSER_SYNC_CLIENT_URL")
-stylesheet_url = remote.getGlobal("STYLESHEET_URL")
+stylePath = remote.getGlobal("STYLE_PATH")
+
+stylesheetPath = path.join(stylePath,styleName+'.css')
 
 if (client_url) {
   current = document.currentScript;
@@ -18,6 +22,6 @@ if (client_url) {
   li = document.createElement('link')
   li.type = 'text/css'
   li.rel = 'stylesheet'
-  li.href = stylesheet_url
+  li.href = 'file://'+stylesheetPath;
   document.head.appendChild(li)
 }
