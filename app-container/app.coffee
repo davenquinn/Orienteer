@@ -62,7 +62,7 @@ module.exports = (url, cfg)->
   fn =  app.config.styleEndpoint
   ex = path.extname fn
   fn = path.basename fn,ex
-  styleName = path.join '../..', build,'styles',fn+'.css'
+  app.config.styleName = path.join build,'styles',fn+'.css'
 
   q = queue().defer setupApp
   if app.config.watch
@@ -71,5 +71,6 @@ module.exports = (url, cfg)->
   q.await (e,ready,bs)->
       if bs?
         global.BROWSER_SYNC_CLIENT_URL = bs.url
-        global.STYLESHEET_URL = styleName
+        global.STYLESHEET_URL = path.join(
+          '..','..',app.config.styleName)
       startApp(url)

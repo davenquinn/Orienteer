@@ -3,6 +3,7 @@ browserSync = require "browser-sync"
 connectUtils = require 'browser-sync/lib/connect-utils'
 gulp = require 'gulp'
 path = require 'path'
+fs = require 'fs'
 
 styleCompiler = require './styles'
 
@@ -35,6 +36,10 @@ module.exports = (cb)->
     bs.url =  getClientUrl(bs.options)
 
     console.log "Setting up CSS compilation"
-    compileStyles()
+    fs.stat app.config.styleName, (err,stat)->
+      # Do an initial compilation if the styles
+      # don't exist already.
+      compileStyles() if not stat?
+
     gulp.watch styles, compileStyles
     cb(err,bs)
