@@ -1,6 +1,6 @@
 Spine = require "spine"
 MapBase = require "../../shared/map"
-SelectBox = require "../../shared/map/select-box"
+SelectBox = require "./select-box"
 DataLayer = require "./data-layer"
 
 class Map extends MapBase
