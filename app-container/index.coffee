@@ -1,8 +1,7 @@
 # Assemble a list of files to watch
 list = []
-for i in ['elevation/frontend','shared-components']
-  for e in ["coffee","cjsx","js","html"]
-    list.push "#{i}/**/*.#{e}"
+for e in ["coffee","cjsx","js","html"]
+  list.push "frontend/**/*.#{e}"
 
 startApp = require './app'
 startApp "file://#{__dirname}/render/index.html",
