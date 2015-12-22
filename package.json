@@ -1,12 +1,11 @@
 {
-  "name": "Elevation",
+  "name": "elevation",
   "version": "0.0.0",
   "description": "Application to work with DEM data.",
   "main": "main.js",
   "scripts": {
     "debug": "electron --debug main.js",
     "start": "electron main.js",
-    "postinstall": "electron-rebuild node_modules",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Daven Quinn",
@@ -16,7 +15,6 @@
     "browser-sync": "^2.10.0",
     "chalk": "^0.5.1",
     "electron-rebuild": "^1.0.2",
-    "font-awesome": "^4.2.0",
     "gulp": "^3.8.7",
     "gulp-cssmin": "^0.1.6",
     "gulp-notify": "^1.5.0",

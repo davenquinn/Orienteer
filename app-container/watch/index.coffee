@@ -1,9 +1,9 @@
+fs = require 'fs'
 app = require "app"
 browserSync = require "browser-sync"
 connectUtils = require 'browser-sync/lib/connect-utils'
 gulp = require 'gulp'
 path = require 'path'
-fs = require 'fs'
 glob = require 'glob'
 
 styleCompiler = require './styles'
