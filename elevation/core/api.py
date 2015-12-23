@@ -133,5 +133,5 @@ def update_group(id):
 @api.route("/attitude", methods=["GET"])
 def data():
     return jsonify(
-        data=[o.serialize()\
+        data=[o.serialize()
         for o in Attitude.query.all()])
