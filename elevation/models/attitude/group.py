@@ -53,6 +53,7 @@ class AttitudeGroup(db.Model, AttitudeInterface):
 
     def serialize(self):
         pca = self.pca()
+        s = N.diagonal(pca.covariance_matrix)
         return dict(
             type="GroupedAttitude",
             id=self.id,
@@ -62,6 +63,7 @@ class AttitudeGroup(db.Model, AttitudeInterface):
             same_plane=self.same_plane,
             r=self.correlation_coefficient,
             p=self.planarity,
-            error_coords=pca.error_coords(n=100),
+            singularValues=s.tolist(),
+            axes=pca.axes.tolist(),
             measurements=[m.id\
                 for m in self.measurements])
