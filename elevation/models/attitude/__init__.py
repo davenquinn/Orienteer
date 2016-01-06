@@ -1,3 +1,4 @@
+import numpy as N
 from shapely.geometry import mapping
 from sqlalchemy import func
 
@@ -28,6 +29,7 @@ class Attitude(DatasetFeature, AttitudeInterface):
 
     def serialize(self):
         pca = self.pca()
+        s = N.diagonal(pca.covariance_matrix)
         return dict(
             type="Feature",
             id=self.id,
@@ -39,9 +41,8 @@ class Attitude(DatasetFeature, AttitudeInterface):
                 center=mapping(to_shape(self.location)),
                 strike=self.strike,
                 dip=self.dip,
-                # This will slow things down a lot,
-                # but is good enough for now.
-                error_coords=pca.error_coords(n=100)))
+                singularValues=s.tolist(),
+                axes=pca.axes.tolist()))
 
     def calculate(self):
         self.location = from_shape(self.shape.centroid,
