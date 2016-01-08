@@ -1,3 +1,4 @@
+import logging as log
 from flask import Flask, Blueprint, Response
 
 # Python 2 and 3 compatibility
@@ -56,4 +57,5 @@ def setup_app():
     app.config.from_envvar('ELEVATION_CONFIG',silent=True)
     db.init_app(app)
     __setup_endpoints(app,db)
+    log.info("App setup complete")
     return app
