@@ -10,7 +10,9 @@ install_requires = [
     'flask',
     'sqlalchemy',
     'pyproj',
-    'mplstereonet'
+    'mplstereonet',
+    'gunicorn',
+    'Flask-SQLAlchemy'
     ]
 
 setup(

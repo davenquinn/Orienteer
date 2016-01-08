@@ -13,3 +13,5 @@ Mapnik can be installed with various package managers
 ## Rebuild for Electron
 
 Rebuild node modules for version of python used.
+
+> $(npm bin)/electron-rebuild

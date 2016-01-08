@@ -6,13 +6,13 @@ import rasterio
 from rasterio.features import rasterize, geometry_mask
 from affine import Affine
 
-from imagery.strategies import bilinear
 from subdivide import subdivide
 from sqlalchemy.dialects.postgresql import array
 from geoalchemy2.shape import from_shape, to_shape
 from shapely.geometry import shape, mapping, asShape, LineString
 from shapely.ops import transform
 
+from ...util.extract import bilinear
 from ...core.proj import Projection, transformation
 
 def clean_coordinates(coords, silent=False):

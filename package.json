@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "description": "Application to work with DEM data.",
   "main": "main.js",
+  "electronVersion": "0.35.5",
   "scripts": {
+    "install": "electron-rebuild -f",
     "debug": "electron --debug main.js",
     "start": "electron main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,6 +16,7 @@
     "bootstrap-sass": "^3.3.1",
     "browser-sync": "^2.10.0",
     "chalk": "^0.5.1",
+    "electron-prebuilt": "^0.35.5",
     "electron-rebuild": "^1.0.2",
     "gulp": "^3.8.7",
     "gulp-cssmin": "^0.1.6",
@@ -37,7 +40,6 @@
     "coffee-script": "^1.8.0",
     "d3": "^3.4.11",
     "dragdealer": "^0.9.8",
-    "electron-prebuilt": "^0.34.3",
     "font-awesome": "^4.5.0",
     "geojson-rewind": "^0.1.0",
     "glob": "^6.0.1",
