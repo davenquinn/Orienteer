@@ -72,6 +72,8 @@ class AttitudeInterface(object):
                 return s.format(obj)
             except ValueError:
                 return "unmeasured"
+            except TypeError:
+                return "unmeasured"
         s = "{cls} {id}: strike {s}, dip {d}, planarity {p}"\
             .format(
                 cls = self.__class__.__name__,
