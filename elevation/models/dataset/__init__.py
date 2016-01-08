@@ -18,6 +18,7 @@ class Dataset(BaseModel):
     __tablename__ = "dataset"
     id = db.Column(db.String(64), primary_key=True)
     instrument = db.Column(db.String(64))
+    dem_path = db.Column(db.Text)
 
     footprint = db.Column(Geometry("POLYGON", srid=srid.world))
 

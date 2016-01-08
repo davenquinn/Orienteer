@@ -39,8 +39,8 @@ class DatasetFeature(BaseModel):
         secondary=feature_tag,
         backref='features')
     tags = association_proxy('_tags','name')
-    features = db.relationship("Dataset",
-        backref="dataset")
+    dataset = db.relationship("Dataset",
+        backref='features')
 
     @property
     def __geo_interface__(self):

@@ -54,14 +54,14 @@ def offset_mask(mask):
 
 def extract(self):
     source_crs = Projection.query.get(self.geometry.srid).crs
-    demfile = self.dataset.path("images","dem.tif")
+    demfile = self.dataset.dem_path
 
     with rasterio.open(demfile) as dem:
 
         # Transform the shape to the DEM's projection
         projection = transformation(source_crs, dem.crs)
         geom = transform(projection,
-                to_shape(self.original_geometry))
+                to_shape(self.geometry))
 
         if geom.area == 0:
 
