@@ -1,12 +1,12 @@
 Spine = require "spine"
-MapBase = require "../../shared/map"
 SelectBox = require "./select-box"
 DataLayer = require "./data-layer"
-L = require "leaflet"
+GIS = require 'gis-core'
+L = require 'leaflet'
 path = require 'path'
 CacheDatastore = require "../../shared/data/cache"
 
-MapnikLayer = require '../../shared/map/mapnik-layer'
+MapnikLayer = require 'gis-core/frontend/mapnik-layer'
 setupProjection = require "../../shared/map/projection"
 
 class Map extends Spine.Controller
@@ -65,7 +65,6 @@ class Map extends Spine.Controller
       continuousWorld: true
       debounceMoveend: true
       boxSelect: true
-
     @addMapnikLayers()
     @createControls()
 
@@ -87,6 +86,7 @@ class Map extends Spine.Controller
       ext = path.extname fn
       id = path.basename fn, ext
       sz = cfg.tileSize or @config.tileSize
+      console.log fn
       l = new MapnikLayer fn, tileSize: sz
       l.id = id
 
