@@ -61,7 +61,7 @@ def plot_aligned(attitude):
             transform=ax.transAxes)
         ax.autoscale(tight=True)
         ax.yaxis.set_ticks([])
-        for spine in ax.spines.itervalues():
+        for spine in ax.spines.values():
             spine.set_visible(False)
     ax.set_xlabel("Meters")
     return fig
