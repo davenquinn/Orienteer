@@ -9,13 +9,13 @@ CacheDatastore = require "../../shared/data/cache"
 MapnikLayer = require '../../shared/map/mapnik-layer'
 setupProjection = require "../../shared/map/projection"
 
-class MapBase extends Spine.Controller
+class Map extends Spine.Controller
   class: "viewer"
   defaults:
     tileSize: 256
   constructor: ->
-
     super
+
     @config = app.config.map
     for k,v of @defaults
       @config[k] = v unless @config[k]?
@@ -34,6 +34,7 @@ class MapBase extends Spine.Controller
       baseMaps: {}
       overlayMaps: {}
     @render()
+    window.map = @
 
   render: ->
     @setupMap()
@@ -73,6 +74,7 @@ class MapBase extends Spine.Controller
         .then @addWMTSLayers
 
     @leaflet.on "viewreset dragend", @extentChanged
+    @leaflet.addHandler "boxSelect", SelectBox
 
   addMapnikLayers: =>
 
@@ -128,16 +130,6 @@ class MapBase extends Spine.Controller
     out = [
       [b._southWest.lat, b._southWest.lng]
       [b._northEast.lat, b._northEast.lng]]
-
-
-class Map extends MapBase
-  constructor: ->
-    super
-    window.map = @
-
-  setupMap: =>
-    super
-    @leaflet.addHandler "boxSelect", SelectBox
 
   addData: (@data)=>
     @log "Setting up data"
