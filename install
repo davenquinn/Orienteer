@@ -1,0 +1,39 @@
+#!/bin/bash
+
+export BASE=$(pwd)
+export npm_config_disturl=https://atom.io/download/atom-shell
+export npm_config_target=0.36.3
+export npm_config_arch=x64
+export npm_config_runtime=electron
+
+function rebuild-module {
+  cd $BASE/node_modules/$1
+  HOME=~/.electron-gyp node-gyp rebuild \
+    --target=$npm_config_target \
+    --arch=$npm_config_arch \
+    --dist-url=$npm_config_disturl \
+    --module_name=$1 \
+    --module_path=$2
+
+}
+
+if [ ! -d "node_modules/mapnik" ]; then
+HOME=~/.electron-gyp npm install --build-from-source mapnik
+fi
+
+HOME=~/.electron-gyp npm install
+
+# Download the node-sass binaries
+URL=https://github.com/sass/node-sass-binaries/raw/master/darwin-x64-47_binding.node
+DIR=node_modules/gulp-sass/node_modules/node-sass/vendor/darwin-x64-47
+mkdir -p $DIR
+FN="$DIR/binding.node"
+
+if [ ! -f "$FN" ]; then
+curl -L -o "$FN" "$URL"
+fi
+
+DIR=node_modules/mapnik/lib/binding
+cp -r "$DIR/electron-v0.36-darwin-x64" "$DIR/node-v47-darwin-x64"
+
+
