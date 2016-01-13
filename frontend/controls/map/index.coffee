@@ -7,7 +7,7 @@ path = require 'path'
 CacheDatastore = require "../../shared/data/cache"
 
 MapnikLayer = require 'gis-core/frontend/mapnik-layer'
-setupProjection = require "../../shared/map/projection"
+setupProjection = require "gis-core/frontend/projection"
 
 class Map extends Spine.Controller
   class: "viewer"
@@ -57,7 +57,7 @@ class Map extends Spine.Controller
       maxResolution: @config.resolution.max # m/px
       bounds: @config.bounds
 
-    @leaflet = new L.Map @el[0],
+    @leaflet = new GIS.Map @el[0],
       center: @config.center
       zoom: 2
       crs: projection

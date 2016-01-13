@@ -14,26 +14,55 @@ function rebuild-module {
     --dist-url=$npm_config_disturl \
     --module_name=$1 \
     --module_path=$2
-
 }
 
-if [ ! -d "node_modules/mapnik" ]; then
-HOME=~/.electron-gyp npm install --build-from-source mapnik
+function npm-install() {
+  HOME=~/.electron-gyp npm install "$@"
+}
+
+function install-deps() {
+  echo "Installing dependent modules"
+  ## Install dependent modules
+  mkdir -p deps
+  cd deps
+  git clone ~/Development/Repositories/Attitude.git
+  (cd Attitude && npm-install && npm link)
+  pip install -e Attitude
+
+  git clone ~/Development/Repositories/subdivide.git
+  pip install -e subdivide
+
+  echo "Installing GIS Core (and Mapnik)"
+  git clone https://github.com/davenquinn/gis-core.git
+  cd gis-core
+  if [ ! -d "node_modules/mapnik" ]; then
+    npm-install --build-from-source mapnik
+  fi
+  npm-install
+  npm link
+
+  DIR=node_modules/mapnik/lib/binding
+  cp -r "$DIR/electron-v0.36-darwin-x64" "$DIR/node-v47-darwin-x64"
+  cd "$BASE"
+}
+
+if [ ! -d deps ]; then
+install-deps
 fi
 
-HOME=~/.electron-gyp npm install
+echo "Installing main application"
+pwd
+pip install -e .
+npm-install
+npm link attitude
+npm link gis-core
 
 # Download the node-sass binaries
 URL=https://github.com/sass/node-sass-binaries/raw/master/darwin-x64-47_binding.node
 DIR=node_modules/gulp-sass/node_modules/node-sass/vendor/darwin-x64-47
 mkdir -p $DIR
 FN="$DIR/binding.node"
-
 if [ ! -f "$FN" ]; then
 curl -L -o "$FN" "$URL"
 fi
-
-DIR=node_modules/mapnik/lib/binding
-cp -r "$DIR/electron-v0.36-darwin-x64" "$DIR/node-v47-darwin-x64"
-
 

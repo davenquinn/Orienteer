@@ -14,7 +14,6 @@ circleMarker = (sel, r)->
             cy: r/2
             r: r
 
-
 arrowMarker = (sel)->
   sel
     .attr
