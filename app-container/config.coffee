@@ -19,6 +19,8 @@ module.exports = (fn)->
   method = registry[ext.slice(1)]
   contents = fs.readFileSync fn,'utf8'
   cfg = method contents
+
+  cfg.configFile = fn
   # Function to determine path
   cfg.path = (fn)->
     # Relative paths are taken to be
