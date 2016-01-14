@@ -17,9 +17,9 @@ class Map extends Spine.Controller
 
     @settings = new CacheDatastore 'map-visible-layers'
 
-    @leaflet = new GIS.Map @el[0],
-      configFile: app.config.configFile
-
+    cfg = app.config.map
+    cfg.basedir ?= path.dirname app.config.configFile
+    @leaflet = new GIS.Map @el[0], cfg
     # Add overlay layer
     @dataLayer = new DataLayer
     @dataLayer.addTo @leaflet
