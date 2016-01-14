@@ -3,9 +3,9 @@ from flask import Flask, Blueprint, Response
 
 # Python 2 and 3 compatibility
 try:
-    from cStringIO import StringIO
+    from io import BytesIO
 except ImportError:
-    from io import StringIO
+    from cStringIO import StringIO as BytesIO
 
 from ..database import db
 from .proj import init_projection
@@ -24,7 +24,7 @@ def get_attitude(id):
     return cls.query.get(id)
 
 def image(fig):
-    i_ = StringIO()
+    i_ = BytesIO()
     fig.savefig(i_,
         format="png",
         bbox_inches="tight",

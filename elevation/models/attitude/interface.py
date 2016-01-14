@@ -28,8 +28,8 @@ class AttitudeInterface(object):
         return error_ellipse(self)
 
     def plot_aligned(self):
-        from .plot import plot_aligned
-        return plot_aligned(self)
+        from attitude.display.plot import plot_aligned
+        return plot_aligned(self.pca())
 
     @property
     def centered_array(self):
