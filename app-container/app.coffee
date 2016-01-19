@@ -49,6 +49,7 @@ startApp = (url)->
 # Load the application window after the server is
 # set up
 module.exports = (url, cfg)->
+  console.log "Loading application window"
 
   # Right now, the environment variable "NODE_MAP_CONFIG"
   # should point to the config file

@@ -19,7 +19,8 @@ class App extends Spine.Controller
 
     # Share config from main process
     # Config can't be edited at runtime
-    @config = remote.require("app").config
+    c = remote.require("app").config
+    @config = JSON.parse(JSON.stringify(c))
 
     if @routes?
       @routes
