@@ -5,7 +5,6 @@ DataPanel = require "../../controls/data-panel"
 InfoBox = require "../../controls/info-box"
 template = require "./template.html"
 infoTemplate = require "./info-box.html"
-CollapsiblePanel = require "../../controls/ui/collapsible"
 
 d3 = require "d3"
 $ = require "jquery"
@@ -14,24 +13,17 @@ FilterData = require "../../controls/filter-data"
 
 f = d3.format "> 6.1f"
 
-class OptionsBar extends CollapsiblePanel
-  constructor: ->
-    super
-    throw "@data required" unless @data
-    @el.hide()
-    @filter = new FilterData
-      el: @$ ".filter-data"
-      data: @data
-
 class AttitudePage extends Spine.Controller
 
   constructor: ->
     super
     @el.html template
 
-    @options = new OptionsBar
-      el: @$ "div.options"
+    @filter = new FilterData
+      el: @$ ".filter-data"
       data: @data
+    @filter.el.hide()
+
     @sidebar = new SelectionControl
       el: @$ ".sidebar"
 
@@ -85,5 +77,9 @@ class AttitudePage extends Spine.Controller
           dip: f(d.properties.dip)
           tags: d.tags
           showTags: d.tags.length > 0
+
+  toggleFilter: =>
+    @filter.toggle()
+    @map.invalidateSize()
 
 module.exports = AttitudePage

@@ -1,4 +1,5 @@
-Spine = require "spine"
+CollapsiblePanel = require "../ui/collapsible"
+
 d3 = require "d3"
 template = require "./template.html"
 
@@ -16,9 +17,10 @@ cycleStatus = (d)->
 
 names = (d)->d.name
 
-class FilterData extends Spine.Controller
+class FilterData extends CollapsiblePanel
   events:
     "click button.clear": "clear"
+    "click button.done": "done"
   constructor: ->
     super
     throw "@data required" unless @data
@@ -82,7 +84,6 @@ class FilterData extends Spine.Controller
     @tags.forEach (d)->d.status = null
     @update()
 
-
-
+  done: => @visible false
 
 module.exports = FilterData

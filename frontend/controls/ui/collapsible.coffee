@@ -3,7 +3,7 @@ Spine = require "spine"
 class CollapsiblePanel extends Spine.Controller
   constructor: ->
     super
-    @options.animationDuration = 300
+    @options.animationDuration ?= 300
 
   toggle: => @visible not @visible()
   visible: (shouldShow)=>
