@@ -11,6 +11,6 @@ require "spine/lib/route"
 App = require "./app"
 setupMenu = require "./menu"
 
-new App el: $("body")
-setupMenu()
+app = new App el: $("body")
+setupMenu(app)
 Spine.Route.setup()

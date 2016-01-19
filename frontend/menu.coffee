@@ -1,49 +1,47 @@
 remote = require 'remote'
 Menu = remote.require 'menu'
 
-template = [
-  {
-    label: 'Actions'
-    submenu: [
-      {
-        label: 'Filter Data'
-        accelerator: 'Command+F'
-        click: ->
-          remote.getCurrentWindow().reload()
-          return
+module.exports = (app)->
 
-      }
-    ]
-  }
+  template = [
+    {
+      label: 'Application'
+      submenu: [
+        {
+          label: 'Filter Data'
+          accelerator: 'Command+F'
+          click: ->
+            app.page.toggleFilter()
+        }
+      ]
+    }
 
-  {
-    label: 'Development'
-    submenu: [
-      {
-        label: 'Reload'
-        accelerator: 'Command+R'
-        click: ->
-          remote.getCurrentWindow().reload()
-          return
+    {
+      label: 'Development'
+      submenu: [
+        {
+          label: 'Reload'
+          accelerator: 'Command+R'
+          click: ->
+            remote.getCurrentWindow().reload()
+            return
 
-      }
-      {
-        label: 'Toggle DevTools'
-        accelerator: 'Alt+Command+I'
-        click: ->
-          remote.getCurrentWindow().toggleDevTools()
-          return
+        }
+        {
+          label: 'Toggle DevTools'
+          accelerator: 'Alt+Command+I'
+          click: ->
+            remote.getCurrentWindow().toggleDevTools()
+            return
 
-      }
-    ]
-  }
-  {
-    label: 'Help'
-    submenu: []
-  }
-]
-
-module.exports = ->
+        }
+      ]
+    }
+    {
+      label: 'Help'
+      submenu: []
+    }
+  ]
   menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu menu
 
