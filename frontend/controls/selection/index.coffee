@@ -52,14 +52,14 @@ class Sidebar extends Spine.Controller
     @sel.el.hide()
     @log "Creating grouped data control"
     @group = new GroupedDataControl
-      el: $("<div />").appendTo @$el
+      el: $("<div />").appendTo @el
       data: @data
       selection: group
     @listenToOnce @group, "close", @hideGroup
 
   hideGroup: =>
     @sel.el.show()
-    @group.$el.hide()
+    @group.el.hide()
     @group.release()
     @group = null
 

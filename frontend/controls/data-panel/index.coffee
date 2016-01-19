@@ -16,11 +16,11 @@ class ViewerControl extends Spine.Controller
     @show()
   show: (d)=>
     if d?
-      st = "<img src='#{window.server_url}/elevation/attitude/#{d.id}/axis-aligned.png' >
-            <img src='#{window.server_url}/elevation/attitude/#{d.id}/error.png' >"
+      @el.html "Loading..."
+      $.get "#{window.server_url}/elevation/attitude/#{d.id}/data.html",
+        (data)=>@el.html data
     else
-      st = "<p>Hover over data to display fit statistics.</p>"
-    @el.html st
+      @el.html "<p>Hover over data to display fit statistics.</p>"
 
 class ModalControl extends Spine.Controller
   idx:

@@ -1,6 +1,7 @@
 import logging as log
-from flask import Flask, Blueprint, Response
+from flask import Flask, Blueprint, Response, render_template
 
+import numpy as N
 # Python 2 and 3 compatibility
 try:
     from io import BytesIO
@@ -32,6 +33,17 @@ def image(fig):
     i_.seek(0)
     return Response(i_.read(),
             mimetype="image/png")
+
+@elevation.route("/attitude/<id>/data.html")
+def attitude_data(id):
+    attitude = get_attitude(id)
+    pca = attitude.pca()
+    return render_template("data-area.html",
+            server_url="http://localhost:8000",
+            a=attitude,
+            pca=pca,
+            angular_errors=tuple(N.degrees(i)
+                for i in pca.angular_errors()[::-1]))
 
 @elevation.route("/attitude/<id>/axis-aligned.png")
 def principal_components(id):

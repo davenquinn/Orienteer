@@ -11,7 +11,7 @@ class Toggle extends Spine.Controller
     super
     @labels = ["Disabled","Enabled"] unless @labels
     @values = [false,true] unless @values
-    @$el.append "<div class='handle red-bar'></div>"
+    @el.append "<div class='handle red-bar'></div>"
     @handle = @$(".handle")
     @enabled = false unless @enabled
     @handle.text @labels[int(@enabled)]

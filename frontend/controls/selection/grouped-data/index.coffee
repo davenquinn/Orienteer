@@ -10,6 +10,7 @@ class GroupedDataControl extends SelectionControl
     "click .split": "split"
   constructor: ->
     super
+    console.log "G"
 
     d3.select @$("h3")[0]
       .datum @selection

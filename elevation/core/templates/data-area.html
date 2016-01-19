@@ -1,0 +1,10 @@
+<h2>Attitude {{ a.id }}</h2>
+<img src="{{ server_url }}/elevation/attitude/{{ a.id }}/axis-aligned.png" />
+<ul>
+  <li>Number of points: {{ pca.n }}</li>
+  <li>Strike and dip: {{ pca.strike_dip() }}</li>
+  <li>Axes: {{ pca.singular_values}}
+  <li>Explained variance: {{ pca.explained_variance }}</li>
+  <li>Angular Errors: {{ angular_errors }}</li>
+</ul>
+
