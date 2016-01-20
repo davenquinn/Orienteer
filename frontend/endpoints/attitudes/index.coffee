@@ -36,33 +36,6 @@ class AttitudePage extends Spine.Controller
       el: @$ ".data-panel"
     @map.invalidateSize()
 
-    navItems = [
-      {
-        control: @options,
-        name: "Options"
-      }
-      {
-        control: @dataPanel,
-        name: "Data"
-      }
-    ]
-
-    nB = @$ ".navbar .nav"
-    @navControls = d3.select nB[0]
-      .selectAll "a"
-      .data navItems
-
-    @navControls.enter()
-      .append "a"
-        .text (d)->d.name
-        .attr class: "btn btn-sm"
-        .classed "selected", (d)->d.control.visible()
-        .on "click", (d)->
-          vis = d.control.visible()
-          d.control.toggle()
-          d3.select @
-            .classed "selected", not vis
-
     @listenToOnce @data.constructor, "updated", =>
       console.log "Finished loading data"
       @$(".app-status").removeClass "loading"
@@ -78,8 +51,10 @@ class AttitudePage extends Spine.Controller
           tags: d.tags
           showTags: d.tags.length > 0
 
+  toggleData: =>
+    @dataPanel.toggle @map.invalidateSize
+
   toggleFilter: =>
-    @filter.toggle()
-    @map.invalidateSize()
+    @filter.toggle @map.invalidateSize
 
 module.exports = AttitudePage

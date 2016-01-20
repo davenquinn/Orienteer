@@ -13,6 +13,12 @@ module.exports = (app)->
           click: ->
             app.page.toggleFilter()
         }
+        {
+          label: 'Data Panel'
+          accelerator: 'Command+D'
+          click: ->
+            app.page.toggleData()
+        }
       ]
     }
 

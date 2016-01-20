@@ -5,8 +5,8 @@ class CollapsiblePanel extends Spine.Controller
     super
     @options.animationDuration ?= 300
 
-  toggle: => @visible not @visible()
-  visible: (shouldShow)=>
+  toggle: (cb)=> @visible not @visible(), cb
+  visible: (shouldShow, cb)=>
     # Getter/setter method for visibility
     # We just want to figure
     # out if it's visible or not...
@@ -14,13 +14,13 @@ class CollapsiblePanel extends Spine.Controller
 
     @_show shouldShow
 
-  _show: (shouldShow)->
+  _show: (shouldShow, cb)->
     # Skeletal private method to
     # show/hide as appropriate
     # (should be overridden)
     if not shouldShow
-      @el.hide @options.animationDuration
+      @el.hide @options.animationDuration, cb
     else
-      @el.show @options.animationDuration
+      @el.show @options.animationDuration, cb
 
 module.exports = CollapsiblePanel
