@@ -39,6 +39,7 @@ def attitude_data(id):
     attitude = get_attitude(id)
     pca = attitude.pca()
     return render_template("data-area.html",
+            id=id,
             server_url="http://localhost:8000",
             a=attitude,
             pca=pca,
