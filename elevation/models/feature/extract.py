@@ -75,13 +75,13 @@ def extract(self):
             px = subdivide(px, interval=1)
 
             # Transform pixels back to geometry
-            # to capture subdivisiones
+            # to capture subdivisions
             f = lambda *x: dem.affine * (x[0],x[1])
             geom = transform(f,px)
 
             # Get min and max coords for windowing
             coords_px = N.array(px.coords)
-            mins =N.floor(coords_px.min(axis=0))
+            mins = N.floor(coords_px.min(axis=0))
             maxs = N.ceil(coords_px.max(axis=0))
 
             window = tuple((int(mn),int(mx))
