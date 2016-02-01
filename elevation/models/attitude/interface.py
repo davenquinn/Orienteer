@@ -1,4 +1,5 @@
 from __future__ import division
+import logging as log
 import numpy as N
 from attitude.orientation import Orientation
 from attitude.coordinates import centered
@@ -12,7 +13,7 @@ class AttitudeInterface(object):
     correlation_coefficient = db.Column(db.Float)
     planarity = db.Column(db.Float)
 
-    axis_aligned = db.Column(ARRAY(db.Float,
+    principal_axes = db.Column(ARRAY(db.Float,
         dimensions=2,zero_indexes=True))
 
     @property
@@ -36,26 +37,28 @@ class AttitudeInterface(object):
         return centered(self.array)
 
     def regress(self):
-        self.__regression__ = Orientation(self.centered_array)
-        return self.__regression__
+        return self.pca
 
     def pca(self):
-        """ Initialize a principal components
-            analysis against the attitude.
         """
-        a = self.centered_array
-        return Orientation(a)
+        Initialize a principal components
+        analysis against the attitude.
+        """
+        try:
+            return self.__pca
+        except AttributeError:
+            a = self.centered_array
+            self.__pca = Orientation(a, axes=N.array(self.principal_axes))
+            return self.__pca
 
     def calculate(self):
 
         try:
-            pca = self.pca()
+            pca = Orientation(self.centered_array)
         except IndexError:
             # If there aren't enough coordinates
             return
-
-        self.axis_aligned = pca.rotated().tolist()
-
+        self.principal_axes = pca.principal_axes.tolist()
         self.strike, self.dip = pca.strike_dip()
 
         #r = N.sqrt(N.sum(N.diagonal(pca.covariance_matrix)))
@@ -63,8 +66,6 @@ class AttitudeInterface(object):
         # maybe should change this
         sse = N.sum(pca.rotated()[:,2]**2)
         self.correlation_coefficient = N.sqrt(sse/len(pca.rotated()))
-
-        sv = pca.singular_values
 
     def __repr__(self):
         def val(obj, s):

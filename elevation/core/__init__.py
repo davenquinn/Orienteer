@@ -1,6 +1,6 @@
-import logging as log
+import sys
+import logging
 from flask import Flask, Blueprint, Response, render_template
-
 import numpy as N
 # Python 2 and 3 compatibility
 try:
@@ -10,6 +10,14 @@ except ImportError:
 
 from ..database import db
 from .proj import init_projection
+
+stdout_logger = logging.StreamHandler(sys.stdout)
+log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
+#log.addHandler(stdout_logger)
+
+log2 = logging.getLogger('attitude')
+log2.setLevel(logging.INFO)
 
 elevation = Blueprint('elevation',__name__)
 
@@ -39,6 +47,7 @@ def attitude_data(id):
     attitude = get_attitude(id)
     pca = attitude.pca()
     return render_template("data-area.html",
+            id=id,
             server_url="http://localhost:8000",
             a=attitude,
             pca=pca,
