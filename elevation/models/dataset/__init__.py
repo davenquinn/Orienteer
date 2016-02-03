@@ -30,16 +30,8 @@ class Dataset(BaseModel):
     attitudes = db.relationship("Attitude")
 
     @property
-    def basedir(self):
-        BASEDIR = app.config.get("PROJECT_DIR")
-        return os.path.join(BASEDIR,self.id)
-
-    def path(self,*args):
-        return os.path.join(self.basedir,*args)
-
-    @property
     def bounds(self):
-        with rasterio.open(self.path("images","dem.tif")) as f:
+        with rasterio.open(self.dem_path) as f:
             return f.bounds
 
     def compute_footprint(self, tolerance=100):
@@ -52,7 +44,7 @@ class Dataset(BaseModel):
         if not self.manage_footprint:
             return
 
-        with rasterio.open(self.path("images","dem.tif")) as dem:
+        with rasterio.open(self.dem_path) as dem:
             mask = dem.read_masks(1)
 
             # Get polygons for shapes corresponding to
@@ -67,4 +59,4 @@ class Dataset(BaseModel):
             proj = transformation(dem.crs,mars.crs)
 
             geom = transform(proj,geom)
-            self.original_footprint = from_shape(geom, srid=srid.world)
+            self.footprint = from_shape(geom, srid=srid.world)

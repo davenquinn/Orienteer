@@ -2,10 +2,12 @@ import os
 from click import echo
 from flask import Blueprint, request, make_response, jsonify
 from json import dumps
+import logging
 
 from ..database import db
 from ..models import Attitude, AttitudeGroup, DatasetFeature, Tag
 
+log = logging.getLogger(__name__)
 api = Blueprint('api', __name__)
 
 class InvalidUsage(Exception):
@@ -132,6 +134,9 @@ def update_group(id):
 
 @api.route("/attitude", methods=["GET"])
 def data():
-    return jsonify(
+    log.info("Serializing attitude data")
+    d = jsonify(
         data=[o.serialize()
         for o in Attitude.query.all()])
+    log.info(d)
+    return d

@@ -1,10 +1,10 @@
 Spine = require "spine"
 tags = require "../../shared/data/tags"
 d3 = require "d3"
+queue = require("d3-queue").queue
 Feature = require "./feature"
 GroupedFeature = require "./group"
 Selection = require "./selection"
-queue = require "queue-async"
 
 API = require "../api"
 
@@ -45,9 +45,13 @@ class Data extends Spine.Module
       .defer API("/attitude").get
       .defer API("/group").get
       .await (e,d1,d2)=>
+        if e
+          throw e
+        console.log d1,d2
         console.log "Data received from server"
-        features = d1.response.data
-          .concat d2.response.data
+        features = d1.data
+          .concat d2.data
+        console.log features
         @setupData features
         @fetched = true
         @updateCache features
