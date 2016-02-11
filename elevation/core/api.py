@@ -102,7 +102,7 @@ def group():
                 for g in AttitudeGroup.query.all()])
     elif request.method == "POST":
         data = request.get_json()
-        features = [Attitude.query.get(i)\
+        features = [Attitude.query.get(i)
             for i in data["measurements"]]
         if len(features) < 2:
             msg = "Cannot create group from less than two features"
