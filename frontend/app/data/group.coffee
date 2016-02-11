@@ -38,9 +38,9 @@ class GroupedFeature extends Spine.Module
       same_plane: false
     app.API "/group"
       .send "POST", JSON.stringify(data), (e,r)=>
-         feature = new GroupedFeature r.response.data
-         GroupedFeature.trigger "created", feature
-         @cleanupEmpty()
+        feature = new GroupedFeature r.response.data
+        GroupedFeature.trigger "created", feature
+        @cleanupEmpty()
 
   @cleanupEmpty: ->
      GroupedFeature.collection

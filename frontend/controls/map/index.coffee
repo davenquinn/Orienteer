@@ -29,6 +29,7 @@ class Map extends Spine.Controller
 
     @leaflet.on "viewreset dragend", @extentChanged
     @leaflet.addHandler "boxSelect", SelectBox
+    @leaflet.invalidateSize()
 
     _ = =>
       # Update cached layer information when
