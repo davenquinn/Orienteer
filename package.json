@@ -3,11 +3,18 @@
   "version": "0.0.0",
   "description": "Application to work with DEM data.",
   "main": "main.js",
+  "config": {
+    "disturl": "https://atom.io/download/atom-shell",
+    "target":"0.36.3",
+    "arch": "x64",
+    "runtime":"electron"
+  },
   "electronVersion": "0.36.3",
   "scripts": {
     "debug": "electron --debug main.js",
     "start": "electron main.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "HOME=~/.electron-gyp node-gyp rebuild"
   },
   "author": "Daven Quinn",
   "license": "MIT",
@@ -16,7 +23,6 @@
     "browser-sync": "^2.10.0",
     "chalk": "^0.5.1",
     "electron-prebuilt": "0.36.3",
-    "electron-rebuild": "^1.1.1",
     "gulp": "^3.8.7",
     "gulp-cssmin": "^0.1.6",
     "gulp-notify": "^1.5.0",
@@ -34,6 +40,7 @@
     "vinyl-source-stream": "^0.1.1"
   },
   "dependencies": {
+    "mapnik": "git+https://github.com/mapnik/node-mapnik.git",
     "chroma-js": "^1.1.1",
     "coffee-script": "^1.8.0",
     "d3": "^3.4.11",
@@ -45,10 +52,6 @@
     "glob": "^6.0.1",
     "jquery": "^2.1.1",
     "js-yaml": "^3.2.7",
-    "leaflet": "^1.0.0-beta.2",
-    "leaflet-draw": "git+https://github.com/davenquinn/Leaflet.draw.git",
-    "mapnik": "^3.4.10",
-    "mapnik-pool": "^0.1.2",
     "material-ui": "^0.13.1",
     "node-cjsx": "^1.0.0",
     "proj4": "^2.3.12",

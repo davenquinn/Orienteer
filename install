@@ -25,6 +25,10 @@ function install-deps() {
   ## Install dependent modules
   mkdir -p deps
   cd deps
+
+  git clone https://github.com/mapnik/node-mapnik.git
+  (cd node-mapnik && make)
+
   git clone ~/Development/Repositories/Attitude.git
   (cd Attitude && npm-install && npm link)
   pip install -e Attitude
@@ -35,24 +39,22 @@ function install-deps() {
   echo "Installing GIS Core (and Mapnik)"
   git clone https://github.com/davenquinn/gis-core.git
   cd gis-core
-  if [ ! -d "node_modules/mapnik" ]; then
-    npm-install --build-from-source mapnik
-  fi
   npm-install
   npm link
-
-  DIR=node_modules/mapnik/lib/binding
-  cp -r "$DIR/electron-v0.36-darwin-x64" "$DIR/node-v47-darwin-x64"
-  cd "$BASE"
 }
 
-if [ ! -d deps ]; then
+if [ ! -d 'deps' ]; then
 install-deps
 fi
 
 echo "Installing main application"
 pwd
 pip install -e .
+
+npm-install deps/node-mapnik
+DIR=node_modules/mapnik/lib/binding
+cp -r "$DIR/electron-v0.36-darwin-x64" "$DIR/node-v47-darwin-x64"
+
 npm-install
 npm link attitude
 npm link gis-core
@@ -65,4 +67,3 @@ FN="$DIR/binding.node"
 if [ ! -f "$FN" ]; then
 curl -L -o "$FN" "$URL"
 fi
-
