@@ -27,7 +27,7 @@ function install-deps() {
   cd deps
 
   git clone https://github.com/mapnik/node-mapnik.git
-  (cd node-mapnik && make)
+  (cd node-mapnik && git submodule update --init && make)
 
   git clone ~/Development/Repositories/Attitude.git
   (cd Attitude && npm-install && npm link)
