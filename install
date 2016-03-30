@@ -59,11 +59,3 @@ npm-install
 npm link attitude
 npm link gis-core
 
-# Download the node-sass binaries
-URL=https://github.com/sass/node-sass-binaries/raw/master/darwin-x64-47_binding.node
-DIR=node_modules/gulp-sass/node_modules/node-sass/vendor/darwin-x64-47
-mkdir -p $DIR
-FN="$DIR/binding.node"
-if [ ! -f "$FN" ]; then
-curl -L -o "$FN" "$URL"
-fi

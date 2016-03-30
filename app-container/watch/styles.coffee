@@ -4,7 +4,6 @@ sass = require 'gulp-sass'
 sourcemaps = require 'gulp-sourcemaps'
 handleErrors = require("./util").handleErrors
 cssmin = require("gulp-cssmin")
-app = require 'app'
 path = require 'path'
 
 module.exports = (src,dstDir) ->
