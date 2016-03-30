@@ -5,9 +5,9 @@
   "main": "main.js",
   "config": {
     "disturl": "https://atom.io/download/atom-shell",
-    "target":"0.36.3",
+    "target": "0.36.3",
     "arch": "x64",
-    "runtime":"electron"
+    "runtime": "electron"
   },
   "electronVersion": "0.36.3",
   "scripts": {
