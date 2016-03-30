@@ -52,6 +52,44 @@ def offset_mask(mask):
     offset = (yo,xo)
     return offset, array
 
+def extract_line(geom, dem, **kwargs):
+    """
+    Extract a linear feature from a geospatial dataset.
+    """
+    coords_in = N.array(geom.coords)
+    # Transform geometry into pixels
+    f = lambda *x: ~dem.affine * x
+    px = transform(f,geom)
+
+    # Subdivide geometry segments
+    # at 1-pixel intervals
+    px = subdivide(px, interval=1)
+
+    # Transform pixels back to geometry
+    # to capture subdivisions
+    f = lambda *x: dem.affine * (x[0],x[1])
+    geom = transform(f,px)
+
+    # Get min and max coords for windowing
+    coords_px = N.array(px.coords)
+    mins = N.floor(coords_px.min(axis=0))
+    maxs = N.ceil(coords_px.max(axis=0))
+
+    window = tuple((int(mn),int(mx))
+        for mn,mx in zip(mins[::-1],maxs[::-1]))
+
+    aff = Affine.translation(*(-mins))
+
+    f = lambda *x: aff * x
+    px_to_extract = transform(f,px)
+
+    band = dem.read(1, window=window, **kwargs)
+    extracted = bilinear(band, px_to_extract)
+    coords = N.array(extracted.coords)
+
+    coords[:,:2] = N.array(geom.coords)
+    return coords
+
 def extract(self):
     source_crs = Projection.query.get(self.geometry.srid).crs
     demfile = self.dataset.dem_path
@@ -64,40 +102,7 @@ def extract(self):
                 to_shape(self.geometry))
 
         if geom.area == 0:
-
-            coords_in = N.array(geom.coords)
-            # Transform geometry into pixels
-            f = lambda *x: ~dem.affine * x
-            px = transform(f,geom)
-
-            # Subdivide geometry segments
-            # at 1-pixel intervals
-            px = subdivide(px, interval=1)
-
-            # Transform pixels back to geometry
-            # to capture subdivisions
-            f = lambda *x: dem.affine * (x[0],x[1])
-            geom = transform(f,px)
-
-            # Get min and max coords for windowing
-            coords_px = N.array(px.coords)
-            mins = N.floor(coords_px.min(axis=0))
-            maxs = N.ceil(coords_px.max(axis=0))
-
-            window = tuple((int(mn),int(mx))
-                for mn,mx in zip(mins[::-1],maxs[::-1]))
-
-            aff = Affine.translation(*(-mins))
-
-            f = lambda *x: aff * x
-            px_to_extract = transform(f,px)
-
-            band = dem.read(1, window=window)
-            extracted = bilinear(band, px_to_extract)
-            coords = N.array(extracted.coords)
-
-            coords[:,:2] = N.array(geom.coords)
-
+            coords = extract_line(geom,dem)
         else:
 
             # RasterIO's image-reading algorithm uses the location
