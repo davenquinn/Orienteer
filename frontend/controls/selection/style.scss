@@ -22,13 +22,6 @@
   &>div {
     @extend .flex-container;
   }
-  div.stereonet {
-    min-width: 30rem;
-  }
-  div.data-viewer {
-    height: 30rem;
-    width: 40rem;
-  }
 }
 
 ul.selection-list { flex: 1; }

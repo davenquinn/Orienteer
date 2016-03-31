@@ -29,6 +29,8 @@ class Sidebar extends Spine.Controller
     visible = @el.is ":visible"
     return unless sel?
     if not sel.length and visible
+      if @group
+        @hideGroup()
       # make invisible
       @el
         .velocity "slideUp", {duration: 500}, display: "none"
