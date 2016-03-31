@@ -1,7 +1,6 @@
 @import "list/style";
 
 .sidebar {
-  display: flex;
   img {
     max-width: 100%;
   }
@@ -34,13 +33,9 @@
 
 ul.selection-list { flex: 1; }
 
-.selection-sidebar {
-  display: flex;
-  width: 20rem;
-}
-
 .selection-control {
   display: flex;
+  flex-shrink: 1;
 
   &>div {
     @extend .flex-container;

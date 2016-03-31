@@ -25,7 +25,7 @@ class AttitudePage extends Spine.Controller
     @filter.el.hide()
 
     @sidebar = new SelectionControl
-      el: @$ ".sidebar"
+      el: @$ ".selection-panel"
 
     @map = new Map
       parent: @

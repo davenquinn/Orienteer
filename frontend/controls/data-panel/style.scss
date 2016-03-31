@@ -4,7 +4,6 @@
     max-width: 100%;
   }
   min-width: 20rem;
-  margin: 1rem;
   div.controls {
     ul {
       list-style: none;
@@ -31,6 +30,10 @@
     width: 20%;
     min-width: 30rem;
   }
+}
+
+ul#tag-field {
+  min-height: 3em;
 }
 
 .modal-controls {

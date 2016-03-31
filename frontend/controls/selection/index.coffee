@@ -30,18 +30,14 @@ class Sidebar extends Spine.Controller
     if not sel.length and visible
       # make invisible
       @el
-        .velocity {
-          marginLeft: "-20rem"
-          duration: 500}, display: "none"
+        .velocity "slideUp", {duration: 500}, display: "none"
       return
     else if not visible
       @el
         .css
-          marginLeft: "-20rem"
-        .velocity {
-          marginLeft: "1rem"
-          duration: 500},
-          display: "flex"
+          height: "0 px"
+        .velocity 'slideDown', {duration: 500},
+          display: "block"
 
     if sel.length == 1 and sel[0].records?
         @viewGroup(sel[0]) unless @group?
