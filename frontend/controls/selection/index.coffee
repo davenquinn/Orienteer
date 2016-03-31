@@ -40,7 +40,7 @@ class Sidebar extends Spine.Controller
         .css
           height: "0 px"
         .velocity 'slideDown', {duration: 500},
-          display: "block"
+          display: "flex"
 
     if sel.length == 1
       if sel[0].records?

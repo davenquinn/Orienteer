@@ -26,9 +26,11 @@
 
 ul.selection-list { flex: 1; }
 
+.selection-panel {
+  overflow-y: scroll;
+}
+
 .selection-control {
-  display: flex;
-  flex-shrink: 1;
   &>div {
     @extend .flex-container;
   }

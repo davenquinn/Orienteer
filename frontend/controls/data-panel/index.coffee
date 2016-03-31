@@ -12,7 +12,6 @@ class ModalControl extends Spine.Controller
   idx:
     "tag-manager": TagManager
     "stereonet": Stereonet
-    "data-viewer": ViewerControl
 
   events:
     "click nav li": "switchControl"
