@@ -19,16 +19,9 @@
   &>div {
     @extend .flex-container;
   }
-  div.stereonet {
-    min-width: 30rem;
-  }
   div.data-viewer {
     width: 100%;
     overflow-y: scroll;
-  }
-  &.wide {
-    width: 20%;
-    min-width: 30rem;
   }
 }
 

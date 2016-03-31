@@ -22,7 +22,10 @@ class Sidebar extends Spine.Controller
       selection: @selection
 
     @listenTo @data.selection, "selection:updated", @updateView
-    @listenTo @sel, "group-selected", @viewGroup
+    @listenTo @sel.list, "group-selected", @viewGroup
+    @listenTo @sel.list, "focused", (d)=>
+      console.log d
+      @viewData(d)
     @updateView()
 
   updateView: (sel)=>

@@ -36,11 +36,15 @@ class SelectionList extends Spine.Controller
             n: if d.records? then d.records.length else 1
         .on "mouseover", @data.hovered
         .on "mouseout", @data.hovered
+        .on "click", @focusItem
 
     enter.select "span.remove"
       .on "click", @selection.update
 
     @items.exit().remove()
+
+  focusItem: (d)=>
+    @trigger "focused", d
 
   viewGroup: (e)->
     node = e.currentTarget.parentNode
