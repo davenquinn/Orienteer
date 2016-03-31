@@ -36,7 +36,6 @@ ul.selection-list { flex: 1; }
 .selection-control {
   display: flex;
   flex-shrink: 1;
-
   &>div {
     @extend .flex-container;
   }

@@ -3,24 +3,10 @@ $ = require "jquery"
 Stereonet = require "../stereonet"
 TagManager = require "../tag-manager"
 template = require "./template.html"
+ViewerControl = require './viewer'
 
 Data = require "../../app/data"
 CollapsiblePanel = require "../ui/collapsible"
-
-class ViewerControl extends Spine.Controller
-  className: "data-viewer"
-  constructor: ->
-    super
-    # Don't try to show data if hover-out
-    @listenTo Data, "hovered", (d)=>@show(d) if d?
-    @show()
-  show: (d)=>
-    if d?
-      @el.html "Loading..."
-      $.get "#{window.server_url}/elevation/attitude/#{d.id}/data.html",
-        (data)=>@el.html data
-    else
-      @el.html "<p>Hover over data to display fit statistics.</p>"
 
 class ModalControl extends Spine.Controller
   idx:
