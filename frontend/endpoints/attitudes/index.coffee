@@ -31,6 +31,7 @@ class AttitudePage extends Spine.Controller
       parent: @
       el: @$ ".map"
     @map.addData @data
+
     @sidebar.addData @data
     @dataPanel = new DataPanel
       el: @$ ".data-panel"

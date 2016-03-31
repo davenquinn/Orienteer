@@ -2,8 +2,10 @@ Spine = require "spine"
 SelectBox = require "./select-box"
 DataLayer = require "./data-layer"
 GIS = require 'gis-core'
+$ = require 'jquery'
 L = require 'leaflet'
 path = require 'path'
+
 CacheDatastore = require "../../shared/data/cache"
 
 MapnikLayer = require 'gis-core/frontend/mapnik-layer'
@@ -19,6 +21,7 @@ class Map extends Spine.Controller
 
     cfg = app.config.map
     cfg.basedir ?= path.dirname app.config.configFile
+    @setHeight()
     @leaflet = new GIS.Map @el[0], cfg
     # Add overlay layer
     @dataLayer = new DataLayer
@@ -30,6 +33,10 @@ class Map extends Spine.Controller
     @leaflet.on "viewreset dragend", @extentChanged
     @leaflet.addHandler "boxSelect", SelectBox
     @leaflet.invalidateSize()
+
+    # Set height in javascript (temporarily
+    # resolves awkward behavior with flexbox)
+    $(window).on 'resize', @setHeight
 
     _ = =>
       # Update cached layer information when
@@ -43,7 +50,7 @@ class Map extends Spine.Controller
     # Shim for flexbox
     @leaflet.invalidateSize()
 
-  setHeight: ->
+  setHeight: =>
     @el.height window.innerHeight
 
   extentChanged: =>
