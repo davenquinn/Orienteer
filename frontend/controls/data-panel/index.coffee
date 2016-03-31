@@ -97,7 +97,7 @@ class DataPanel extends CollapsiblePanel
         .css
           marginRight: "-#{@width}"
         .velocity {
-          marginRight: "1rem"
+          marginRight: "0"
           duration: @options.animationDuration},
           display: "flex"
     else

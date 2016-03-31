@@ -3,7 +3,6 @@
   img {
     max-width: 100%;
   }
-  min-width: 20rem;
   div.controls {
     ul {
       list-style: none;
@@ -25,6 +24,7 @@
   }
   div.data-viewer {
     width: 100%;
+    overflow-y: scroll;
   }
   &.wide {
     width: 20%;
