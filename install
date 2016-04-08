@@ -31,13 +31,8 @@ function install-deps() {
   (cd node-mapnik && git pull && git submodule update --init && make)
 
   git clone ~/Development/Repositories/Attitude.git
-  (cd Attitude && npm-install && npm link)
-  pip install -e Attitude
-
   git clone ~/Development/Repositories/subdivide.git
-  pip install -e subdivide
 
-  echo "Installing GIS Core (and Mapnik)"
   git clone https://github.com/davenquinn/gis-core.git
   ln -s $(pwd) ../../node_modules/gis-core
 }
@@ -52,6 +47,8 @@ fi
 (cd deps/node-mapnik && git submodule update --init && npm install && npm link)
 npm link mapnik
 (cd deps/gis-core && npm link mapnik && npm link)
+
+pip install -e deps/subdivide
 
 echo "Installing main application"
 pwd
