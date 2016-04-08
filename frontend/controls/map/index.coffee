@@ -21,6 +21,7 @@ class Map extends Spine.Controller
 
     cfg = app.config.map
     cfg.basedir ?= path.dirname app.config.configFile
+    console.log cfg
     @setHeight()
     @leaflet = new GIS.Map @el[0], cfg
     # Add overlay layer

@@ -58,4 +58,8 @@ class AttitudePage extends Spine.Controller
   toggleFilter: =>
     @filter.toggle @map.invalidateSize
 
+  remove: =>
+    @map.leaflet.remove()
+    @el.remove()
+
 module.exports = AttitudePage

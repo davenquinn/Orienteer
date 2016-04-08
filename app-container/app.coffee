@@ -57,6 +57,7 @@ module.exports = (url, cfg)->
   config = setupConfig process.env.ELEVATION_NODE_CONFIG
   config = _.defaults(cfg or {}, config)
   app.config = config
+  app.state = {page: 'attitudes'}
 
   q = queue().defer setupApp
   if app.config.watch
