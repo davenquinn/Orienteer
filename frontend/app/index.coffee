@@ -19,6 +19,7 @@ class App extends Spine.Controller
     @API = require "./api"
     @opts = require "./options"
     @state = remote.require("app").state
+    @query = require('./database')
 
     # Share config from main process
     # Config can't be edited at runtime

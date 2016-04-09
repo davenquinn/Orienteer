@@ -23,5 +23,13 @@ if (client_url) {
   li.type = 'text/css'
   li.rel = 'stylesheet'
   li.href = 'file://'+stylesheetPath;
-  document.head.appendChild(li)
+  document.head.appendChild(li);
+
+  stylesheetPath = path.join(stylePath,'leaflet.draw.css')
+  /* Append stylesheet */
+  li = document.createElement('link')
+  li.type = 'text/css'
+  li.rel = 'stylesheet'
+  li.href = 'file://'+stylesheetPath;
+  document.head.appendChild(li);
 }

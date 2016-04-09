@@ -18,5 +18,9 @@ glob outputStyles, (err, files)->
   if files.length == 0
     compileStyles()
 
+gulp
+  .src './node_modules/leaflet-draw/dist/**'
+  .pipe gulp.dest('./build/styles/')
+
 gulp.watch styles, compileStyles
 
