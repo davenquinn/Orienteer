@@ -8,6 +8,7 @@ q = "SELECT id,ST_AsGeoJSON(geometry) geom FROM dataset_feature WHERE type=$1"
 
 selected = null
 dragged = null
+draggingIndex = null
 
 class Editor
   color: 'red'
@@ -24,13 +25,13 @@ class Editor
         fill: chroma(@color).alpha(0.2).css()
 
     console.log d
-    coords = d.coordinates
+    @coords = d.coordinates
     if d.type == 'Polygon'
       # Outer ring only
-      coords = coords[0]
+      @coords = @coords[0]
 
     @nodes = @el.selectAll 'circle.node'
-      .data coords
+      .data @coords
 
     @nodes.enter()
       .append 'circle'
@@ -48,22 +49,13 @@ class Editor
 
     @_map.on 'mousemove', (e)=>
       return unless dragged
-      console.log e
       pt = e.latlng
       console.log pt
       dragged[0] = pt.lng
       dragged[1] = pt.lat
       @resetView()
 
-    maxIx = coords.length-1
-    d = coords
-      .filter (d,i)->i != maxIx
-      .map (d,i)->
-        e = coords[i+1]
-        [(d[0]+e[0])/2,(d[1]+e[1])/2]
-
-    @ghosts = @el.selectAll 'circle.ghost'
-      .data d
+    @setupGhosts()
 
     @ghosts.enter()
       .append 'circle'
@@ -81,6 +73,7 @@ class Editor
   resetView: =>
     console.log "Resetting view"
     @feature.attr d: @path
+    @setupGhosts()
 
     pt = @layer.projectPoint
     @el.selectAll 'circle'
@@ -88,6 +81,16 @@ class Editor
         loc = pt d[0],d[1]
         d3.select @
           .attr cx: loc.x, cy: loc.y
+
+  setupGhosts: =>
+    maxIx = @coords.length-1
+    @intermediatePoints = @coords
+      .filter (d,i)->i != maxIx
+      .map (d,i)=>
+        e = @coords[i+1]
+        [(d[0]+e[0])/2,(d[1]+e[1])/2]
+    @ghosts = @el.selectAll 'circle.ghost'
+      .data @intermediatePoints
 
 class DataLayer extends DataLayerBase
   constructor: ->
