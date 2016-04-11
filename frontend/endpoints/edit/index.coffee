@@ -12,7 +12,7 @@ class EditorPage extends Spine.Controller
     cfg = app.config.map
     cfg.basedir ?= path.dirname app.config.configFile
 
-    mapContainer = $('<div class="map flex" />').appendTo @el
+    mapContainer = $('<div class="flex" />').appendTo @el
 
     @map = new GIS.Map mapContainer[0], cfg
     window.map = @map
@@ -37,25 +37,35 @@ class EditorPage extends Spine.Controller
           geometry: JSON.parse(r.geom)
         }
 
-      data =
-        type: 'FeatureCollection'
-        features: features
-
       s =
-        color: 'blue'
+        color: 'red'
         weight: 2
         className: 'leaflet-zoom-hide'
 
-      layer = new L.GeoJSON data, style: s
+      d = features.filter (d,i)->i < 10
+      layer = new L.GeoJSON features, style: s
+        .bindPopup('Hello world!')
       @map.addLayer layer
 
-      workingLayer = new L.GeoJSON
+      workingLayer = new L.FeatureGroup
       @map.addLayer workingLayer
 
       drawControl = new L.Control.Draw
         edit:
-          featureGroup: workingLayer
+          featureGroup: layer
+        draw:
+          polyline:
+            shapeOptions:
+              color: 'dodgerblue'
+              weight: 2
+            guidelineDistance: 10
       @map.addControl drawControl
+
+      @map.on 'draw:created', (e)->
+        map.addLayer e.layer
+
+      layer.on 'click', (e)->
+        e.layer.editable = true
 
 
 module.exports = EditorPage
