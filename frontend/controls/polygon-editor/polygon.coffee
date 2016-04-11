@@ -6,20 +6,20 @@ OverlayImage = require "./overlay"
 class Polygon
 	events: d3.dispatch("closed","updated")
 	constructor: (@parent,data=null,@editable=false) ->
-		@_ = @parent.svg.append("g").attr("class","polygon")
-		@scales = @parent.scales
+    @_ = @parent.svg.append("g").attr("class","polygon")
+    @_map = @parent._map
 
-		@data = new PolygonData
-		@lines = new Elements.Lines @
-		@points = new Elements.Points @
-		@ghosts = new Elements.GhostPoints @
-		@overlay = new OverlayImage @
-		@setEditable(@editable)
+    @data = new PolygonData
+    @lines = new Elements.Lines @
+    @points = new Elements.Points @
+    @ghosts = new Elements.GhostPoints @
+    @overlay = new OverlayImage @
+    @setEditable(@editable)
 
-		@parent.on "updated:scales", (e,scales) =>
-			@scales = scales
-			@overlay.update @data
-			@update()
+    @parent.on "updated:scales", (e,scales) =>
+      @scales = scales
+      @overlay.update @data
+      @update()
 
 	on: (event, callback) =>
 		@events.on(event,callback)
@@ -28,13 +28,16 @@ class Polygon
 		@_.classed("editable",@editable)
 
 	addPoint: =>
-		e = d3.event
-		return if e.defaultPrevented
-		return false if @data.ring
-		@data.add
-			x: @scales.x.invert(e.offsetX)
-			y: @scales.y.invert(e.offsetY)
-		@update()
+    e = d3.event
+
+    return if e.defaultPrevented
+    return false if @data.ring
+
+    loc = @_map.unproject x: e.layerX, y: e.layerY
+    console.log loc
+    @data.add loc
+
+    @update()
 
 	asGeoJSON: =>
 		@data.asGeoJSON()
