@@ -88,6 +88,15 @@ class Editor
         d3.select @
           .attr cx: loc.x, cy: loc.y
 
+    nodes = @nodes[0]
+    @ghosts.each (d,i)->
+      el = d3.select @
+      adjacentNode = d3.select nodes[i]
+      dX = el.attr('cx') - adjacentNode.attr('cx')
+      dY = el.attr('cy') - adjacentNode.attr('cy')
+      dist = Math.sqrt Math.pow(dX,2)+Math.pow(dY,2)
+      el.attr display: if dist < 10 then 'none' else 'inherit'
+
   setupGhosts: =>
     maxIx = @coords.length-1
     @intermediatePoints = @coords
