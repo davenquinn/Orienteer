@@ -28,7 +28,7 @@ class App extends Spine.Controller
 
     @routes =
       "editor": =>
-        @__setPage EditorPage
+        @setupData(@editor)
       "attitudes": =>
         @setupData(@attitudes)
 
@@ -55,6 +55,10 @@ class App extends Spine.Controller
   attitudes: (data) =>
     @log "Setting up attitudes"
     @__setPage AttitudePage, data: @data
+
+  editor: (data) =>
+    @log "Setting up editor"
+    @__setPage EditorPage, data: @data
 
   __setPage: (pageclass, options={})=>
     options.el = $('<div id="main" />').appendTo @el
