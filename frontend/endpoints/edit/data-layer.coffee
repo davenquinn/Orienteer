@@ -24,11 +24,25 @@ class Editor
         stroke: @color
         fill: chroma(@color).alpha(0.2).css()
 
-    console.log d
     @coords = d.coordinates
     if d.type == 'Polygon'
       # Outer ring only
       @coords = @coords[0]
+
+    @setupSelection()
+
+    @_map.on 'mousemove', (e)=>
+      return unless dragged
+      pt = e.latlng
+      dragged[0] = pt.lng
+      dragged[1] = pt.lat
+      @setupGhosts()
+      @resetView()
+
+    @resetView()
+    @_map.on "zoomend", @resetView
+
+  setupSelection: =>
 
     @nodes = @el.selectAll 'circle.node'
       .data @coords
@@ -46,15 +60,6 @@ class Editor
       .on 'mouseup', (d)=>
         dragged = null
         @_map.dragging.enable()
-
-    @_map.on 'mousemove', (e)=>
-      return unless dragged
-      pt = e.latlng
-      console.log pt
-      dragged[0] = pt.lng
-      dragged[1] = pt.lat
-      @resetView()
-
     @setupGhosts()
 
     @ghosts.enter()
@@ -66,14 +71,15 @@ class Editor
         fill: 'white'
         cursor: 'pointer'
         stroke: @color
-
-    @resetView()
-    @_map.on "zoomend", @resetView
+      .on 'click', (d,i)=>
+        console.log d
+        @coords.splice i+1,0,d
+        @setupSelection()
+        @resetView()
 
   resetView: =>
     console.log "Resetting view"
     @feature.attr d: @path
-    @setupGhosts()
 
     pt = @layer.projectPoint
     @el.selectAll 'circle'
