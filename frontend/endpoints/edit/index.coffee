@@ -15,6 +15,7 @@ class EditorPage extends Spine.Controller
 
     mapContainer = $('<div class="flex" />').appendTo @el
 
+    cfg.boxZoom = false
     @map = new GIS.Map mapContainer[0], cfg
     window.map = @map
     @map.addLayerControl()

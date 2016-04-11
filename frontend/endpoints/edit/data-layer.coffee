@@ -6,7 +6,88 @@ Polygon = require '../../controls/polygon-editor/polygon'
 
 q = "SELECT id,ST_AsGeoJSON(geometry) geom FROM dataset_feature WHERE type=$1"
 
+selected = null
+dragged = null
+
 class Editor
+  color: 'red'
+  constructor: (d, @layer)->
+    if d.geometry?
+      d = d.geometry
+    @el = @layer.editContainer.append 'g'
+    @_map = @layer._map
+    @path = @layer.path
+    @feature = @el.append 'path'
+      .datum d
+      .attr
+        stroke: @color
+        fill: chroma(@color).alpha(0.2).css()
+
+    console.log d
+    coords = d.coordinates
+    if d.type == 'Polygon'
+      # Outer ring only
+      coords = coords[0]
+
+    @nodes = @el.selectAll 'circle.node'
+      .data coords
+
+    @nodes.enter()
+      .append 'circle'
+      .attr
+        class: 'node'
+        r: 5
+        fill: @color
+      .on 'mousedown', (d)=>
+        selected = dragged = d
+        @_map.dragging.disable()
+        @resetView()
+      .on 'mouseup', (d)=>
+        dragged = null
+        @_map.dragging.enable()
+
+    @_map.on 'mousemove', (e)=>
+      return unless dragged
+      console.log e
+      pt = e.latlng
+      console.log pt
+      dragged[0] = pt.lng
+      dragged[1] = pt.lat
+      @resetView()
+
+    maxIx = coords.length-1
+    d = coords
+      .filter (d,i)->i != maxIx
+      .map (d,i)->
+        e = coords[i+1]
+        [(d[0]+e[0])/2,(d[1]+e[1])/2]
+
+    @ghosts = @el.selectAll 'circle.ghost'
+      .data d
+
+    @ghosts.enter()
+      .append 'circle'
+      .attr
+        class: 'ghost'
+        r: 3
+        'stroke-width': 2
+        fill: 'white'
+        cursor: 'pointer'
+        stroke: @color
+
+    @resetView()
+    @_map.on "zoomend", @resetView
+
+  resetView: =>
+    console.log "Resetting view"
+    @feature.attr d: @path
+
+    pt = @layer.projectPoint
+    @el.selectAll 'circle'
+      .each (d)->
+        loc = pt d[0],d[1]
+        d3.select @
+          .attr cx: loc.x, cy: loc.y
 
 class DataLayer extends DataLayerBase
   constructor: ->
@@ -55,25 +136,7 @@ class DataLayer extends DataLayerBase
 
   setupEditor: (d)=>
     @container.attr display: 'none'
-    sel = @editContainer.append 'g'
-      .datum d
-      .call editor
-
-    path = sel.append 'path'
-      .attr stroke: 'lightblue'
-        d: @path
-
-    coords = d.geometry.coordinates
-
-    polygon = new Polygon @
-    d3.select(@svg.node())
-      .on "click", ->
-        if d3.event.shiftKey
-          polygon.addPoint()
-
-    polygon.on "closed", =>
-      console.log "The polygon is closed"
-      @trigger "editing:closed", @areas
+    @editor = new Editor d,@
 
   resetView: =>
     console.log "Resetting view"
