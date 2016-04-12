@@ -1,5 +1,13 @@
+lessParser = require('postcss-less').parse;
+
 require("coffee-script/register")
 require("node-cjsx/register")
+require('css-modules-electron/register')
+require('css-modules-electron')({
+  extensions: ['.less'],
+  processorOpts: {parser: lessParser},
+});
+
 require("handlebars")
 require.extensions['.html'] = require.extensions['.hbs']
 remote = require("remote")
