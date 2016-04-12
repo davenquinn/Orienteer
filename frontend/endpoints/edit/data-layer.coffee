@@ -1,6 +1,7 @@
 chroma = require 'chroma-js'
 d3 = require 'd3'
-d3tip = require('d3-tip')(d3)
+
+Spine = require 'spine'
 
 DataLayerBase = require "gis-core/frontend/helpers/data-layer"
 Editor = require './feature-editor'
@@ -14,7 +15,8 @@ selected = null
 
 class DataLayer extends DataLayerBase
   constructor: ->
-    super
+    super d3: d3
+    @events = d3.dispatch ['selected']
 
   onAdd: =>
     super
@@ -33,6 +35,7 @@ class DataLayer extends DataLayerBase
       @addFeatures features
 
   addFeatures: (features)=>
+    trigger = @trigger
 
     @features = @container.selectAll 'path'
       .data features
@@ -49,15 +52,18 @@ class DataLayer extends DataLayerBase
       stroke: mainColor
       fill: fillFunc(mainColor)
 
+    sel = @setSelected
     @features.enter()
       .append "path"
         .on 'click', (d)->
+          d3.event.stopPropagation()
           if selected?
             selected.attr normalAttrs
           selected = d3.select @
             .attr
               stroke: baseColor
               fill: fillFunc baseColor
+          sel d
         .attr normalAttrs
         .attr
           'stroke-width': 2
@@ -66,6 +72,14 @@ class DataLayer extends DataLayerBase
 
     @_map.on "zoomend", @resetView
 
+    @svg.on 'click', ->
+      console.log "Removing selection"
+      if selected?
+        selected.attr normalAttrs
+      sel null
+
+  setSelected: (d)=>
+    @events.selected d
 
   setupEditor: (d)=>
     @container.attr display: 'none'

@@ -9,6 +9,8 @@ EditorPage = require "../endpoints/edit"
 remote = require "remote"
 app = remote.require("app")
 
+styles = require '../styles/layout'
+
 erf = (request, textStatus, errorThrown)->
   console.log request, textStatus, errorThrown
 
