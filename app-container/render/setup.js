@@ -1,3 +1,4 @@
+less = require('less');
 lessParser = require('postcss-less').parse;
 
 require("coffee-script/register")
@@ -6,6 +7,19 @@ require('css-modules-electron/register')
 require('css-modules-electron')({
   extensions: ['.less'],
   processorOpts: {parser: lessParser},
+  processCss: function(css, filepath) {
+      var out;
+      less.render(css,
+        {filename: filepath, async: false, processImports:false, isSync: true},
+        function(e, output){
+          if(e){
+            console.log(css);
+            throw e;
+          }
+          out = output.css;
+        });
+      return out;
+	}
 });
 
 require("handlebars")
