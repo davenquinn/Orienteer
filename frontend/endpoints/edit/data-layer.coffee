@@ -79,11 +79,11 @@ class DataLayer extends DataLayerBase
       el.attr v
 
   setupEditor: (sel)=>
-    return unless sel?
+    @editor = new Editor sel,@
     console.log "Starting editor"
+    return unless sel?
     @features.filter (d)->d.id == sel.id
       .attr display: 'none'
-    @editor = new Editor sel,@
 
   resetView: =>
     console.log "Resetting view"

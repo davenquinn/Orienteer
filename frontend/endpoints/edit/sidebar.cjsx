@@ -5,7 +5,7 @@ styles = require './styles'
 
 class NewButton extends React.Component
   render: ->
-    <button type='button' className='btn btn-default'>
+    <button type='button' className='btn btn-default' onClick={@props.handler}>
       <i className="fa fa-plus"> New item</i>
     </button>
 
@@ -49,7 +49,7 @@ class Sidebar extends React.Component
       editing: false
   render: ->
     <div className={styles.sidebar}>
-      {<NewButton /> unless @state.item?}
+      {<NewButton handler={@props.newHandler} /> unless @state.item?}
       {<ItemPanel
         item={@state.item}
         editing={@state.editing}

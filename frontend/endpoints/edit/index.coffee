@@ -30,6 +30,7 @@ class EditorPage extends Spine.Controller
 
     sidebar = React.createElement Sidebar,
       toolbarHandlers: toolbarHandlers
+      newHandler: @setupEditor
     @sidebar = ReactDOM.render sidebar, @el[0]
 
     mapContainer = $('<div />')
@@ -51,9 +52,10 @@ class EditorPage extends Spine.Controller
     @lyr.events.on 'selected', @setSelected
 
   setupEditor: =>
-    return unless @state.selected?
     @state.editing = true
-    @sidebar.setState editing: true
+    @sidebar.setState
+      editing: true
+      item: {type: 'Feature',geometry: null}
     @lyr.setupEditor @state.selected
 
   setSelected: (d)=>
