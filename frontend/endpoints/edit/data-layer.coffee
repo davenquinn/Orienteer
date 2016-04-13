@@ -13,6 +13,23 @@ mainColor = baseColor.desaturate(3)
 
 selected = null
 
+fillFunc = (color)->
+  (d)->
+    if d.geometry.type == 'Polygon'
+      c = color.alpha(0.5).css()
+    else
+      c = 'none'
+    return c
+
+normalAttrs =
+  stroke: mainColor
+  fill: fillFunc(mainColor)
+
+selectedAttrs =
+  stroke: baseColor
+  fill: fillFunc baseColor
+
+
 class DataLayer extends DataLayerBase
   constructor: ->
     super d3: d3
@@ -40,30 +57,10 @@ class DataLayer extends DataLayerBase
     @features = @container.selectAll 'path'
       .data features
 
-    fillFunc = (color)->
-      (d)->
-        if d.geometry.type == 'Polygon'
-          c = color.alpha(0.5).css()
-        else
-          c = 'none'
-        return c
-
-    normalAttrs =
-      stroke: mainColor
-      fill: fillFunc(mainColor)
-
-    sel = @setSelected
+    sel = @events.selected
     @features.enter()
       .append "path"
-        .on 'click', (d)->
-          d3.event.stopPropagation()
-          if selected?
-            selected.attr normalAttrs
-          selected = d3.select @
-            .attr
-              stroke: baseColor
-              fill: fillFunc baseColor
-          sel d
+        .on 'click', @events.selected
         .attr normalAttrs
         .attr
           'stroke-width': 2
@@ -72,14 +69,14 @@ class DataLayer extends DataLayerBase
 
     @_map.on "zoomend", @resetView
 
-    @svg.on 'click', ->
-      console.log "Removing selection"
-      if selected?
-        selected.attr normalAttrs
-      sel null
-
-  setSelected: (d)=>
-    @events.selected d
+  setSelected: (sel)=>
+    if not sel?
+      @features.attr normalAttrs
+      return
+    @features.each (d)->
+      el = d3.select @
+      v = if d.id == sel.id then selectedAttrs else normalAttrs
+      el.attr v
 
   setupEditor: (d)=>
     @container.attr display: 'none'
