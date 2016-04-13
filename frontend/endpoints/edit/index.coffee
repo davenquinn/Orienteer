@@ -52,10 +52,23 @@ class EditorPage extends Spine.Controller
     @lyr.events.on 'selected', @setSelected
 
   setupEditor: =>
-    @state.editing = true
-    @sidebar.setState
-      editing: true
-      item: {type: 'Feature',geometry: null}
+    @state.editing =
+      complete: false
+      closed: false
+      enabled: true
+      type: 'LineString'
+      onChangeType: (t)=>
+        console.log "Changing target type"
+        @state.editing.type = t
+        @lyr.editor.setType(@state.editing.type)
+      onFinish: =>
+        if @state.complete
+          @lyr.editor.finalize()
+        else
+          @lyr.editor.doneAddingPoints()
+    @state.item = {type: 'Feature',geometry: null}
+
+    @sidebar.setState @state
     @lyr.setupEditor @state.selected
 
   setSelected: (d)=>

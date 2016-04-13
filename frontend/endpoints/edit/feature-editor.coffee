@@ -12,17 +12,17 @@ class Editor
     type: null
     closed: false
     valid: false
-    finished: false
+    complete: false
     targetType: 'Polygon'
   constructor: (d, @layer)->
     @events = d3.dispatch [
       'updated'
-      'finished'
+      'complete'
     ]
     if not d?
       d = @defaultState
     else
-      d.finished = true
+      d.complete = true
     if d.geometry?
       d = d.geometry
     d.valid = d.valid or true
@@ -68,7 +68,17 @@ class Editor
     @resetView()
     @_map.on "zoomend", @resetView
 
-  setType: ->
+  setType: (t)->
+    if t?
+      @state.targetType = t
+      @setupSelection()
+      @resetView()
+      return
+
+    if @state.targetType != 'Polygon'
+      @state.closed = false
+
+    # Set the actual type
     l = @coords.length
     if l == 0
       t = null
@@ -82,12 +92,12 @@ class Editor
 
   setupSelection: =>
     @setType()
-    if @state.type == 'Polygon'
-      c = [@coords]
+    c = @coords
+    if @state.closed
+      c.push c[0]
+      c = [c]
     else if @state.type == 'Point'
-      c = @coords[0]
-    else
-      c = @coords
+      c = c[0]
 
     @feature
       .datum type: @state.type, coordinates: c
@@ -102,13 +112,12 @@ class Editor
         r: 5
         fill: @color
 
-    if @state.finished
+    if @state.complete
       @setupEditing()
     else
       @nodes.on 'click', null
       @nodes.filter (d,i)->i == 0
         .on 'click', (d,i)=>
-          @coords.push @coords[0]
           @state.closed = true
           @doneAddingPoints()
 
@@ -117,10 +126,16 @@ class Editor
         .on 'click', @doneAddingPoints
 
   doneAddingPoints: =>
-    console.log "Finished"
-    @state.finished = true
+    console.log "complete"
+    @state.complete = true
+    if @state.targetType = 'Polygon'
+      @state.closed = true
     @setupSelection()
     @resetView()
+
+  finalize: =>
+    @nodes.delete()
+    @ghosts.delete()
 
   setupEditing: =>
     @setupGhosts()
@@ -170,8 +185,11 @@ class Editor
       el.attr display: if dist < 10 then 'none' else 'inherit'
 
   setupGhosts: =>
-    maxIx = @coords.length-1
-    @intermediatePoints = @coords
+    coords = @coords
+    if @state.closed
+      coords.push coords[0]
+    maxIx = coords.length-1
+    @intermediatePoints = coords
       .filter (d,i)->i != maxIx
       .map (d,i)=>
         e = @coords[i+1]

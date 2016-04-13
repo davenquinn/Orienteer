@@ -1,5 +1,5 @@
 React = require 'react'
-Elemental = require 'elemental'
+E = require 'elemental'
 
 styles = require './styles'
 
@@ -11,14 +11,24 @@ class NewButton extends React.Component
 
 class EditControl extends React.Component
   render: ->
+    if @props.complete
+      txt = 'Edit vertices'
+    else
+      txt = 'Done'
+
+    opts = ['LineString','Polygon'].map (d)->
+      {label:d, value: d}
+
     <div>
-      <Elemental.FormSelect
-        label="Select"
-        options={[]}
-        htmlFor="supported-conrols-select-disabled"
-        firstOption="Select" disabled />
+      <E.FormSelect
+        label="Feature type"
+        options={opts}
+        onChange={@props.onChangeType} />
+      <E.Button
+        type='default-success'
+        onClick={@props.onFinish}>{txt}</E.Button>
     </div>
-  
+
 class ItemPanel extends React.Component
   constructor: (props)->
     super props
@@ -37,8 +47,12 @@ class ItemPanel extends React.Component
     </div>
   render: ->
     <div className={styles.item}>
-      {@renderToolbar() unless @props.editing}
-      {<EditControl /> if @props.editing}
+      {@renderToolbar() unless @props.editing.enabled}
+      {<EditControl
+        complete={@props.editing.complete}
+        featureType={@props.editing.type}
+        onChangeType={@props.editing.onChangeType}
+        onFinish={@props.editing.onFinish} /> if @props.editing.enabled}
     </div>
 
 class Sidebar extends React.Component
@@ -46,7 +60,10 @@ class Sidebar extends React.Component
     super props
     @state =
       item: null
-      editing: false
+      editing:
+        targetType: 'Polygon'
+        enabled: false
+        complete: false
   render: ->
     <div className={styles.sidebar}>
       {<NewButton handler={@props.newHandler} /> unless @state.item?}
