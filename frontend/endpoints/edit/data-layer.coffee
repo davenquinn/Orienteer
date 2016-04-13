@@ -78,9 +78,12 @@ class DataLayer extends DataLayerBase
       v = if d.id == sel.id then selectedAttrs else normalAttrs
       el.attr v
 
-  setupEditor: (d)=>
-    @container.attr display: 'none'
-    @editor = new Editor d,@
+  setupEditor: (sel)=>
+    return unless sel?
+    console.log "Starting editor"
+    @features.filter (d)->d.id == sel.id
+      .attr display: 'none'
+    @editor = new Editor sel,@
 
   resetView: =>
     console.log "Resetting view"

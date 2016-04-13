@@ -19,12 +19,17 @@ class EditorPage extends Spine.Controller
 
     @state =
       selected: null
+      editing: false
 
     cfg = app.config.map
     cfg.basedir ?= path.dirname app.config.configFile
 
+    toolbarHandlers =
+      edit: @setupEditor
+      cancel: => @setSelected null
+
     sidebar = React.createElement Sidebar,
-      cancelHandler: => @setSelected null
+      toolbarHandlers: toolbarHandlers
     @sidebar = ReactDOM.render sidebar, @el[0]
 
     mapContainer = $('<div />')
@@ -44,6 +49,12 @@ class EditorPage extends Spine.Controller
     @lyr = new DataLayer
     @lyr.addTo @map
     @lyr.events.on 'selected', @setSelected
+
+  setupEditor: =>
+    return unless @state.selected?
+    @state.editing = true
+    @sidebar.setState editing: true
+    @lyr.setupEditor @state.selected
 
   setSelected: (d)=>
     @state.selected = d

@@ -47,7 +47,7 @@ if (client_url) {
   li.href = 'file://'+stylesheetPath;
   document.head.appendChild(li);
 
-  stylesheetPath = path.join(stylePath,'leaflet.draw.css')
+  stylesheetPath = path.join(stylePath,'elemental.css')
   /* Append stylesheet */
   li = document.createElement('link')
   li.type = 'text/css'
