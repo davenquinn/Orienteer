@@ -2,7 +2,7 @@ $ = require "jquery"
 Spine = require "spine"
 SelectionControl = require "./base"
 GroupedDataControl = require "./grouped-data"
-ViewerControl = require '../data-panel/viewer'
+ViewerControl = require './viewer'
 
 class Sidebar extends Spine.Controller
   className: "selection-sidebar flex-container"

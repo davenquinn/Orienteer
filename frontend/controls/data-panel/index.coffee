@@ -3,7 +3,6 @@ $ = require "jquery"
 Stereonet = require "../stereonet"
 TagManager = require "../tag-manager"
 template = require "./template.html"
-ViewerControl = require './viewer'
 
 Data = require "../../app/data"
 CollapsiblePanel = require "../ui/collapsible"
