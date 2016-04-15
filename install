@@ -42,11 +42,10 @@ install-deps
 fi
 
 #echo "Installing mapnik"
-#npm-install mapnik --build-from-source
 (cd deps/Attitude && pip install -e . && npm link)
-(cd deps/node-mapnik && git submodule update --init && npm install && npm link)
+(cd deps/node-mapnik && git submodule update --init && npm install --build-from-source && npm link)
 npm link mapnik
-(cd deps/gis-core && npm link mapnik && npm link)
+(cd deps/gis-core && npm link)
 
 pip install -e deps/subdivide
 
