@@ -28,9 +28,19 @@ class EditorPage extends Spine.Controller
       edit: @setupEditor
       cancel: => @setSelected null
 
+    editHandlers =
+      onChangeType: (t)=>
+        console.log "Changing target type"
+        @lyr.editor.setState type: t
+      onFinish: => @lyr.editor.finalize()
+
+    console.log editHandlers
+
     sidebar = React.createElement Sidebar,
       toolbarHandlers: toolbarHandlers
       newHandler: @setupEditor
+      editHandlers: editHandlers
+
     @sidebar = ReactDOM.render sidebar, @el[0]
 
     mapContainer = $('<div />')
@@ -52,24 +62,16 @@ class EditorPage extends Spine.Controller
     @lyr.events.on 'selected', @setSelected
 
   setupEditor: =>
+    @lyr.setupEditor @state.selected
+
     @state.editing =
-      complete: false
-      closed: false
       enabled: true
-      type: 'LineString'
-      onChangeType: (t)=>
-        console.log "Changing target type"
-        @state.editing.type = t
-        @lyr.editor.setType(@state.editing.type)
-      onFinish: =>
-        if @state.complete
-          @lyr.editor.finalize()
-        else
-          @lyr.editor.doneAddingPoints()
+      complete: @state.selected?
+      targetType: 'Polygon'
+
     @state.item = {type: 'Feature',geometry: null}
 
     @sidebar.setState @state
-    @lyr.setupEditor @state.selected
 
   setSelected: (d)=>
     @state.selected = d

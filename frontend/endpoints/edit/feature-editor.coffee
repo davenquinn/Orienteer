@@ -49,7 +49,7 @@ class Editor
     @state.closed = null if i < 2
 
     @_map.on 'click', (e)=>
-      if not @state.closed
+      if not @state.complete
         pt = e.latlng
         @coords.push [pt.lng,pt.lat]
         @setupSelection()
@@ -67,6 +67,11 @@ class Editor
 
     @resetView()
     @_map.on "zoomend", @resetView
+
+  setState: (d)->
+    @state = @defaultState
+
+
 
   setType: (t)->
     if t?
@@ -125,17 +130,24 @@ class Editor
       @nodes.filter (d,i)->i == l
         .on 'click', @doneAddingPoints
 
-  doneAddingPoints: =>
-    console.log "complete"
-    @state.complete = true
-    if @state.targetType = 'Polygon'
-      @state.closed = true
-    @setupSelection()
-    @resetView()
+  setState: (d)=>
+    c = d.complete
+    if c? and c != @state.complete
+      @state.complete = c
+      @setupSelection()
+      @resetView()
 
   finalize: =>
-    @nodes.delete()
-    @ghosts.delete()
+    if not @state.complete
+      console.log "complete"
+      @state.complete = true
+      if @state.targetType = 'Polygon'
+        @state.closed = true
+      @setupSelection()
+      @resetView()
+    else
+      @nodes.delete()
+      @ghosts.delete()
 
   setupEditing: =>
     @setupGhosts()

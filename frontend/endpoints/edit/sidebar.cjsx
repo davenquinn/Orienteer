@@ -10,23 +10,31 @@ class NewButton extends React.Component
     </button>
 
 class EditControl extends React.Component
+  constructor: (props)->
+    super props
   render: ->
+    h = @props.handlers
+    console.log h
     if @props.complete
-      txt = 'Edit vertices'
-    else
       txt = 'Done'
+    else
+      txt = 'Edit vertices'
 
-    opts = ['LineString','Polygon'].map (d)->
-      {label:d, value: d}
+    opts = ['LineString','Polygon'].map (d)=>
+      {
+        label:d
+        value: d
+        selected: @props.featureType==d
+      }
 
     <div>
       <E.FormSelect
         label="Feature type"
         options={opts}
-        onChange={@props.onChangeType} />
+        onChange={h.onChangeType} />
       <E.Button
         type='default-success'
-        onClick={@props.onFinish}>{txt}</E.Button>
+        onClick={h.onFinish}>{txt}</E.Button>
     </div>
 
 class ItemPanel extends React.Component
@@ -49,10 +57,8 @@ class ItemPanel extends React.Component
     <div className={styles.item}>
       {@renderToolbar() unless @props.editing.enabled}
       {<EditControl
-        complete={@props.editing.complete}
-        featureType={@props.editing.type}
-        onChangeType={@props.editing.onChangeType}
-        onFinish={@props.editing.onFinish} /> if @props.editing.enabled}
+        featureType={@props.editing.targetType}
+        handlers={@props.editHandlers} /> if @props.editing.enabled}
     </div>
 
 class Sidebar extends React.Component
@@ -70,7 +76,8 @@ class Sidebar extends React.Component
       {<ItemPanel
         item={@state.item}
         editing={@state.editing}
-        toolbarHandlers={@props.toolbarHandlers} /> if @state.item?}
+        toolbarHandlers={@props.toolbarHandlers}
+        editHandlers={@props.editHandlers} /> if @state.item?}
     </div>
 
 module.exports = Sidebar

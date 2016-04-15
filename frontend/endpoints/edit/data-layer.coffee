@@ -1,6 +1,6 @@
 chroma = require 'chroma-js'
 d3 = require 'd3'
-
+React = require 'react'
 Spine = require 'spine'
 
 DataLayerBase = require "gis-core/frontend/helpers/data-layer"
@@ -82,6 +82,11 @@ class DataLayer extends DataLayerBase
     @editor = new Editor sel,@
     console.log "Starting editor"
     return unless sel?
+
+    s = @state.editing
+    s.complete = true
+    @editor.setState complete: true
+    @sidebar.setState s
     @features.filter (d)->d.id == sel.id
       .attr display: 'none'
 
