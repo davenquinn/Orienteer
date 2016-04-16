@@ -11,21 +11,31 @@ from ..feature import DatasetFeature, srid
 
 class Attitude(DatasetFeature, AttitudeInterface):
     __tablename__ = 'attitude'
-    __mapper_args__ = dict(
-        polymorphic_identity = 'Attitude')
 
-    id = db.Column(
+    id=db.Column(db.Integer,primary_key=True)
+    feature_id = db.Column(
         db.Integer,
-        db.ForeignKey('dataset_feature.id'),
-        primary_key=True)
+        db.ForeignKey('dataset_feature.id'))
 
-    location = db.Column(Geometry(
-            "POINT", srid=srid.world))
+    location = db.Column(Geometry("POINT", srid=srid.world))
 
     valid = db.Column(db.Boolean)
-    group_id = db.Column(
+    member_of = db.Column(
         db.Integer,
-        db.ForeignKey('attitude_group.id'))
+        db.ForeignKey('attitude.id'))
+    grouped = db.Column(db.Boolean)
+
+    __mapper_args__ = dict(
+        polymorphic_on=grouped,
+        polymorphic_identity=False,
+        with_polymorphic='*')
+
+    __table_args__ = (
+        # Check that we don't define group membership and feature
+        # if isn't a group.
+        CheckConstraint('NOT grouped OR (group_id IS NULL AND feature_id IS NULL)'),
+    )
+
 
     def serialize(self):
         pca = self.pca()
