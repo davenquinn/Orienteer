@@ -71,6 +71,8 @@ def extract_line(geom, dem, **kwargs):
     geom = transform(f,px)
 
     # Get min and max coords for windowing
+    # Does not deal with edge cases where points
+    # are outside of footprint of DEM
     coords_px = N.array(px.coords)
     mins = N.floor(coords_px.min(axis=0))
     maxs = N.ceil(coords_px.max(axis=0))
