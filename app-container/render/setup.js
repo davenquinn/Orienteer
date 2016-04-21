@@ -1,5 +1,27 @@
+less = require('less');
+lessParser = require('postcss-less').parse;
+
 require("coffee-script/register")
 require("node-cjsx/register")
+require('css-modules-electron/register')
+require('css-modules-electron')({
+  extensions: ['.less'],
+  processorOpts: {parser: lessParser},
+  processCss: function(css, filepath) {
+      var out;
+      less.render(css,
+        {filename: filepath, async: false, processImports:false, isSync: true},
+        function(e, output){
+          if(e){
+            console.log(css);
+            throw e;
+          }
+          out = output.css;
+        });
+      return out;
+	}
+});
+
 require("handlebars")
 require.extensions['.html'] = require.extensions['.hbs']
 remote = require("remote")
@@ -23,5 +45,13 @@ if (client_url) {
   li.type = 'text/css'
   li.rel = 'stylesheet'
   li.href = 'file://'+stylesheetPath;
-  document.head.appendChild(li)
+  document.head.appendChild(li);
+
+  stylesheetPath = path.join(stylePath,'elemental.css')
+  /* Append stylesheet */
+  li = document.createElement('link')
+  li.type = 'text/css'
+  li.rel = 'stylesheet'
+  li.href = 'file://'+stylesheetPath;
+  document.head.appendChild(li);
 }

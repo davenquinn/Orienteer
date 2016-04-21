@@ -1,6 +1,6 @@
 # Assemble a list of files to watch
 list = []
-for e in ["coffee","cjsx","js","html"]
+for e in ["coffee","cjsx","js","html","less"]
   list.push "frontend/**/*.#{e}"
 
 startApp = require './app'

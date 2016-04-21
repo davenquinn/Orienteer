@@ -4,8 +4,12 @@ Map = require "../controls/map"
 Data = require "./data"
 AttitudePage = require "../endpoints/attitudes"
 NotesPage = require "../endpoints/notes"
+EditorPage = require "../endpoints/edit"
 
 remote = require "remote"
+app = remote.require("app")
+
+styles = require '../styles/layout'
 
 erf = (request, textStatus, errorThrown)->
   console.log request, textStatus, errorThrown
@@ -16,19 +20,24 @@ class App extends Spine.Controller
     window.app = @
     @API = require "./api"
     @opts = require "./options"
+    @state = remote.require("app").state
+    @query = require('./database')
 
     # Share config from main process
     # Config can't be edited at runtime
     c = remote.require("app").config
     @config = JSON.parse(JSON.stringify(c))
 
-    if @routes?
-      @routes
-        "/map/": => @setupData @map
-        "": => @setupData @attitudes
-        "/notes/": @notes
+    @routes =
+      "editor": =>
+        @setupData(@editor)
+      "attitudes": =>
+        @setupData(@attitudes)
+
     @log "Created app"
-    @navigate ""
+
+    p = @state.page or 'attitudes'
+    @routes[p]()
 
   setupData: (callback)=>
     @log "Getting data"
@@ -47,12 +56,19 @@ class App extends Spine.Controller
 
   attitudes: (data) =>
     @log "Setting up attitudes"
-    @page = new AttitudePage
-      el: $("#main")
-      data: @data
+    @__setPage AttitudePage, data: @data
 
-  notes: =>
-    @page = new NotesPage
-      el: $("#main")
+  editor: (data) =>
+    @log "Setting up editor"
+    @__setPage EditorPage, data: @data
 
+  __setPage: (pageclass, options={})=>
+    options.el = $('<div id="main" />').appendTo @el
+    @page = new pageclass(options)
+
+  toggleEditor: =>
+    e = @state.page == 'editor'
+    @state.page = if e then 'attitudes' else 'editor'
+    console.log @state.page
+    remote.getCurrentWindow().reload()
 module.exports = App

@@ -9,6 +9,7 @@ infoTemplate = require "./info-box.html"
 d3 = require "d3"
 $ = require "jquery"
 
+styles = require '../styles'
 FilterData = require "../../controls/filter-data"
 
 f = d3.format "> 6.1f"
@@ -17,7 +18,7 @@ class AttitudePage extends Spine.Controller
 
   constructor: ->
     super
-    @el.html template
+    @el.html template(styles)
 
     @filter = new FilterData
       el: @$ ".filter-data"
@@ -57,5 +58,9 @@ class AttitudePage extends Spine.Controller
 
   toggleFilter: =>
     @filter.toggle @map.invalidateSize
+
+  remove: =>
+    @map.leaflet.remove()
+    @el.remove()
 
 module.exports = AttitudePage

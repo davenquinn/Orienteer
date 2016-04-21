@@ -5,9 +5,10 @@ export npm_config_disturl=https://atom.io/download/atom-shell
 export npm_config_target=0.36.3
 export npm_config_arch=x64
 export npm_config_runtime=electron
+export HOME=~/.electron-gyp
 
 function rebuild-module {
-  cd $BASE/node_modules/$1
+  cd $2
   HOME=~/.electron-gyp node-gyp rebuild \
     --target=$npm_config_target \
     --arch=$npm_config_arch \
@@ -27,35 +28,34 @@ function install-deps() {
   cd deps
 
   git clone https://github.com/mapnik/node-mapnik.git
-  (cd node-mapnik && git submodule update --init && make)
+  (cd node-mapnik && git pull && git submodule update --init && make)
 
   git clone ~/Development/Repositories/Attitude.git
-  (cd Attitude && npm-install && npm link)
-  pip install -e Attitude
-
   git clone ~/Development/Repositories/subdivide.git
-  pip install -e subdivide
 
-  echo "Installing GIS Core (and Mapnik)"
   git clone https://github.com/davenquinn/gis-core.git
-  cd gis-core
-  npm-install
-  npm link
+  ln -s $(pwd) ../../node_modules/gis-core
 }
 
 if [ ! -d 'deps' ]; then
 install-deps
 fi
 
+#echo "Installing mapnik"
+(cd deps/Attitude && pip install -e . && npm link)
+(cd deps/node-mapnik && git submodule update --init && npm install --build-from-source && npm link)
+npm link mapnik
+(cd deps/gis-core && npm link)
+
+pip install -e deps/subdivide
+
 echo "Installing main application"
 pwd
 pip install -e .
 
-npm-install deps/node-mapnik
-DIR=node_modules/mapnik/lib/binding
-cp -r "$DIR/electron-v0.36-darwin-x64" "$DIR/node-v47-darwin-x64"
+#DIR=node_modules/mapnik/lib/binding
+#cp -r "$DIR/electron-v0.36-darwin-x64" "$DIR/node-v47-darwin-x64"
 
-npm-install
+npm install
 npm link attitude
 npm link gis-core
-
