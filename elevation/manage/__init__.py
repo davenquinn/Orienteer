@@ -31,6 +31,20 @@ def extract():
         db.session.add(d)
     db.session.commit()
 
+@ElevationCommand.command(name='compute-footprints')
+def compute_footprints():
+    """
+    Update footprint for each dataset based on image extent
+    """
+    from ..models import Dataset
+    images = (db.session.query(Dataset)
+            .filter_by(manage_footprint=True)
+            .all())
+    for image in images:
+        message("Computing footprint for {}".format(image.id))
+        image.compute_footprint()
+        db.session.add(image)
+    db.session.commit()
 
 @ElevationCommand.command()
 @click.option("--extract",is_flag=True,default=False)
