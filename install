@@ -5,7 +5,7 @@ export npm_config_disturl=https://atom.io/download/atom-shell
 export npm_config_target=0.36.3
 export npm_config_arch=x64
 export npm_config_runtime=electron
-export HOME=~/.electron-gyp
+#export HOME=~/.electron-gyp
 
 function rebuild-module {
   cd $2
@@ -43,7 +43,7 @@ fi
 
 #echo "Installing mapnik"
 (cd deps/Attitude && pip install -e . && npm link)
-(cd deps/node-mapnik && git submodule update --init && npm install --build-from-source && npm link)
+(cd deps/node-mapnik && git submodule update --init && HOME=~/.electron-gyp npm install --build-from-source && npm link)
 npm link mapnik
 (cd deps/gis-core && npm link)
 
@@ -56,6 +56,6 @@ pip install -e .
 #DIR=node_modules/mapnik/lib/binding
 #cp -r "$DIR/electron-v0.36-darwin-x64" "$DIR/node-v47-darwin-x64"
 
-npm install
+HOME=~/.electron-gyp npm install
 npm link attitude
 npm link gis-core
