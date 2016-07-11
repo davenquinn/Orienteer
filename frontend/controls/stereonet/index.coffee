@@ -43,7 +43,7 @@ class StereonetView extends Spine.Controller
     @items.enter()
       .append "g"
         .on "mouseover mouseout", @data.hovered
-        .each createPlane 'red'
+        .each createPlane(color: 'red')
     @items.exit().remove()
 
     @stereonet.draw()
@@ -56,7 +56,7 @@ class StereonetView extends Spine.Controller
       .data data, (d)->d.id
     sel.enter()
       .append "g"
-        .each createPlane 'purple'
+        .each createPlane(color: 'purple')
         .classed "hovered", true
     @hovered.selectAll 'path'
       .attr d: @path
