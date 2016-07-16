@@ -52,11 +52,15 @@ class StereonetView extends Spine.Controller
     console.log d
     if not d? then return
     data = if d.hovered then [d] else []
+
+    fn = createPlane(color: 'purple')
+
     sel = @hovered.selectAll "g"
       .data data, (d)->d.id
     sel.enter()
       .append "g"
-        .each createPlane(color: 'purple')
+        .each (d)->
+          fn.call @, d.properties
         .classed "hovered", true
     @hovered.selectAll 'path'
       .attr d: @path
