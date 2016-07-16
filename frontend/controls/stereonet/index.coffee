@@ -17,7 +17,11 @@ class StereonetView extends Spine.Controller
     # Can specify both data and selection if you don't want
     # them to go to the default values.
     super
-    @stereonet = new Stereonet @el[0]
+    sz =
+      width: 300
+      height: 300
+
+    @stereonet = new Stereonet @el[0], sz
 
     @data = window.app.data
     throw "No data" unless @data?
