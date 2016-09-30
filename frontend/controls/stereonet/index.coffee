@@ -39,21 +39,21 @@ class StereonetView extends Spine.Controller
 
   update: =>
     ds = @selection.visible()
-    console.log ds
 
     @items = @stereonet.dataArea.selectAll 'g'
       .data ds, (d)->d.id
 
+    fn = createPlane(color: 'red')
     @items.enter()
       .append "g"
         .on "mouseover mouseout", @data.hovered
-        .each createPlane(color: 'red')
+        .each (d)->
+          fn.call @, d.properties
     @items.exit().remove()
 
     @stereonet.draw()
 
   onHover: (d)=>
-    console.log d
     if not d? then return
     data = if d.hovered then [d] else []
 
