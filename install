@@ -42,19 +42,19 @@ install-deps
 fi
 
 #echo "Installing mapnik"
-(cd deps/Attitude && pip install -e . && npm link)
-(cd deps/node-mapnik && git submodule update --init && HOME=~/.electron-gyp npm install --build-from-source && npm link)
-npm link mapnik
-(cd deps/gis-core && npm link)
+(cd deps/Attitude && pip install -e . )
+
+dn="deps/node-mapnik"
+if [ ! -e "$dn/lib/binding/electron-v0.36-darwin-x64" ]; then
+  (cd "$dn" && git submodule update --init && HOME=~/.electron-gyp npm install --build-from-source)
+fi
+
+$(npm bin)/linklocal
 
 pip install -e deps/subdivide
 
 echo "Installing main application"
-pwd
 pip install -e .
-
-#DIR=node_modules/mapnik/lib/binding
-#cp -r "$DIR/electron-v0.36-darwin-x64" "$DIR/node-v47-darwin-x64"
 
 HOME=~/.electron-gyp npm install
 npm link attitude
