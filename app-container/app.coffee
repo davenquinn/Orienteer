@@ -1,7 +1,6 @@
 _ = require 'underscore'
 path = require 'path'
-app = require 'app'
-BrowserWindow = require 'browser-window'
+{app, BrowserWindow} = require 'electron'
 queue = require 'queue-async'
 
 startServer = require './server'
@@ -37,7 +36,7 @@ startApp = (url)->
     width: 800
     height: 600
   # and load the index.html of the app.
-  mainWindow.loadUrl url
+  mainWindow.loadURL url
   # Open the DevTools.
   #mainWindow.openDevTools();
   # Emitted when the window is closed.

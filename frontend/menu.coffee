@@ -1,5 +1,5 @@
-remote = require 'remote'
-Menu = remote.require 'menu'
+{remote} = require 'electron'
+{Menu} = remote
 
 module.exports = (app)->
 

@@ -6,10 +6,9 @@ AttitudePage = require "../endpoints/attitudes"
 NotesPage = require "../endpoints/notes"
 EditorPage = require "../endpoints/edit"
 
-remote = require "remote"
-app = remote.require("app")
+{remote} = require "electron"
 
-styles = require '../styles/layout'
+styles = require '../styles/layout.styl'
 
 erf = (request, textStatus, errorThrown)->
   console.log request, textStatus, errorThrown
@@ -20,12 +19,12 @@ class App extends Spine.Controller
     window.app = @
     @API = require "./api"
     @opts = require "./options"
-    @state = remote.require("app").state
+    @state = remote.app.state
     @query = require('./database')
 
     # Share config from main process
     # Config can't be edited at runtime
-    c = remote.require("app").config
+    c = remote.app.config
     @config = JSON.parse(JSON.stringify(c))
 
     @routes =

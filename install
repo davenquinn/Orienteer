@@ -2,9 +2,10 @@
 
 export BASE=$(pwd)
 export npm_config_disturl=https://atom.io/download/atom-shell
-export npm_config_target=0.36.3
+export npm_config_target=1.4.2
 export npm_config_arch=x64
 export npm_config_runtime=electron
+export npm_config_build_from_source=true
 #export HOME=~/.electron-gyp
 
 function rebuild-module {
@@ -45,7 +46,8 @@ fi
 (cd deps/Attitude && pip install -e . )
 
 dn="deps/node-mapnik"
-if [ ! -e "$dn/lib/binding/electron-v0.36-darwin-x64" ]; then
+if [ ! -e "$dn/lib/binding/electron-v1.4-darwin-x64" ]; then
+  echo "Building mapnik for electron"
   (cd "$dn" && git submodule update --init && HOME=~/.electron-gyp npm install --build-from-source)
 fi
 

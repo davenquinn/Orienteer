@@ -1,5 +1,5 @@
 fs = require 'fs'
-app = require "app"
+{app} = require "electron"
 browserSync = require "browser-sync"
 connectUtils = require 'browser-sync/lib/connect-utils'
 path = require 'path'

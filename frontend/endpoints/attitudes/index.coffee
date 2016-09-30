@@ -9,7 +9,7 @@ infoTemplate = require "./info-box.html"
 d3 = require "d3"
 $ = require "jquery"
 
-styles = require '../styles'
+styles = require '../styles.styl'
 FilterData = require "../../controls/filter-data"
 
 f = d3.format "> 6.1f"

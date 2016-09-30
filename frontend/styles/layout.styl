@@ -1,4 +1,4 @@
-:global
+:global {
   .flex-container {
     display: flex;
     flex-direction: column;
@@ -14,7 +14,8 @@
   }
 
   #main {
-    &:extend(.flex-container);
+    display: flex;
+    flex-direction: column;
     height: 100vh;
   }
-
+}
