@@ -1,5 +1,7 @@
 import click
-from click import Group, echo, secho
+from click import Group, echo, secho, style
+import numpy as N
+from collections import defaultdict
 
 from ..util.cli import execute_sql, header, message
 from ..database import db
@@ -73,4 +75,38 @@ def recalculate(extract=False):
             attitude.calculate()
             db.session.add(attitude)
         db.session.commit()
+
+@ElevationCommand.command(name='check-integrity')
+def check_integrity():
+    """
+    Checks the integrity of computed data in the database
+    """
+    from ..models import Attitude, AttitudeGroup
+
+    set = AttitudeGroup.query.all() + Attitude.query.all()
+
+    index = defaultdict(list)
+
+    def equal(meas, name, *vals):
+        try:
+            assert N.allclose(*vals)
+        except AssertionError:
+            index[str(meas)].append(name)
+
+    secho("Checking data integrity for {} measurements".format(len(set)),
+          fg='green',bold=True)
+
+    with click.progressbar(set,length=len(set)) as bar:
+        for a in bar:
+            pca = a.pca()
+            equal(a,"principal axes",pca.axes, a.principal_axes)
+            equal(a,"singular values",pca.singular_values, a.singular_values)
+            equal(a,"covariance",N.diagonal(pca.covariance_matrix), a.covariance)
+            equal(a,"number of samples",pca.n, a.n_samples)
+            equal(a,"strike and dip",pca.strike_dip(),(a.strike,a.dip))
+
+    secho("Errors",fg="red",bold=True)
+    for k,v in index.items():
+        echo("{}: ".format(k)+", ".join([
+            style(str(i),fg='red') for i in v]))
 

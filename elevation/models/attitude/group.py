@@ -28,6 +28,9 @@ class AttitudeGroup(db.Model, AttitudeInterface):
         self.measurements = features
         self.calculate()
 
+    def __str__(self):
+        return "Group {}".format(self.id)
+
     @property
     def centered_array(self):
         if self.same_plane:
@@ -52,8 +55,6 @@ class AttitudeGroup(db.Model, AttitudeInterface):
             for m in self.measurements])
 
     def serialize(self):
-        pca = self.pca()
-        s = N.diagonal(pca.covariance_matrix)
         return dict(
             type="GroupedAttitude",
             id=self.id,
@@ -63,7 +64,8 @@ class AttitudeGroup(db.Model, AttitudeInterface):
             same_plane=self.same_plane,
             r=self.correlation_coefficient,
             p=self.planarity,
-            singularValues=s.tolist(),
-            axes=pca.axes.tolist(),
+            n_samples=self.n_samples,
+            singularValues=self.covariance,
+            axes=self.principal_axes,
             measurements=[m.id\
                 for m in self.measurements])
