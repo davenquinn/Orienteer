@@ -65,7 +65,7 @@ class AttitudeGroup(db.Model, AttitudeInterface):
             r=self.correlation_coefficient,
             p=self.planarity,
             n_samples=self.n_samples,
-            singularValues=self.covariance,
+            covariance=self.covariance,
             axes=self.principal_axes,
             measurements=[m.id\
                 for m in self.measurements])

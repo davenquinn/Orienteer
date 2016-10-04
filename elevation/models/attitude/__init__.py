@@ -40,7 +40,7 @@ class Attitude(DatasetFeature, AttitudeInterface):
                 strike=self.strike,
                 dip=self.dip,
                 n_samples=self.n_samples,
-                singularValues=self.covariance,
+                covariance=self.covariance,
                 axes=self.principal_axes))
 
     def calculate(self):

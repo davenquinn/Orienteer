@@ -64,6 +64,7 @@ class StereonetView extends Spine.Controller
     sel.enter()
       .append "g"
         .each (d)->
+          console.log d.properties
           fn.call @, d.properties
         .classed "hovered", true
     @hovered.selectAll 'path'
