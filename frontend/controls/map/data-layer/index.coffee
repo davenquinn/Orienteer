@@ -1,4 +1,5 @@
 d3 = require "d3"
+require 'd3-selection-multi'
 L = require "leaflet"
 Spine = require "spine"
 setupMarkers = require "./markers"
@@ -26,15 +27,18 @@ class DataLayer extends EventedShim
     super
   onAdd: ->
     super
-    @setupMarkers()
+    # Shim for mismatched versions of D3
+    @svg = d3.select(@svg.node())
     @container = @svg.append("g")
+
+    setupMarkers(@container)
 
     if @data?
       @setupData @data
 
   setupData: (@data)->
     mdip = 5
-    @cscale = d3.scale.linear()
+    @cscale = d3.scaleLinear()
         .domain [0, mdip]
         .range ["white","red"]
 
@@ -52,13 +56,13 @@ class DataLayer extends EventedShim
       z = @_map.getZoom()
       console.log "Resizing markers for zoom",z
       @markers.call @setTransform
-      @features.attr d: @path
+      @features.attrs d: @path
 
     @container.append "g"
-      .attr class: "features"
+      .attrs class: "features"
 
     @markers = @container.append "g"
-      .attr class: "markers"
+      .attr 'class', "markers"
       .selectAll "g"
 
     @updateData()
@@ -97,7 +101,7 @@ class DataLayer extends EventedShim
 
     @features.enter()
       .append "path"
-        .attr
+        .attrs
           class: (d)->d.geometry.type
           d: @path
         .call applyEvents
@@ -112,19 +116,17 @@ class DataLayer extends EventedShim
     @features.exit().remove()
     @markers.exit().remove()
 
-  setupMarkers: -> setupMarkers(@svg)
-
   setTransform: (sel)=>
     z = @_map.getZoom()
     proj = @projectPoint
-    sel.attr transform: (d)->
+    sel.attrs transform: (d)->
       s = d.properties.strike
       c = d.properties.center.coordinates
       c = proj(c[0],c[1])
       "translate(#{c.x} #{c.y}) rotate(#{s} 0 0) scale(#{1+0.2*z})"
     z = 5+0.2*z
     sel.select "text"
-      .attr
+      .attrs
         dy: z/2
         "font-size": z
   resetView: =>
@@ -133,7 +135,7 @@ class DataLayer extends EventedShim
       features: Feature.collection
 
     @markers.call @setTransform
-    @features.attr d: @path
+    @features.attr 'd', @path
 
   updateSelection: (sel)=>
     sel = @data.selection.records unless sel

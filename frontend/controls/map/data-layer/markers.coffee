@@ -2,13 +2,13 @@ d3 = require "d3"
 
 circleMarker = (sel, r)->
   sel
-    .attr
+    .attrs
         markerWidth: r
         markerHeight: r
         refX: r/2
         refY: r/2
     .append "circle"
-        .attr
+        .attrs
             class: 'circle-endpoint'
             cx: r/2
             cy: r/2
@@ -16,14 +16,14 @@ circleMarker = (sel, r)->
 
 arrowMarker = (sel)->
   sel
-    .attr
+    .attrs
         markerWidth: 13
         markerHeight: 13
         refX: 2
         refY: 6
         orient: "auto"
     .append "path"
-        .attr
+        .attrs
             class: 'arrow-endpoint'
             d: "M2,2 L2,11 L10,6 L2,2"
 
