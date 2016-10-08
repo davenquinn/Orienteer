@@ -4,6 +4,7 @@ ReactDOM = require 'react-dom'
 d3 = require 'd3'
 require 'd3-selection-multi'
 style = require './main.styl'
+stereonet = require './control'
 
 class StereonetPage extends React.Component
   render: ->
@@ -11,11 +12,18 @@ class StereonetPage extends React.Component
       <Link className={style.homeLink} to="/">
         <i className='fa fa-home' />
       </Link>
+      <svg />
     </div>
   componentDidMount: ->
-    console.log @props.data
+    data = @props.data
+      .records()
+      .map (d)->d.properties
+
     el = ReactDOM.findDOMNode @
     svg = d3.select el
+      .select "svg"
+      .attrs height: 800, width: 800
+      .call stereonet, data
 
 module.exports = StereonetPage
 
