@@ -13,6 +13,7 @@ class StereonetPage extends React.Component
       </Link>
     </div>
   componentDidMount: ->
+    console.log @props.data
     el = ReactDOM.findDOMNode @
     svg = d3.select el
 
