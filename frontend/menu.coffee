@@ -11,7 +11,7 @@ module.exports = (app)->
           label: 'Go to front page'
           accelerator: 'Command+H'
           click: ->
-            app.index()
+            app.setHomepage()
         }
         {
           label: 'Filter Data'

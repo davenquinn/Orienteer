@@ -1,11 +1,15 @@
 $ = require "jquery"
 Spine = require "spine"
+React = require 'react'
+ReactDOM = require 'react-dom'
+
 Map = require "../controls/map"
+setupMenu = require "../menu"
+
 Data = require "./data"
 AttitudePage = require "../endpoints/attitudes"
 NotesPage = require "../endpoints/notes"
 EditorPage = require "../endpoints/edit"
-template = require "./frontpage.html"
 
 {remote} = require "electron"
 
@@ -13,11 +17,6 @@ styles = require '../styles/layout.styl'
 
 erf = (request, textStatus, errorThrown)->
   console.log request, textStatus, errorThrown
-
-class IndexPage
-  constructor: (opts)->
-    @el = opts.el
-    @el.html template(opts)
 
 class App extends Spine.Controller
   constructor: ->
@@ -38,8 +37,6 @@ class App extends Spine.Controller
         @setupData(@editor)
       "attitudes": =>
         @setupData(@attitudes)
-      "index": =>
-        @setupData(@index)
 
     @log "Created app"
 
@@ -69,16 +66,20 @@ class App extends Spine.Controller
     @log "Setting up editor"
     @__setPage EditorPage, data: @data
 
-  index: (data)=>
-    @log "Setting up index"
-    o = @config.projectName or "Orientations"
-    @__setPage IndexPage, {project:o}
-
   __setPage: (pageclass, options={})=>
     options.el = $('<div id="main" />').appendTo @el
     @page = new pageclass(options)
 
-  setHomepage: =>
-    @state.page = 'index'
-    remote.getCurrentWindow().reload()
-module.exports = App
+class UI extends React.Component
+  render: ->
+    React.createElement "div"
+  componentDidMount: ->
+    el = ReactDOM.findDOMNode @
+    @app = new App el: el
+    setupMenu(app)
+  shouldComponentUpdate: ->false
+
+module.exports = ->
+  el = React.createElement UI
+  ReactDOM.render el, document.getElementById 'wrapper'
+
