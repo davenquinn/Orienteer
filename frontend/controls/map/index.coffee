@@ -6,7 +6,6 @@ $ = require 'jquery'
 L = require 'leaflet'
 path = require 'path'
 React = require 'react'
-ReactDOM = require 'react-dom'
 BackButton = require './back-button'
 
 CacheDatastore = require "../../shared/data/cache"
@@ -31,12 +30,12 @@ class Map extends Spine.Controller
     @dataLayer = new DataLayer
     @dataLayer.addTo @leaflet
     ovr = {"Bedding attitudes": @dataLayer}
+    @leaflet.addControl new BackButton
     @leaflet.addLayerControl {}, ovr
     @leaflet.addScalebar()
 
     @leaflet.on "viewreset dragend", @extentChanged
     @leaflet.addHandler "boxSelect", SelectBox
-    @leaflet.addControl new BackButton
     @leaflet.invalidateSize()
 
     # Set height in javascript (temporarily
@@ -50,12 +49,6 @@ class Map extends Spine.Controller
       @settings.set @visibleLayers
 
     @leaflet.on 'layeradd layerremove', _
-
-    #Add a link to the homepage
-    #el_ = @$ '.leaflet-top.leaflet-left'
-    #.append "<div />"
-    #e = React.createElement BackButton
-    #ReactDOM.render e, el_[0]
 
   invalidateSize: =>
     # Shim for flexbox
