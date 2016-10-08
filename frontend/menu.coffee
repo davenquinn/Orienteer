@@ -8,12 +8,6 @@ module.exports = (app)->
       label: 'Application'
       submenu: [
         {
-          label: 'Go to front page'
-          accelerator: 'Command+H'
-          click: ->
-            app.setHomepage()
-        }
-        {
           label: 'Filter Data'
           accelerator: 'Command+F'
           click: ->

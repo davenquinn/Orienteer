@@ -2,16 +2,19 @@ $ = require "jquery"
 Spine = require "spine"
 React = require 'react'
 ReactDOM = require 'react-dom'
+{createHistory, useBasename} = require 'history'
+{Router, Route, hashHistory} = require 'react-router'
+{remote} = require "electron"
+setupMenu = require "../menu"
+
+Frontpage = require "./frontpage.cjsx"
 
 Map = require "../controls/map"
-setupMenu = require "../menu"
 
 Data = require "./data"
 AttitudePage = require "../endpoints/attitudes"
 NotesPage = require "../endpoints/notes"
 EditorPage = require "../endpoints/edit"
-
-{remote} = require "electron"
 
 styles = require '../styles/layout.styl'
 
@@ -77,9 +80,14 @@ class UI extends React.Component
     el = ReactDOM.findDOMNode @
     @app = new App el: el
     setupMenu(app)
+  componentWillUnmount: ->
   shouldComponentUpdate: ->false
 
 module.exports = ->
-  el = React.createElement UI
-  ReactDOM.render el, document.getElementById 'wrapper'
+
+  ReactDOM.render(
+    <Router history={hashHistory}>
+      <Route path="/" component={Frontpage} />
+      <Route path="map" component={UI}/>
+    </Router>, document.getElementById 'wrapper')
 

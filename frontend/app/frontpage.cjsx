@@ -6,6 +6,6 @@ class Frontpage extends React.Component
     <ul>
       <li><Link to='/map'>Map</Link></li>
       <li><Link to='/stereonet'>Stereonet</Link></li>
-    <ul>
+    </ul>
 
 module.exports = Frontpage
