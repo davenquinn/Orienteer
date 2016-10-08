@@ -5,6 +5,7 @@ Data = require "./data"
 AttitudePage = require "../endpoints/attitudes"
 NotesPage = require "../endpoints/notes"
 EditorPage = require "../endpoints/edit"
+template = require "./frontpage.html"
 
 {remote} = require "electron"
 
@@ -12,6 +13,11 @@ styles = require '../styles/layout.styl'
 
 erf = (request, textStatus, errorThrown)->
   console.log request, textStatus, errorThrown
+
+class IndexPage
+  constructor: (opts)->
+    @el = opts.el
+    @el.html template(opts)
 
 class App extends Spine.Controller
   constructor: ->
@@ -32,6 +38,8 @@ class App extends Spine.Controller
         @setupData(@editor)
       "attitudes": =>
         @setupData(@attitudes)
+      "index": =>
+        @setupData(@index)
 
     @log "Created app"
 
@@ -61,13 +69,16 @@ class App extends Spine.Controller
     @log "Setting up editor"
     @__setPage EditorPage, data: @data
 
+  index: (data)=>
+    @log "Setting up index"
+    o = @config.projectName or "Orientations"
+    @__setPage IndexPage, {project:o}
+
   __setPage: (pageclass, options={})=>
     options.el = $('<div id="main" />').appendTo @el
     @page = new pageclass(options)
 
-  toggleEditor: =>
-    e = @state.page == 'editor'
-    @state.page = if e then 'attitudes' else 'editor'
-    console.log @state.page
+  setHomepage: =>
+    @state.page = 'index'
     remote.getCurrentWindow().reload()
 module.exports = App
