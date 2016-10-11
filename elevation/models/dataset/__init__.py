@@ -26,9 +26,6 @@ class Dataset(BaseModel):
     # user-controlled (for dataset cropping)
     manage_footprint = db.Column(db.Boolean, default=True)
 
-    # Foreign key constraints
-    attitudes = db.relationship("Attitude")
-
     @property
     def bounds(self):
         with rasterio.open(self.dem_path) as f:

@@ -6,9 +6,15 @@ from .interface import db, AttitudeInterface
 from ..tag import attitude_group_tag
 
 class AttitudeGroup(db.Model, AttitudeInterface):
-    __tablename__ = 'attitude_group'
+    __tablename__ = 'attitude_new'
+    __mapper_args__ = dict(
+        polymorphic_on='type',
+        polymorphic_identity='grouped',
+        extend_existing=True)
 
     id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String)
+
     name = db.Column(db.String(128))
     desc = db.Column(db.Text)
 
@@ -17,11 +23,6 @@ class AttitudeGroup(db.Model, AttitudeInterface):
 
     measurements = db.relationship("Attitude",
             lazy='joined', backref="group")
-
-    _tags = db.relationship("Tag",
-        secondary=attitude_group_tag,
-        backref='attitude_groups')
-    tags = association_proxy('_tags','name')
 
     def __init__(self, features, **kwargs):
         db.Model.__init__(self,**kwargs)

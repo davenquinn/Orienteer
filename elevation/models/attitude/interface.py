@@ -11,7 +11,6 @@ class AttitudeInterface(object):
     strike = db.Column(db.Float)
     dip = db.Column(db.Float)
     correlation_coefficient = db.Column(db.Float)
-    planarity = db.Column(db.Float)
 
     principal_axes = db.Column(ARRAY(db.Float,
         dimensions=2,zero_indexes=True))
@@ -82,11 +81,10 @@ class AttitudeInterface(object):
                 return "unmeasured"
             except TypeError:
                 return "unmeasured"
-        s = "{cls} {id}: strike {s}, dip {d}, planarity {p}"\
+        s = "{cls} {id}: strike {s}, dip {d}"\
             .format(
                 cls = self.__class__.__name__,
                 id = self.id,
                 s = val(self.strike, "{0:.1f}"),
-                d = val(self.dip, "{0:.1f}"),
-                p = val(self.planarity,"{0:.2f}"))
+                d = val(self.dip, "{0:.1f}"))
         return s
