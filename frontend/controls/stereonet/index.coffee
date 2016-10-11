@@ -17,7 +17,11 @@ class StereonetView extends Spine.Controller
     # Can specify both data and selection if you don't want
     # them to go to the default values.
     super
-    @stereonet = new Stereonet @el[0]
+    sz =
+      width: 300
+      height: 300
+
+    @stereonet = new Stereonet @el[0], sz
 
     @data = window.app.data
     throw "No data" unless @data?
@@ -35,31 +39,35 @@ class StereonetView extends Spine.Controller
 
   update: =>
     ds = @selection.visible()
-    console.log ds
 
     @items = @stereonet.dataArea.selectAll 'g'
       .data ds, (d)->d.id
 
+    fn = createPlane(color: 'red')
     @items.enter()
       .append "g"
         .on "mouseover mouseout", @data.hovered
-        .each createPlane 'red'
+        .each (d)->
+          fn.call @, d.properties
     @items.exit().remove()
 
     @stereonet.draw()
 
   onHover: (d)=>
-    console.log d
     if not d? then return
     data = if d.hovered then [d] else []
+
+    fn = createPlane(color: 'purple')
+
     sel = @hovered.selectAll "g"
       .data data, (d)->d.id
     sel.enter()
       .append "g"
-        .each createPlane 'purple'
+        .each (d)->
+          fn.call @, d.properties
         .classed "hovered", true
     @hovered.selectAll 'path'
-      .attr d: @path
+      .attr 'd', @path
 
     sel.exit().remove()
     @stereonet.draw()

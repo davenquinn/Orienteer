@@ -49,8 +49,8 @@ class Data extends Spine.Module
           throw e
         console.log d1,d2
         console.log "Data received from server"
-        features = d1.response.data
-          .concat d2.response.data
+        features = d1.data
+          .concat d2.data
         console.log features
         @setupData features
         @fetched = true

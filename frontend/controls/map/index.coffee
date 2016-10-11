@@ -5,6 +5,8 @@ GIS = require 'gis-core'
 $ = require 'jquery'
 L = require 'leaflet'
 path = require 'path'
+React = require 'react'
+BackButton = require './back-button'
 
 CacheDatastore = require "../../shared/data/cache"
 
@@ -28,6 +30,7 @@ class Map extends Spine.Controller
     @dataLayer = new DataLayer
     @dataLayer.addTo @leaflet
     ovr = {"Bedding attitudes": @dataLayer}
+    @leaflet.addControl new BackButton
     @leaflet.addLayerControl {}, ovr
     @leaflet.addScalebar()
 

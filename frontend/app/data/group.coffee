@@ -80,7 +80,8 @@ class GroupedFeature extends Spine.Module
       r: obj.r
       p: obj.p
       axes: obj.axes
-      singularValues: obj.singularValues
+      covariance: obj.covariance
+      n_samples: obj.n_samples
     @properties = {} unless @properties?
     for key, val of p
       @properties[key] = val

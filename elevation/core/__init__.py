@@ -21,17 +21,6 @@ log2.setLevel(logging.INFO)
 
 elevation = Blueprint('elevation',__name__)
 
-def get_attitude(id):
-    from ..models import Attitude, AttitudeGroup
-    cls = Attitude
-    try:
-        id = int(id)
-    except ValueError:
-        if id.startswith("G"):
-            cls = AttitudeGroup
-        id = int(id[1:])
-    return cls.query.get(id)
-
 def image(fig):
     i_ = BytesIO()
     fig.savefig(i_,
@@ -44,6 +33,8 @@ def image(fig):
 
 @elevation.route("/attitude/<id>/data.html")
 def attitude_data(id):
+    from ..models import get_attitude
+
     attitude = get_attitude(id)
     pca = attitude.pca()
     return render_template("data-area.html",
@@ -56,12 +47,16 @@ def attitude_data(id):
 
 @elevation.route("/attitude/<id>/axis-aligned.png")
 def principal_components(id):
+    from ..models import get_attitude
+
     attitude = get_attitude(id)
     fig = attitude.plot_aligned()
     return image(fig)
 
 @elevation.route("/attitude/<id>/error.png")
 def error_ellipse(id):
+    from ..models import get_attitude
+
     attitude = get_attitude(id)
     fig = attitude.error_ellipse()
     return image(fig)

@@ -15,6 +15,9 @@ class AttitudeInterface(object):
 
     principal_axes = db.Column(ARRAY(db.Float,
         dimensions=2,zero_indexes=True))
+    singular_values = db.Column(ARRAY(db.Float,zero_indexes=True))
+    covariance = db.Column(ARRAY(db.Float,zero_indexes=True))
+    n_samples = db.Column(db.Integer)
 
     @property
     def aligned_array(self):
@@ -48,7 +51,8 @@ class AttitudeInterface(object):
             return self.__pca
         except AttributeError:
             a = self.centered_array
-            self.__pca = Orientation(a, axes=N.array(self.principal_axes))
+            ax = N.array(self.principal_axes)*N.array(self.singular_values)
+            self.__pca = Orientation(a, axes=ax)
             return self.__pca
 
     def calculate(self):
@@ -58,7 +62,10 @@ class AttitudeInterface(object):
         except IndexError:
             # If there aren't enough coordinates
             return
-        self.principal_axes = pca.principal_axes.tolist()
+        self.principal_axes = pca.axes.tolist()
+        self.singular_values = pca.singular_values.tolist()
+        self.covariance = N.diagonal(pca.covariance_matrix).tolist()
+        self.n_samples = pca.n
         self.strike, self.dip = pca.strike_dip()
 
         #r = N.sqrt(N.sum(N.diagonal(pca.covariance_matrix)))

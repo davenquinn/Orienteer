@@ -24,7 +24,6 @@ class Sidebar extends Spine.Controller
     @listenTo @data.selection, "selection:updated", @updateView
     @listenTo @sel.list, "group-selected", @viewGroup
     @listenTo @sel.list, "focused", (d)=>
-      console.log d
       @viewData(d)
     @updateView()
 
@@ -56,6 +55,8 @@ class Sidebar extends Spine.Controller
   viewData: (record)=>
     @sel.el.hide()
     @log "Creating viewer control"
+    if @viewer?
+      @viewer.release()
     @viewer = new ViewerControl
       el: $("<div />").appendTo @el
       data: record

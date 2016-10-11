@@ -38,14 +38,6 @@ class Attitude(DatasetFeature, AttitudeInterface):
 
 
     def serialize(self):
-        pca = self.pca()
-        s = N.diagonal(pca.covariance_matrix)
-        axes = pca.axes
-        if N.isnan(axes).sum():
-            axes = None
-        else:
-            axes = axes.tolist()
-
         return dict(
             type="Feature",
             id=self.id,
@@ -57,10 +49,14 @@ class Attitude(DatasetFeature, AttitudeInterface):
                 center=mapping(to_shape(self.location)),
                 strike=self.strike,
                 dip=self.dip,
-                singularValues=s.tolist(),
-                axes=axes))
+                n_samples=self.n_samples,
+                covariance=self.covariance,
+                axes=self.principal_axes))
 
     def calculate(self):
         self.location = from_shape(self.shape.centroid,
                 srid=srid.world)
         AttitudeInterface.calculate(self)
+
+    def __str__(self):
+        return "Attitude {}".format(self.id)

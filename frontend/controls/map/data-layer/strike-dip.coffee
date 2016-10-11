@@ -2,10 +2,10 @@ d3 = require 'd3'
 # Class to create a strike-dip marker
 module.exports = (d)->
   i = d3.select @
-    .attr class: "marker"
+    .attrs class: "marker"
 
   i.append "line"
-      .attr
+      .attrs
         x1: 0
         x2: 5
         y1: 0
@@ -13,7 +13,7 @@ module.exports = (d)->
         stroke: "black"
 
   i.append "line"
-    .attr
+    .attrs
       x1: 0
       x2: 0
       y1: -10
@@ -21,8 +21,8 @@ module.exports = (d)->
       stroke: "black"
 
   i.append "text"
-    .text d3.round(d.properties.dip)
-    .attr
+    .text d3.format(".0f")(d.properties.dip)
+    .attrs
       class: "dip-magnitude"
       x: 10
       y: 0
