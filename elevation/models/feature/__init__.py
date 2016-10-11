@@ -4,11 +4,9 @@ from shapely.geometry import mapping, shape
 
 import numpy as N
 from sqlalchemy.dialects.postgresql import array, ARRAY
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.sql.expression import func, text
 
 from ..base import db, BaseModel
-from ..tag import Tag, feature_tag
 
 from ...core.proj import srid
 
@@ -23,9 +21,6 @@ class DatasetFeature(BaseModel):
     and incorporates elevation data.
     """
     __tablename__ = "dataset_feature"
-    __mapper_args__ = dict(
-        polymorphic_identity = 'DatasetFeature',
-        polymorphic_on = 'type')
 
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(64)) # Polymorphic discriminator column
@@ -34,11 +29,6 @@ class DatasetFeature(BaseModel):
 
     mapping = property(lambda self: self.__geo_interface__)
     shape = property(lambda self: to_shape(self.geometry))
-
-    _tags = db.relationship("Tag",
-        secondary=feature_tag,
-        backref='features')
-    tags = association_proxy('_tags','name')
     dataset = db.relationship("Dataset",
         backref='features')
 

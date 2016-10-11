@@ -11,7 +11,9 @@ from geoalchemy2.shape import from_shape, to_shape
 from attitude.orientation import Orientation
 from attitude.coordinates import centered
 from sqlalchemy.dialects.postgresql import array, ARRAY
+from sqlalchemy.ext.associationproxy import association_proxy
 
+from .tag import Tag, attitude_tag
 from ..feature import DatasetFeature, srid
 from ...database import db
 
@@ -26,6 +28,8 @@ class Attitude(db.Model):
     feature_id = db.Column(
         db.Integer,
         db.ForeignKey('dataset_feature.id'))
+
+    feature = db.relationship(DatasetFeature)
 
     strike = db.Column(db.Float)
     dip = db.Column(db.Float)
@@ -47,6 +51,11 @@ class Attitude(db.Model):
     group = db.relationship("AttitudeGroup",
             back_populates="measurements",
             remote_side=id)
+
+    _tags = db.relationship("Tag",
+        secondary=attitude_tag,
+        backref='features')
+    tags = association_proxy('_tags','name')
 
     __table_args__ = (
         # Check that we don't define group membership and feature
@@ -71,6 +80,10 @@ class Attitude(db.Model):
         return plot_aligned(self.pca())
 
     @property
+    def array(self):
+        return self.feature.array
+
+    @property
     def centered_array(self):
         return centered(self.array)
 
@@ -90,8 +103,10 @@ class Attitude(db.Model):
             self.__pca = Orientation(a, axes=ax)
             return self.__pca
 
-    def calculate(self):
-
+    def __calculate(self):
+        """
+        Calculations that apply to both attitudes and groups thereof
+        """
         try:
             pca = Orientation(self.centered_array)
         except IndexError:
@@ -143,7 +158,7 @@ class Attitude(db.Model):
     def calculate(self):
         self.location = from_shape(self.shape.centroid,
                 srid=srid.world)
-        AttitudeInterface.calculate(self)
+        self.__calculate()
 
     def __str__(self):
         return "Attitude {}".format(self.id)
