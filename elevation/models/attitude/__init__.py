@@ -1,14 +1,21 @@
+from __future__ import division
+
 import numpy as N
 from shapely.geometry import mapping
 from sqlalchemy import func, CheckConstraint
+import logging as log
 
 from geoalchemy2.types import Geometry
 from geoalchemy2.shape import from_shape, to_shape
 
-from .interface import db, AttitudeInterface
-from ..feature import DatasetFeature, srid
+from attitude.orientation import Orientation
+from attitude.coordinates import centered
+from sqlalchemy.dialects.postgresql import array, ARRAY
 
-class Attitude(db.Model, AttitudeInterface):
+from ..feature import DatasetFeature, srid
+from ...database import db
+
+class Attitude(db.Model):
     __tablename__ = 'attitude_new'
     __mapper_args__ = dict(
         polymorphic_on='type',
@@ -20,6 +27,16 @@ class Attitude(db.Model, AttitudeInterface):
         db.Integer,
         db.ForeignKey('dataset_feature.id'))
 
+    strike = db.Column(db.Float)
+    dip = db.Column(db.Float)
+    correlation_coefficient = db.Column(db.Float)
+
+    principal_axes = db.Column(ARRAY(db.Float,
+        dimensions=2,zero_indexes=True))
+    singular_values = db.Column(ARRAY(db.Float,zero_indexes=True))
+    covariance = db.Column(ARRAY(db.Float,zero_indexes=True))
+    n_samples = db.Column(db.Integer)
+
     location = db.Column(Geometry("POINT", srid=srid.world))
 
     valid = db.Column(db.Boolean)
@@ -27,15 +44,86 @@ class Attitude(db.Model, AttitudeInterface):
         db.Integer,
         db.ForeignKey('attitude_new.id'))
 
-    # group = db.relationship("AttitudeGroup",
-            # back_populates="measurements",
-            # remote_side="AttitudeGroup.id")
+    group = db.relationship("AttitudeGroup",
+            back_populates="measurements",
+            remote_side=id)
 
     __table_args__ = (
         # Check that we don't define group membership and feature
         # if isn't a group.
         CheckConstraint('NOT grouped OR (group_id IS NULL AND feature_id IS NULL)'),
     )
+
+    @property
+    def aligned_array(self):
+        """
+        Array aligned with the principal components
+        of the orientation measurement.
+        """
+        return N.array(self.axis_aligned)
+
+    def error_ellipse(self):
+        from .plot import error_ellipse
+        return error_ellipse(self)
+
+    def plot_aligned(self):
+        from attitude.display.plot import plot_aligned
+        return plot_aligned(self.pca())
+
+    @property
+    def centered_array(self):
+        return centered(self.array)
+
+    def regress(self):
+        return self.pca
+
+    def pca(self):
+        """
+        Initialize a principal components
+        analysis against the attitude.
+        """
+        try:
+            return self.__pca
+        except AttributeError:
+            a = self.centered_array
+            ax = N.array(self.principal_axes)*N.array(self.singular_values)
+            self.__pca = Orientation(a, axes=ax)
+            return self.__pca
+
+    def calculate(self):
+
+        try:
+            pca = Orientation(self.centered_array)
+        except IndexError:
+            # If there aren't enough coordinates
+            return
+        self.principal_axes = pca.axes.tolist()
+        self.singular_values = pca.singular_values.tolist()
+        self.covariance = N.diagonal(pca.covariance_matrix).tolist()
+        self.n_samples = pca.n
+        self.strike, self.dip = pca.strike_dip()
+
+        #r = N.sqrt(N.sum(N.diagonal(pca.covariance_matrix)))
+        # Actually, the sum of squared errors
+        # maybe should change this
+        sse = N.sum(pca.rotated()[:,2]**2)
+        self.correlation_coefficient = N.sqrt(sse/len(pca.rotated()))
+
+    def __repr__(self):
+        def val(obj, s):
+            try:
+                return s.format(obj)
+            except ValueError:
+                return "unmeasured"
+            except TypeError:
+                return "unmeasured"
+        s = "{cls} {id}: strike {s}, dip {d}"\
+            .format(
+                cls = self.__class__.__name__,
+                id = self.id,
+                s = val(self.strike, "{0:.1f}"),
+                d = val(self.dip, "{0:.1f}"))
+        return s
 
     def serialize(self):
         return dict(
@@ -45,7 +133,6 @@ class Attitude(db.Model, AttitudeInterface):
             geometry=mapping(to_shape(self.geometry)),
             properties=dict(
                 r=self.correlation_coefficient,
-                p=self.planarity,
                 center=mapping(to_shape(self.location)),
                 strike=self.strike,
                 dip=self.dip,
@@ -68,13 +155,11 @@ class AttitudeGroup(Attitude):
     same_plane = db.Column(db.Boolean,
             nullable=False, default=False)
 
-    # measurements = db.relationship(Attitude,
-            # back_populates="group",
-            # remote_side=Attitude.id)
+    measurements = db.relationship(Attitude)
 
-    def __init__(self, features, **kwargs):
+    def __init__(self, attitudes, **kwargs):
         db.Model.__init__(self,**kwargs)
-        self.measurements = features
+        self.measurements = attitudes
         self.calculate()
 
     def __str__(self):
@@ -112,7 +197,6 @@ class AttitudeGroup(Attitude):
             tags=list(self.tags),
             same_plane=self.same_plane,
             r=self.correlation_coefficient,
-            p=self.planarity,
             n_samples=self.n_samples,
             covariance=self.covariance,
             axes=self.principal_axes,
