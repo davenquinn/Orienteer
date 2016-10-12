@@ -2,7 +2,9 @@ from __future__ import division
 
 import numpy as N
 from shapely.geometry import mapping
-from sqlalchemy import func, CheckConstraint
+from sqlalchemy.orm import column_property, object_session
+from sqlalchemy import func, select, cast, CheckConstraint
+from sqlalchemy.ext.associationproxy import association_proxy
 import logging as log
 
 from geoalchemy2.types import Geometry
@@ -12,6 +14,7 @@ from attitude.orientation import Orientation
 from attitude.coordinates import centered
 from sqlalchemy.dialects.postgresql import array, ARRAY
 from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from .tag import Tag, attitude_tag
 from ..feature import DatasetFeature, srid
@@ -41,6 +44,7 @@ class Attitude(db.Model):
     covariance = db.Column(ARRAY(db.Float,zero_indexes=True))
     n_samples = db.Column(db.Integer)
 
+    geometry = association_proxy('feature','geometry')
     location = db.Column(Geometry("POINT", srid=srid.world))
 
     valid = db.Column(db.Boolean)
@@ -69,7 +73,7 @@ class Attitude(db.Model):
         Array aligned with the principal components
         of the orientation measurement.
         """
-        return N.array(self.axis_aligned)
+        return N.array(self.feature.axis_aligned)
 
     def error_ellipse(self):
         from .plot import error_ellipse
@@ -103,27 +107,6 @@ class Attitude(db.Model):
             self.__pca = Orientation(a, axes=ax)
             return self.__pca
 
-    def __calculate(self):
-        """
-        Calculations that apply to both attitudes and groups thereof
-        """
-        try:
-            pca = Orientation(self.centered_array)
-        except IndexError:
-            # If there aren't enough coordinates
-            return
-        self.principal_axes = pca.axes.tolist()
-        self.singular_values = pca.singular_values.tolist()
-        self.covariance = N.diagonal(pca.covariance_matrix).tolist()
-        self.n_samples = pca.n
-        self.strike, self.dip = pca.strike_dip()
-
-        #r = N.sqrt(N.sum(N.diagonal(pca.covariance_matrix)))
-        # Actually, the sum of squared errors
-        # maybe should change this
-        sse = N.sum(pca.rotated()[:,2]**2)
-        self.correlation_coefficient = N.sqrt(sse/len(pca.rotated()))
-
     def __repr__(self):
         def val(obj, s):
             try:
@@ -145,7 +128,7 @@ class Attitude(db.Model):
             type="Feature",
             id=self.id,
             tags=list(self.tags),
-            geometry=mapping(to_shape(self.geometry)),
+            geometry=mapping(to_shape(self.feature.geometry)),
             properties=dict(
                 r=self.correlation_coefficient,
                 center=mapping(to_shape(self.location)),
@@ -156,9 +139,24 @@ class Attitude(db.Model):
                 axes=self.principal_axes))
 
     def calculate(self):
-        self.location = from_shape(self.shape.centroid,
-                srid=srid.world)
-        self.__calculate()
+        self.location = func.ST_Centroid(self.geometry)
+
+        try:
+            pca = Orientation(self.centered_array)
+        except IndexError:
+            # If there aren't enough coordinates
+            return
+        self.principal_axes = pca.axes.tolist()
+        self.singular_values = pca.singular_values.tolist()
+        self.covariance = N.diagonal(pca.covariance_matrix).tolist()
+        self.n_samples = pca.n
+        self.strike, self.dip = pca.strike_dip()
+
+        #r = N.sqrt(N.sum(N.diagonal(pca.covariance_matrix)))
+        # Actually, the sum of squared errors
+        # maybe should change this
+        sse = N.sum(pca.rotated()[:,2]**2)
+        self.correlation_coefficient = N.sqrt(sse/len(pca.rotated()))
 
     def __str__(self):
         return "Attitude {}".format(self.id)
@@ -179,6 +177,28 @@ class AttitudeGroup(Attitude):
 
     def __str__(self):
         return "Group {}".format(self.id)
+
+    # Add a property for geometry that creates a union
+    # of all component data
+    def __build_geometry(self):
+        """
+        Un-executed query to find geometry from component
+        parts
+        """
+        return (select([func.ST_SetSrid(
+                func.ST_Union(DatasetFeature.geometry),srid.world)])
+            .select_from(DatasetFeature.__table__.join(Attitude))
+            .where(Attitude.member_of==self.id)
+            .group_by(Attitude.member_of))
+
+    @hybrid_property
+    def geometry(self):
+        s = object_session(self)
+        return s.execute(self.__build_geometry()).scalar()
+
+    @geometry.expression
+    def geometry(cls):
+        return __build_geometry(cls)
 
     @property
     def centered_array(self):
@@ -215,5 +235,6 @@ class AttitudeGroup(Attitude):
             n_samples=self.n_samples,
             covariance=self.covariance,
             axes=self.principal_axes,
-            measurements=[m.id\
+            measurements=[m.id
                 for m in self.measurements])
+

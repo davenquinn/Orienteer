@@ -68,7 +68,7 @@ def recalculate(extract=False):
             db.session.commit()
 
     secho("Updating orientation measurements", **heading)
-    set = AttitudeGroup.query.all() + Attitude.query.all()
+    set = Attitude.query.all()
 
     with click.progressbar(set,length=len(set)) as bar:
         for attitude in bar:
