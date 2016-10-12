@@ -137,6 +137,8 @@ def data():
     log.info("Serializing attitude data")
     d = jsonify(
         data=[o.serialize()
-        for o in Attitude.query.all()])
+        for o in Attitude.query
+            .filter_by(type='single')
+            .all()])
     log.info(d)
     return d

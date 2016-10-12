@@ -83,8 +83,7 @@ def check_integrity():
     """
     from ..models import Attitude, AttitudeGroup
 
-    set = AttitudeGroup.query.all() + Attitude.query.all()
-
+    set = Attitude.query.all()
     index = defaultdict(list)
 
     def equal(meas, name, *vals):

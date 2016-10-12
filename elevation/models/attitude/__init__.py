@@ -155,7 +155,6 @@ class Attitude(db.Model):
         if self.dip == 90:
             self.valid = False
 
-        #r = N.sqrt(N.sum(N.diagonal(pca.covariance_matrix)))
         # Actually, the sum of squared errors
         # maybe should change this
         sse = N.sum(pca.rotated()[:,2]**2)
@@ -188,8 +187,8 @@ class AttitudeGroup(Attitude):
         Un-executed query to find geometry from component
         parts
         """
-        return (select([func.ST_SetSrid(
-                func.ST_Union(DatasetFeature.geometry),srid.world)])
+        __ = func.ST_Union(DatasetFeature.geometry)
+        return (select([func.ST_SetSrid(__,srid.world)])
             .select_from(DatasetFeature.__table__.join(Attitude))
             .where(Attitude.member_of==self.id)
             .group_by(Attitude.member_of))
