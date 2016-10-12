@@ -64,8 +64,9 @@ class Attitude(db.Model):
     __table_args__ = (
         # Check that we don't define group membership and feature
         # if isn't a group.
-        CheckConstraint('NOT grouped OR (group_id IS NULL AND feature_id IS NULL)'),
-    )
+        CheckConstraint("feature_id IS NOT NULL = (type = 'single')"),
+        # Groups should not be members of other groups
+        CheckConstraint("type IN ('group','collection') = (member_of IS NULL AND feature_id IS NULL)"))
 
     @property
     def aligned_array(self):
@@ -151,6 +152,8 @@ class Attitude(db.Model):
         self.covariance = N.diagonal(pca.covariance_matrix).tolist()
         self.n_samples = pca.n
         self.strike, self.dip = pca.strike_dip()
+        if self.dip == 90:
+            self.valid = False
 
         #r = N.sqrt(N.sum(N.diagonal(pca.covariance_matrix)))
         # Actually, the sum of squared errors
@@ -163,7 +166,7 @@ class Attitude(db.Model):
 
 class AttitudeGroup(Attitude):
     __mapper_args__ = dict(
-        polymorphic_identity='grouped')
+        polymorphic_identity='group')
 
     same_plane = db.Column(db.Boolean,
             nullable=False, default=False)
