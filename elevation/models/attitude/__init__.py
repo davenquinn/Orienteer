@@ -155,10 +155,9 @@ class Attitude(db.Model):
         if self.dip == 90:
             self.valid = False
 
-        # Actually, the sum of squared errors
-        # maybe should change this
-        sse = N.sum(pca.rotated()[:,2]**2)
-        self.correlation_coefficient = N.sqrt(sse/len(pca.rotated()))
+        # Analogous to correlation coefficient for PCA
+        # but not exactly the same
+        self.correlation_coefficient = pca.explained_variance
 
     def __str__(self):
         return "Attitude {}".format(self.id)
