@@ -7,9 +7,13 @@ require 'd3-selection-multi'
 style = require './main.styl'
 stereonet = require './control'
 
+class ListItem extends React.Component
+  render: ->
+    <div>{@props.data.id}</div>
+
 class AttitudeList extends React.Component
   __renderChild: (d,i)=>
-    <div>{d.id} ({i} of {@props.data.length})</div>
+    <ListItem data={d} key={d.id} />
   render: ->
     <div>
       <h1>Attitudes</h1>
@@ -29,7 +33,6 @@ class StereonetView extends React.Component
 
     el = ReactDOM.findDOMNode @
     svg = d3.select el
-      .select "svg"
       .attrs height: 800, width: 800
       .call stereonet, data
 
@@ -43,7 +46,7 @@ class StereonetPage extends React.Component
         <AttitudeList data={@props.data.records()} />
       </div>
       <div className={style.main}>
-        <StereonetView data={@props.data.selection.records} />
+        <StereonetView data={@props.data.records()} />
       </div>
     </div>
 
