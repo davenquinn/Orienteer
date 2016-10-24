@@ -2,7 +2,9 @@ from geoalchemy2 import Geometry
 from geoalchemy2.shape import from_shape, to_shape
 from flask import current_app as app
 from .base import db, BaseModel
-from ..core.proj import Projection, srid, transformation
+from ..core.proj import srid
+from json import loads
+from subprocess import check_output
 
 class Dataset(BaseModel):
     __tablename__ = "dataset"
@@ -21,33 +23,19 @@ class Dataset(BaseModel):
         with rasterio.open(self.dem_path) as f:
             return f.bounds
 
-    def compute_footprint(self, tolerance=100):
+    def compute_footprint(self):
         """
         Computes a rough footprint of the polygonal area of the
         dataset (excluding nodata values).
-
-        :param tolerance: tolerance (in meters)
         """
-        import rasterio
         from shapely.geometry import asShape
-        from shapely.ops import transform
-        from rasterio.features import shapes
 
         if not self.manage_footprint:
             return
 
-        with rasterio.open(self.dem_path, 'r') as f:
-            mask = f.read_masks(1)
-            # Get polygons for shapes corresponding to
-            # non-NaN area, in map coordinates
-            polygons = list(shapes(mask, mask, 8, f.affine))
-            # Simplify using Douglas-Peucker algorithm
-            geom = asShape(polygons[0][0])\
-                .simplify(tolerance, preserve_topology=False)
+        output = check_output([
+            "rio","shapes","--mask",self.dem_path])
+        data = loads(output.decode('utf-8'))
 
-            # Create transformation into Mars2000 (lat lng)
-            mars = Projection.query.get(srid.world)
-            proj = transformation(f.crs,mars.crs)
-
-            geom = transform(proj,geom)
-            self.footprint = from_shape(geom, srid=srid.world)
+        geom = asShape(data['features'][0]['geometry'])
+        self.footprint = from_shape(geom, srid.world)
