@@ -77,6 +77,5 @@ class StereonetView extends React.Component
     @container.selectAll 'path'
       .attrs d: path
 
-
 module.exports = StereonetView
 
