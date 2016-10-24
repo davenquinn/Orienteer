@@ -21,9 +21,9 @@ class GroupedFeature extends Spine.Module
   @collection: []
   @index: {}
   @get: (id)=>
-    if not isNaN(id)
+    if isNaN(id)
       # We're working with gids
-      id = "G#{id}"
+      id = id.slice(1)
     @index[id]
 
   @reset: ->
@@ -56,8 +56,8 @@ class GroupedFeature extends Spine.Module
   # "Selection" object.
   constructor: (obj)->
     super
-    @gid = obj.id
-    @id = "G#{@gid}"
+    @id = obj.id
+    @gid = "G#{@id}"
     @updateRecords obj
     @updateAttributes obj
     @updateGeometry()
@@ -106,7 +106,7 @@ class GroupedFeature extends Spine.Module
   visible: => @records # alias to support same methods as view
 
   requestDestruction: ->
-    app.API "/group/#{@gid}"
+    app.API "/group/#{@id}"
       .send "DELETE", (e,r)=>
         console.log r
         if r.status == 200
@@ -117,7 +117,7 @@ class GroupedFeature extends Spine.Module
           return
   destroy: (silent=false)=>
     @records.forEach (d)=>
-      if d.group.gid == @gid
+      if d.group.id == @id
         d.group = null
     @constructor.trigger "pre-delete", @
 
@@ -144,7 +144,7 @@ class GroupedFeature extends Spine.Module
       measurements: featureIDs(@records)
       same_plane: v
 
-    app.API "/group/#{@gid}"
+    app.API "/group/#{@id}"
       .post JSON.stringify(data), (e,response)=>
         if r.status == 200
           @updateAttributes response.data
