@@ -8,12 +8,24 @@ style = require './main.styl'
 stereonet = require './control'
 
 class ListItem extends React.Component
+  handleClick: =>
+    console.log @props.data
+    app.data.selection.update @props.data
+
   render: ->
-    <div>{@props.data.id}</div>
+    clsname = if @props.selected then "selected" else ""
+    <div onClick={@handleClick} className={clsname}>
+      {@props.data.id}
+    </div>
 
 class AttitudeList extends React.Component
   __renderChild: (d,i)=>
-    <ListItem data={d} key={d.id} />
+    sel = app.data.selection.records
+    <ListItem
+      data={d}
+      key={d.id}
+      onSelect={@onSelectItem}
+      selected={sel.indexOf(d) != -1}/>
   render: ->
     <div>
       <h1>Attitudes</h1>
@@ -24,6 +36,7 @@ class AttitudeList extends React.Component
         {@props.data.map @__renderChild}
       </Infinite>
     </div>
+  onSelectItem: (d)->
 
 class StereonetView extends React.Component
   render: ->
@@ -37,16 +50,38 @@ class StereonetView extends React.Component
       .call stereonet, data
 
 class StereonetPage extends React.Component
+  constructor: (@props)->
+    recs = @props.data.records()
+      .filter (d)->not d.group?
+    @state =
+      records: recs
+      selection: app.data.selection.records
+  updateSelection: =>
+    console.log "Updating selection"
+    @setState selection: app.data.selection.records
+
+  componentDidMount: ->
+    @props.data.selection.bind "selection:updated", @updateSelection
+
+  componentWillUnmount: ->
+    @props.data.selection.unbind "selection:updated", @updateSelection
+
   render: ->
+    # Filter data so that attitudes that are
+    # part of a group are not included in
+    # selection
+    recs = @props.data.records()
+      .filter (d)->not d.group?
+
     <div className={style.wrap}>
       <div className={style.sidebar}>
         <Link className={style.homeLink} to="/">
           <i className='fa fa-home' /> Home
         </Link>
-        <AttitudeList data={@props.data.records()} />
+        <AttitudeList data={@state.records} />
       </div>
       <div className={style.main}>
-        <StereonetView data={@props.data.records()} />
+        <StereonetView data={@state.selection} />
       </div>
     </div>
 
