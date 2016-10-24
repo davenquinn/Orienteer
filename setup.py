@@ -6,7 +6,6 @@ install_requires = [
     'fiona',
     'shapely',
     'rasterio',
-    'gdal',
     'flask',
     'sqlalchemy',
     'pyproj',
