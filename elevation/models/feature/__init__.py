@@ -50,17 +50,3 @@ class DatasetFeature(BaseModel):
     def array(self):
         return N.array(self.extracted)
 
-    def map(self, size=(800,800), buffer=200):
-        import mapnik as M
-        from ..dataset.map import Map
-        m = Map(self.dataset,*size)
-        geom = self.session.scalar(
-            self.geometry.ST_Centroid()
-                .ST_Transform(srid.mars_eqc)
-                .ST_Buffer(buffer))
-        bounds = to_shape(geom).bounds
-        m.zoom_to_box(M.Envelope(*bounds))
-        return m
-
-    def calculate(self):
-        pass

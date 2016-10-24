@@ -1,10 +1,9 @@
 import click
 from click import Group, echo, secho, style
-import numpy as N
 from collections import defaultdict
 
-from ..util.cli import execute_sql, header, message
-from ..database import db
+from .util.cli import execute_sql, header, message
+from .database import db
 
 ElevationCommand = Group(
     help="Deals with elevation models")
@@ -14,7 +13,7 @@ def extract():
     """
     Extract elevation data from DEMs
     """
-    from ..models import Attitude
+    from .models import Attitude
 
     message("Initializing attitudes from features")
     execute_sql("""INSERT INTO attitude (id)
@@ -38,7 +37,7 @@ def compute_footprints():
     """
     Update footprint for each dataset based on image extent
     """
-    from ..models import Dataset
+    from .models import Dataset
     images = (db.session.query(Dataset)
             .filter_by(manage_footprint=True)
             .all())
@@ -51,7 +50,7 @@ def compute_footprints():
 @ElevationCommand.command()
 @click.option("--extract",is_flag=True,default=False)
 def recalculate(extract=False):
-    from ..models import Attitude, AttitudeGroup, DatasetFeature
+    from .models import Attitude, AttitudeGroup, DatasetFeature
 
     heading = dict(fg="cyan", bold=True)
 
@@ -81,7 +80,8 @@ def check_integrity():
     """
     Checks the integrity of computed data in the database
     """
-    from ..models import Attitude, AttitudeGroup
+    import numpy as N
+    from .models import Attitude, AttitudeGroup
 
     set = Attitude.query.all()
     index = defaultdict(list)

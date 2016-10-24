@@ -1,6 +1,6 @@
 import os
 import rasterio
-from ..base import db, BaseModel
+from .base import db, BaseModel
 
 from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -12,7 +12,7 @@ from shapely.geometry import asShape
 from shapely.ops import transform
 from rasterio.features import shapes
 from flask import current_app as app
-from ...core.proj import Projection, srid, transformation
+from ..core.proj import Projection, srid, transformation
 
 class Dataset(BaseModel):
     __tablename__ = "dataset"
@@ -43,7 +43,6 @@ class Dataset(BaseModel):
 
         with rasterio.open(self.dem_path) as dem:
             mask = dem.read_masks(1)
-
             # Get polygons for shapes corresponding to
             # non-NaN area, in map coordinates
             polygons = list(shapes(mask, mask, 8, dem.affine))

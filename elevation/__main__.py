@@ -1,6 +1,4 @@
-from IPython import embed
 from click import echo, style
-
 from elevation import app
 from elevation.manage import ElevationCommand
 
@@ -10,6 +8,7 @@ def shell():
     Create a python interpreter inside
     the application.
     """
+    from IPython import embed
     from . import models as m
     _ = style("Elevation",fg="green")
     echo("Welcome to the "+_+" application!")
