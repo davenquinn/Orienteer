@@ -3,7 +3,7 @@ require 'd3-selection-multi'
 {functions} = require 'attitude'
 style = require './main.styl'
 
-opts = degrees: true, traditionalLayout: false, n:10
+opts = degrees: true, traditionalLayout: false, n:200, adaptive: false
 
 drawPlanes = (el,data)->
 
