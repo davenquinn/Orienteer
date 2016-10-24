@@ -11,6 +11,7 @@ install_requires = [
     'pyproj',
     'mplstereonet',
     'gunicorn',
+    'pg-projector',
     'Flask-SQLAlchemy'
     ]
 
