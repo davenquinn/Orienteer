@@ -1,17 +1,7 @@
-import os
-import rasterio
-from .base import db, BaseModel
-
-from sqlalchemy import func
-from sqlalchemy.dialects.postgresql import ARRAY
 from geoalchemy2 import Geometry
 from geoalchemy2.shape import from_shape, to_shape
-
-import numpy as N
-from shapely.geometry import asShape
-from shapely.ops import transform
-from rasterio.features import shapes
 from flask import current_app as app
+from .base import db, BaseModel
 from ..core.proj import Projection, srid, transformation
 
 class Dataset(BaseModel):
@@ -38,6 +28,11 @@ class Dataset(BaseModel):
 
         :param tolerance: tolerance (in meters)
         """
+        import rasterio
+        from shapely.geometry import asShape
+        from shapely.ops import transform
+        from rasterio.features import shapes
+
         if not self.manage_footprint:
             return
 
