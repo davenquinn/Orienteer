@@ -36,18 +36,18 @@ class Dataset(BaseModel):
         if not self.manage_footprint:
             return
 
-        with rasterio.open(self.dem_path) as dem:
-            mask = dem.read_masks(1)
+        with rasterio.open(self.dem_path, 'r') as f:
+            mask = f.read_masks(1)
             # Get polygons for shapes corresponding to
             # non-NaN area, in map coordinates
-            polygons = list(shapes(mask, mask, 8, dem.affine))
+            polygons = list(shapes(mask, mask, 8, f.affine))
             # Simplify using Douglas-Peucker algorithm
             geom = asShape(polygons[0][0])\
                 .simplify(tolerance, preserve_topology=False)
 
             # Create transformation into Mars2000 (lat lng)
             mars = Projection.query.get(srid.world)
-            proj = transformation(dem.crs,mars.crs)
+            proj = transformation(f.crs,mars.crs)
 
             geom = transform(proj,geom)
             self.footprint = from_shape(geom, srid=srid.world)
