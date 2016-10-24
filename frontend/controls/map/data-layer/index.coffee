@@ -53,6 +53,8 @@ class DataLayer extends EventedShim
 
     @listenTo @data.selection, "selection:updated", @updateSelection
     @_map.on "zoomend", =>
+      # There is a weird bug with zooming in which zoom doesn't work
+      # before cached data is replaced from database
       z = @_map.getZoom()
       console.log "Resizing markers for zoom",z
       @markers.call @setTransform
