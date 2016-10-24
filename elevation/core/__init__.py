@@ -1,7 +1,7 @@
 import sys
 import logging
 from flask import Flask, Blueprint, Response, render_template
-import numpy as N
+
 # Python 2 and 3 compatibility
 try:
     from io import BytesIO
@@ -33,6 +33,7 @@ def image(fig):
 
 @elevation.route("/attitude/<id>/data.html")
 def attitude_data(id):
+    import numpy as N
     from ..models import get_attitude
 
     attitude = get_attitude(id)
