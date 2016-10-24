@@ -9,46 +9,45 @@ drawPlanes = (el,data)->
 
   fn = functions.plane opts
 
-  con = el.append 'g'
-    .attr 'class','planes'
-
-  planes = con
+  planes = el
     .selectAll 'g.plane'
-    .data data
+    .data data, (d)->d.id
 
   planes.enter()
     .append 'g'
+    .attr 'class','plane'
     .each fn
 
-  con.selectAll '.error'
+  planes.exit().remove()
+
+  el.selectAll '.error'
     .attrs class: style.error
 
-  con.selectAll '.nominal'
+  el.selectAll '.nominal'
     .attrs class: style.nominal
 
 drawEllipses = (el, data)->
-
-  con = el.append 'g'
-    .attr 'class','ellipses'
 
   ell = functions.errorEllipse opts
 
   ell_ = data.map(ell)
 
-  mx = d3.max ell_, (d)->d.properties.area
+  mx = d3.max ell_, (d)->d.area
 
   scale = d3.scalePow()
     .domain [0,mx]
     .range [0.2,0]
     .exponent 0.1
 
-  sel = con.selectAll 'path'
+  sel = el.selectAll 'path.ellipse'
     .data ell_
 
   sel.enter()
     .append 'path'
-    .attr 'class', style.ellipse
-    .attr 'fill-opacity', (d)->scale(d.properties.area)
+    .attr 'class', "#{style.ellipse} ellipse"
+    .attr 'fill-opacity', 1#(d)->scale(d.area)
+
+  sel.exit().remove()
 
 module.exports =
   planes: drawPlanes
