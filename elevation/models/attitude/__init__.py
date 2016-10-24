@@ -194,8 +194,7 @@ class AttitudeGroup(Attitude):
 
     @hybrid_property
     def geometry(self):
-        s = object_session(self)
-        return s.execute(self.__build_geometry()).scalar()
+        return db.session.execute(self.__build_geometry()).scalar()
 
     @geometry.expression
     def geometry(cls):

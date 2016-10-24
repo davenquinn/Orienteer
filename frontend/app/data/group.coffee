@@ -37,8 +37,8 @@ class GroupedFeature extends Spine.Module
       measurements: featureIDs(records)
       same_plane: false
     app.API "/group"
-      .send "POST", JSON.stringify(data), (e,r)=>
-        feature = new GroupedFeature r.response.data
+      .send "POST", JSON.stringify(data), (e,response)=>
+        feature = new GroupedFeature response.data
         GroupedFeature.trigger "created", feature
         @cleanupEmpty()
 
@@ -145,9 +145,9 @@ class GroupedFeature extends Spine.Module
       same_plane: v
 
     app.API "/group/#{@gid}"
-      .post JSON.stringify(data), (e,r)=>
+      .post JSON.stringify(data), (e,response)=>
         if r.status == 200
-          @updateAttributes r.response.data
+          @updateAttributes response.data
           @constructor.trigger "updated", @
         else
           return

@@ -1,7 +1,7 @@
 import os
 from click import echo
 from flask import Blueprint, request, make_response, jsonify
-from json import dumps
+from json import dumps, loads
 import logging
 
 from ..database import db
@@ -101,7 +101,9 @@ def group():
             data=[g.serialize()\
                 for g in AttitudeGroup.query.all()])
     elif request.method == "POST":
-        data = request.get_json()
+        # We're going to create a group
+        # Need to decode bytes; might break py2 compatibility
+        data = loads(request.data.decode('utf-8'))
         features = [Attitude.query.get(i)
             for i in data["measurements"]]
         if len(features) < 2:
@@ -125,7 +127,7 @@ def update_group(id):
         db.session.commit()
         return jsonify(status="success")
     if request.method == "POST":
-        data = request.get_json()
+        data = loads(request.data.decode('utf-8'))
         group.same_plane = data["same_plane"]
         group.calculate()
         db.session.add(group)
