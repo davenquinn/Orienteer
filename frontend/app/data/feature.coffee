@@ -11,6 +11,7 @@ class Feature
 
   hovered: false
   hidden: false
+  selected: false
   group: null
   grouped: false
   constructor: (options)->

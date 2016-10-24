@@ -1,6 +1,8 @@
+React = require 'react'
+ReactDOM = require 'react-dom'
 d3 = require 'd3'
 require 'd3-selection-multi'
-{functions,Stereonet, math} = require 'attitude'
+{functions,math} = require 'attitude'
 {planes,ellipses} = require './types'
 style = require './main.styl'
 
@@ -12,7 +14,7 @@ proj = d3.geoOrthographic()
 path = d3.geoPath()
   .projection proj
 
-module.exports = (el, data)->
+stereonet = (el, data)->
 
   g = el.append 'g'
     .attr 'class', 'orientation'
@@ -56,4 +58,18 @@ module.exports = (el, data)->
       proj.rotate [d3.event.x, -d3.event.y]
       g.selectAll('path').attrs d: path
   g.call drag
+
+class StereonetView extends React.Component
+  render: ->
+    <svg />
+  componentDidMount: ->
+    data = @props.data.map (d)->d.properties
+
+    el = ReactDOM.findDOMNode @
+    svg = d3.select el
+      .attrs height: 800, width: 800
+      .call stereonet, data
+  componentDidUpdate: ->
+
+module.exports = StereonetView
 

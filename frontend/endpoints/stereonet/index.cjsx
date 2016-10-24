@@ -1,6 +1,6 @@
 React = require 'react'
-ReactDOM = require 'react-dom'
 Infinite = require 'react-infinite'
+StereonetView = require './control'
 {Link} = require 'react-router'
 d3 = require 'd3'
 require 'd3-selection-multi'
@@ -15,7 +15,7 @@ class ListItem extends React.Component
   render: ->
     clsname = if @props.selected then "selected" else ""
     <div onClick={@handleClick} className={clsname}>
-      {@props.data.id}
+      {if @props.selected then "selected" else @props.data.id  }
     </div>
 
 class AttitudeList extends React.Component
@@ -24,8 +24,7 @@ class AttitudeList extends React.Component
     <ListItem
       data={d}
       key={d.id}
-      onSelect={@onSelectItem}
-      selected={sel.indexOf(d) != -1}/>
+      selected={@props.selection.indexOf(d) != -1}/>
   render: ->
     <div>
       <h1>Attitudes</h1>
@@ -36,18 +35,6 @@ class AttitudeList extends React.Component
         {@props.data.map @__renderChild}
       </Infinite>
     </div>
-  onSelectItem: (d)->
-
-class StereonetView extends React.Component
-  render: ->
-    <svg />
-  componentDidMount: ->
-    data = @props.data.map (d)->d.properties
-
-    el = ReactDOM.findDOMNode @
-    svg = d3.select el
-      .attrs height: 800, width: 800
-      .call stereonet, data
 
 class StereonetPage extends React.Component
   constructor: (@props)->
@@ -57,8 +44,8 @@ class StereonetPage extends React.Component
       records: recs
       selection: app.data.selection.records
   updateSelection: =>
-    console.log "Updating selection"
-    @setState selection: app.data.selection.records
+    @setState
+      selection: app.data.selection.records
 
   componentDidMount: ->
     @props.data.selection.bind "selection:updated", @updateSelection
@@ -78,7 +65,9 @@ class StereonetPage extends React.Component
         <Link className={style.homeLink} to="/">
           <i className='fa fa-home' /> Home
         </Link>
-        <AttitudeList data={@state.records} />
+        <AttitudeList
+          data={@state.records}
+          selection={@state.selection} />
       </div>
       <div className={style.main}>
         <StereonetView data={@state.selection} />
