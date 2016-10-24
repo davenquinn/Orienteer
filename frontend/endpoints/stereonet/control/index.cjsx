@@ -1,5 +1,5 @@
 React = require 'react'
-ReactDOM = require 'react-dom'
+ReactFauxDOM = require 'react-faux-dom'
 d3 = require 'd3'
 require 'd3-selection-multi'
 {functions,math} = require 'attitude'
@@ -55,21 +55,24 @@ stereonet = (el, data)->
   # Add dragging for debug purposes
   drag = d3.drag()
     .on 'drag', =>
+      console.log "Drag"
       proj.rotate [d3.event.x, -d3.event.y]
       g.selectAll('path').attrs d: path
   g.call drag
 
 class StereonetView extends React.Component
+  ###
+  A mutable component wrapping a d3.js view
+  that holds a stereonet
+  ###
   render: ->
-    <svg />
-  componentDidMount: ->
+    console.log "Rendering stereonet"
     data = @props.data.map (d)->d.properties
-
-    el = ReactDOM.findDOMNode @
+    el = ReactFauxDOM.createElement('svg')
     svg = d3.select el
       .attrs height: 800, width: 800
       .call stereonet, data
-  componentDidUpdate: ->
+    svg.node().toReact()
 
 module.exports = StereonetView
 
