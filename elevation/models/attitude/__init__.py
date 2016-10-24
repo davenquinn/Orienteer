@@ -21,7 +21,7 @@ from ..feature import DatasetFeature, srid
 from ...database import db
 
 class Attitude(db.Model):
-    __tablename__ = 'attitude_new'
+    __tablename__ = 'attitude'
     __mapper_args__ = dict(
         polymorphic_on='type',
         polymorphic_identity='single')
@@ -50,7 +50,7 @@ class Attitude(db.Model):
     valid = db.Column(db.Boolean)
     member_of = db.Column(
         db.Integer,
-        db.ForeignKey('attitude_new.id'))
+        db.ForeignKey('attitude.id'))
 
     group = db.relationship("AttitudeGroup",
             back_populates="measurements",
