@@ -53,9 +53,11 @@ module.exports = (url, cfg)->
 
   # Right now, the environment variable "NODE_MAP_CONFIG"
   # should point to the config file
-  config = setupConfig process.env.ELEVATION_NODE_CONFIG
-  config = _.defaults(cfg or {}, config)
-  app.config = config
+  fn = process.env.ELEVATION_NODE_CONFIG
+  if fn?
+    config = setupConfig fn
+    cfg = _.defaults(cfg or {}, config)
+  app.config = cfg
   app.state = {page: 'attitudes'}
 
   q = queue().defer setupApp
