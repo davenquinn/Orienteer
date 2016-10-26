@@ -1,5 +1,5 @@
 {app} = require 'electron'
-{initServer} = require "electron-browser-sync"
+{init} = require "electron-browser-sync"
 path = require 'path'
 
 module.exports = (cb)->
@@ -8,4 +8,4 @@ module.exports = (cb)->
   list = app.config.watch.scripts
   list.push outputStyles
 
-  return initServer list, cb
+  return init list, cb
