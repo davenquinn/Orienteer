@@ -61,7 +61,7 @@
     "less": "^2.6.1",
     "linklocal": "^2.6.1",
     "mapnik": "file:deps/node-mapnik",
-    "electron-browsersync": "file:deps/electron-browsersync",
+    "electron-browser-sync": "file:deps/electron-browser-sync",
     "material-ui": "^0.13.1",
     "node-cjsx": "^1.0.0",
     "pg": "^4.5.3",

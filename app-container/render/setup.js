@@ -1,8 +1,7 @@
 require("coffee-script/register")
 require("node-cjsx/register")
+require("electron-browser-sync/inject");
 require('./style')
-
-require("electron-browsersync").injectScript();
 
 require("handlebars")
 require.extensions['.html'] = require.extensions['.hbs']

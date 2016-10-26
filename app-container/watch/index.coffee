@@ -1,5 +1,5 @@
 {app} = require 'electron'
-{initServer} = require "electron-browsersync"
+{initServer} = require "electron-browser-sync"
 path = require 'path'
 
 module.exports = (cb)->
