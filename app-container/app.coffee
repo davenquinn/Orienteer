@@ -64,7 +64,6 @@ module.exports = (url, cfg)->
 
   q.await (e,ready,bs)->
       if bs?
-        global.BROWSER_SYNC_CLIENT_URL = bs.url
         global.STYLE_PATH = path.join(
           process.env.PWD, app.config.buildDir, 'styles')
       startApp(url)
