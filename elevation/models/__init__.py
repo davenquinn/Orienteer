@@ -1,6 +1,7 @@
 from .dataset import Dataset
 from .feature import DatasetFeature
 from .attitude import Attitude, AttitudeGroup, Tag
+from ..core.proj import Projection
 
 def get_attitude(id):
     cls = Attitude

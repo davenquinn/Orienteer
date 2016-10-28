@@ -37,9 +37,9 @@ def quote(arg):
     """
     return "'{}'".format(arg)
 
-def execute_sql(statement):
+def execute_sql(statement,*params, **multiparams):
     echo(u"➔ "+style(statement, "yellow"))
-    return db.engine.execute(statement)
+    return db.engine.execute(statement,*params, **multiparams)
 
 def mkdirs(path):
     try:
