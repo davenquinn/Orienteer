@@ -1,5 +1,6 @@
 from click import echo, style
 from elevation.manage import ElevationCommand
+from . import app
 
 @ElevationCommand.command()
 def shell():

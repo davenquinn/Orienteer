@@ -10,8 +10,7 @@ except ImportError:
     from cStringIO import StringIO as BytesIO
 
 from ..database import db
-
-init_projection(app,db)
+from .proj import init_projection
 
 stdout_logger = logging.StreamHandler(sys.stdout)
 log = logging.getLogger(__name__)
@@ -65,6 +64,7 @@ def error_ellipse(id):
     return image(fig)
 
 def __setup_endpoints(app, db):
+    init_projection(app,db)
     from .api import api
     app.register_blueprint(elevation,url_prefix="/elevation")
     app.register_blueprint(api,url_prefix="/api")
