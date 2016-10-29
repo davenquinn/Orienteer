@@ -92,6 +92,52 @@ def extract_line(geom, dem, **kwargs):
     coords[:,:2] = N.array(geom.coords)
     return coords
 
+def extract_area(self, geom, dem):
+    # RasterIO's image-reading algorithm uses the location
+    # of polygon centers to determine the extent of polygons
+    msk = geometry_mask(
+        (mapping(geom),),
+        dem.shape,
+        dem.affine,
+        invert=True)
+
+    # shrink mask to the minimal area for efficient extraction
+    offset, msk = offset_mask(msk)
+
+    window = tuple((o,o+s)
+        for o,s in zip(offset,msk.shape))
+
+    # Currently just for a single band
+    # We could generalize to multiple
+    # bands if desired
+    z = dem.read(1,
+        window=window,
+        masked=True)
+
+    # mask out unused area
+    z[msk == False] = N.ma.masked
+
+    # Make vectors of rows and columns
+    rows, cols = (N.arange(first,last,1)
+            for first,last in window)
+    # 2d arrays of x,y,z
+    z = z.flatten()
+    xyz = [i.flatten()
+            for i in N.meshgrid(cols,rows)] + [z]
+    x,y,z = tuple(i[z.mask == False] for i in xyz)
+
+    # Transform into 3xn matrix of
+    # flattened coordinate values
+    coords = N.vstack((x,y,N.ones(z.shape)))
+
+    # Get affine transform for pixel centers
+    affine = dem.affine * Affine.translation(0.5, 0.5)
+    # Transform coordinates to DEM's reference
+    _ = N.array(affine).reshape((3,3))
+    coords = N.dot(_,coords)
+    coords[2] = z
+    return coords.transpose()
+
 def extract(self):
     source_crs = Projection.query.get(self.geometry.srid).crs
     demfile = self.dataset.dem_path
@@ -106,54 +152,9 @@ def extract(self):
         if geom.area == 0:
             coords = extract_line(geom,dem)
         else:
-
-            # RasterIO's image-reading algorithm uses the location
-            # of polygon centers to determine the extent of polygons
-            msk = geometry_mask(
-                (mapping(geom),),
-                dem.shape,
-                dem.affine,
-                invert=True)
-
-            # shrink mask to the minimal area for efficient extraction
-            offset, msk = offset_mask(msk)
-
-            window = tuple((o,o+s)
-                for o,s in zip(offset,msk.shape))
-
-            # Currently just for a single band
-            # We could generalize to multiple
-            # bands if desired
-            z = dem.read(1,
-                window=window,
-                masked=True)
-
-            # mask out unused area
-            z[msk == False] = N.ma.masked
-
-            # Make vectors of rows and columns
-            rows, cols = (N.arange(first,last,1)
-                    for first,last in window)
-            # 2d arrays of x,y,z
-            z = z.flatten()
-            xyz = [i.flatten()
-                    for i in N.meshgrid(cols,rows)] + [z]
-            x,y,z = tuple(i[z.mask == False] for i in xyz)
-
-            # Transform into 3xn matrix of
-            # flattened coordinate values
-            coords = N.vstack((x,y,N.ones(z.shape)))
-
-            # Get affine transform for pixel centers
-            affine = dem.affine * Affine.translation(0.5, 0.5)
-            # Transform coordinates to DEM's reference
-            _ = N.array(affine).reshape((3,3))
-            coords = N.dot(_,coords)
-            coords[2] = z
-            coords = coords.transpose()
-
-            # Transform coordinates back to transverse mercator?
-            # (not currently implemented)
+            coords = extract_area(geom,dem)
+        # Transform coordinates back to transverse mercator?
+        # (not currently implemented)
 
     coords = clean_coordinates(coords, silent=True)
     assert len(coords) > 0

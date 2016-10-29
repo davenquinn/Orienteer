@@ -3,6 +3,7 @@ from elevation import app
 from elevation.manage import ElevationCommand
 
 @ElevationCommand.command()
+@app.context
 def shell():
     """
     Create a python interpreter inside
@@ -15,11 +16,11 @@ def shell():
     embed()
 
 @ElevationCommand.command()
+@app.context
 def serve():
     """
     Run a basic development server for the application.
     """
     app.run()
 
-with app.app_context():
-    ElevationCommand()
+ElevationCommand()

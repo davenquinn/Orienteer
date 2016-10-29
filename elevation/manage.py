@@ -2,6 +2,7 @@ import click
 from click import Group, echo, secho, style
 from collections import defaultdict
 from os import path
+from . import app
 
 from .util.cli import execute_sql, header, message
 from .database import db
@@ -21,6 +22,7 @@ def stored_procedure(fn):
     execute_sql(q)
 
 @ElevationCommand.command()
+@app.context
 def extract():
     """
     Extract elevation data from DEMs
@@ -33,6 +35,7 @@ def extract():
     # where it is undefined
     stored_procedure('add-dataset')
     stored_procedure('init-attitudes')
+
 
     q = (db.session.query(Attitude)
         .join(DatasetFeature)
@@ -48,6 +51,7 @@ def extract():
 
 @ElevationCommand.command(name='compute-footprints')
 @click.option("--regenerate", is_flag=True, default=False)
+@app.context
 def compute_footprints(regenerate=False):
     """
     Update footprint for each dataset based on image extent
@@ -66,6 +70,7 @@ def compute_footprints(regenerate=False):
 
 @ElevationCommand.command()
 @click.option("--extract",is_flag=True,default=False)
+@app.context
 def recalculate(extract=False):
     from .models import Attitude, AttitudeGroup, DatasetFeature
 

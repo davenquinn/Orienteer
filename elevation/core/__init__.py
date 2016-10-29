@@ -1,5 +1,6 @@
 import sys
 import logging
+from functools import wraps
 from flask import Flask, Blueprint, Response, render_template
 
 # Python 2 and 3 compatibility
@@ -68,6 +69,8 @@ def __setup_endpoints(app, db):
     app.register_blueprint(elevation,url_prefix="/elevation")
     app.register_blueprint(api,url_prefix="/api")
 
+
+
 def setup_app():
     app = Flask(__name__)
     app.config.from_object('elevation.config')
@@ -75,4 +78,15 @@ def setup_app():
     db.init_app(app)
     __setup_endpoints(app,db)
     log.info("App setup complete")
+
+
+    def within_context(func):
+        @wraps(func)
+        def wrapper(*args,**kwargs):
+            with app.app_context():
+                return func(*args,**kwargs)
+        return wrapper
+
+    app.context = within_context
+
     return app
