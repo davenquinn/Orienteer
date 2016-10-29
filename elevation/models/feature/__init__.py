@@ -40,6 +40,9 @@ class DatasetFeature(BaseModel):
 
     dataset_id = db.Column(db.String(64), db.ForeignKey('dataset.id'))
     extracted = db.Column(ARRAY(db.Float, dimensions=2,zero_indexes=True))
+    # Column to track whether the dataset_id
+    # was set using a script or user-specified
+    dataset_id_autoset = db.Column(db.Boolean, default=False, nullable=False)
 
     from .extract import extract
 

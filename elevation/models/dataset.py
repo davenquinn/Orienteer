@@ -14,10 +14,6 @@ class Dataset(BaseModel):
 
     footprint = db.Column(Geometry("POLYGON", srid=srid.world))
 
-    # Whether footprint should be recalculated or is
-    # user-controlled (for dataset cropping)
-    manage_footprint = db.Column(db.Boolean, default=True)
-
     @property
     def bounds(self):
         with rasterio.open(self.dem_path) as f:
@@ -29,9 +25,6 @@ class Dataset(BaseModel):
         dataset (excluding nodata values).
         """
         from shapely.geometry import asShape
-
-        if not self.manage_footprint:
-            return
 
         output = check_output([
             "rio","shapes","--mask",self.dem_path])

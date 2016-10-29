@@ -1,6 +1,7 @@
 import click
 from click import Group, echo, secho, style
 from collections import defaultdict
+from os import path
 
 from .util.cli import execute_sql, header, message
 from .database import db
@@ -8,22 +9,35 @@ from .database import db
 ElevationCommand = Group(
     help="Deals with elevation models")
 
+def stored_procedure(fn):
+    """
+    Run SQL sourced from a file in the `sql` directory
+    in this tree
+    """
+    here = path.dirname(__file__)
+    n = path.join(here,'sql',fn+'.sql')
+    with open(n) as f:
+        q = f.read()
+    execute_sql(q)
+
 @ElevationCommand.command()
 def extract():
     """
     Extract elevation data from DEMs
     """
-    from .models import Attitude
+    from .models import DatasetFeature, Attitude
 
     message("Initializing attitudes from features")
-    execute_sql("""INSERT INTO attitude (id)
-    SELECT t1.id
-	FROM dataset_feature t1
-	LEFT JOIN attitude t2 ON t1.id = t2.id
-	WHERE t1.type = 'Attitude' AND t2.id IS NULL;""")
+
+    # Add dataset automatically to features
+    # where it is undefined
+    stored_procedure('add-dataset')
+    stored_procedure('init-attitudes')
 
     q = (db.session.query(Attitude)
-        .filter(Attitude.extracted == None))
+        .join(DatasetFeature)
+        .filter(DatasetFeature.extracted == None)
+        .filter(DatasetFeature.dataset != None))
 
     for d in q.all():
         message("Extracting attitude "+str(d.id))
@@ -39,9 +53,7 @@ def compute_footprints(regenerate=False):
     Update footprint for each dataset based on image extent
     """
     from .models import Dataset
-    images = (db.session.query(Dataset)
-            .filter_by(manage_footprint=True))
-
+    images = db.session.query(Dataset)
     if not regenerate:
         # Only work on images where the footprint isn't defined
         images = images.filter(Dataset.footprint.is_(None))

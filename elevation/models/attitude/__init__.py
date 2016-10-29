@@ -159,6 +159,9 @@ class Attitude(db.Model):
         # but not exactly the same
         self.correlation_coefficient = pca.explained_variance
 
+    def extract(self, *args,**kwargs):
+        self.feature.extract(*args,**kwargs)
+
     def __str__(self):
         return "Attitude {}".format(self.id)
 
