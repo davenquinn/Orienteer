@@ -2,7 +2,6 @@ import click
 from click import Group, echo, secho, style
 from collections import defaultdict
 from os import path
-from . import app
 
 from .util.cli import execute_sql, header, message
 from .database import db
@@ -22,7 +21,6 @@ def stored_procedure(fn):
     execute_sql(q)
 
 @ElevationCommand.command()
-@app.context
 def extract():
     """
     Extract elevation data from DEMs
@@ -51,7 +49,6 @@ def extract():
 
 @ElevationCommand.command(name='compute-footprints')
 @click.option("--regenerate", is_flag=True, default=False)
-@app.context
 def compute_footprints(regenerate=False):
     """
     Update footprint for each dataset based on image extent
@@ -70,7 +67,6 @@ def compute_footprints(regenerate=False):
 
 @ElevationCommand.command()
 @click.option("--extract",is_flag=True,default=False)
-@app.context
 def recalculate(extract=False):
     from .models import Attitude, AttitudeGroup, DatasetFeature
 
@@ -78,7 +74,7 @@ def recalculate(extract=False):
 
     if extract:
         secho("Extracting features from DEMs", **heading)
-        set = DatasetFeature.query.all()
+        set = db.session.query(DatasetFeature).all()
         with click.progressbar(set,length=len(set)) as bar:
             for obj in bar:
                 try:
@@ -89,7 +85,7 @@ def recalculate(extract=False):
             db.session.commit()
 
     secho("Updating orientation measurements", **heading)
-    set = Attitude.query.all()
+    set = db.session.query(Attitude).all()
 
     with click.progressbar(set,length=len(set)) as bar:
         for attitude in bar:
@@ -105,7 +101,7 @@ def check_integrity():
     import numpy as N
     from .models import Attitude, AttitudeGroup
 
-    set = Attitude.query.all()
+    set = db.session.query(Attitude).all()
     index = defaultdict(list)
 
     def equal(meas, name, *vals):

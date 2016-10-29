@@ -5,14 +5,15 @@ from .base import db, BaseModel
 from ..core.proj import srid
 from json import loads
 from subprocess import check_output
+from sqlalchemy import Column, String, Text
 
 class Dataset(BaseModel):
     __tablename__ = "dataset"
-    id = db.Column(db.String(64), primary_key=True)
-    instrument = db.Column(db.String(64))
-    dem_path = db.Column(db.Text)
+    id = Column(String(64), primary_key=True)
+    instrument = Column(String(64))
+    dem_path = Column(Text)
 
-    footprint = db.Column(Geometry("POLYGON", srid=srid.world))
+    footprint = Column(Geometry("POLYGON", srid=srid.world))
 
     @property
     def bounds(self):

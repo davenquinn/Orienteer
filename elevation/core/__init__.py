@@ -10,7 +10,8 @@ except ImportError:
     from cStringIO import StringIO as BytesIO
 
 from ..database import db
-from .proj import init_projection
+
+init_projection(app,db)
 
 stdout_logger = logging.StreamHandler(sys.stdout)
 log = logging.getLogger(__name__)
@@ -64,7 +65,6 @@ def error_ellipse(id):
     return image(fig)
 
 def __setup_endpoints(app, db):
-    init_projection(app,db)
     from .api import api
     app.register_blueprint(elevation,url_prefix="/elevation")
     app.register_blueprint(api,url_prefix="/api")
@@ -75,7 +75,7 @@ def setup_app():
     app = Flask(__name__)
     app.config.from_object('elevation.config')
     app.config.from_envvar('ELEVATION_CONFIG',silent=True)
-    db.init_app(app)
+    #db.init_app(app)
     __setup_endpoints(app,db)
     log.info("App setup complete")
 

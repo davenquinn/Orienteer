@@ -5,6 +5,10 @@ from shapely.geometry import mapping, shape
 import numpy as N
 from sqlalchemy.dialects.postgresql import array, ARRAY
 from sqlalchemy.sql.expression import func, text
+from sqlalchemy.orm import relationship
+from sqlalchemy import (
+    Column, String, Text, Integer,
+    DateTime, ForeignKey, Boolean, Float)
 
 from ..base import db, BaseModel
 
@@ -22,14 +26,14 @@ class DatasetFeature(BaseModel):
     """
     __tablename__ = "dataset_feature"
 
-    id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(64)) # Polymorphic discriminator column
-    geometry = db.Column(Geometry(srid=srid.world))
-    date_created = db.Column(db.DateTime,server_default=text("now()"), nullable=False)
+    id = Column(Integer, primary_key=True)
+    type = Column(String(64)) # Polymorphic discriminator column
+    geometry = Column(Geometry(srid=srid.world))
+    date_created = Column(DateTime,server_default=text("now()"), nullable=False)
 
     mapping = property(lambda self: self.__geo_interface__)
     shape = property(lambda self: to_shape(self.geometry))
-    dataset = db.relationship("Dataset",
+    dataset = relationship("Dataset",
         backref='features')
 
     @property
@@ -38,11 +42,11 @@ class DatasetFeature(BaseModel):
             type="Feature",
             geometry=mapping(to_shape(self.geometry)))
 
-    dataset_id = db.Column(db.String(64), db.ForeignKey('dataset.id'))
-    extracted = db.Column(ARRAY(db.Float, dimensions=2,zero_indexes=True))
+    dataset_id = Column(String(64), ForeignKey('dataset.id'))
+    extracted = Column(ARRAY(Float, dimensions=2,zero_indexes=True))
     # Column to track whether the dataset_id
     # was set using a script or user-specified
-    dataset_id_autoset = db.Column(db.Boolean, default=False, nullable=False)
+    dataset_id_autoset = Column(Boolean, default=False, nullable=False)
 
     from .extract import extract
 

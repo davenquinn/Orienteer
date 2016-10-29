@@ -3,6 +3,7 @@ from functools import partial
 from click import echo
 
 import rasterio
+import rasterio.env
 from rasterio.features import rasterize, geometry_mask
 from affine import Affine
 
@@ -12,6 +13,7 @@ from geoalchemy2.shape import from_shape, to_shape
 from shapely.geometry import shape, mapping, asShape, LineString
 from shapely.ops import transform
 
+from ...database import db
 from ...util.extract import bilinear
 from ...core.proj import Projection, transformation
 
@@ -139,7 +141,7 @@ def extract_area(self, geom, dem):
     return coords.transpose()
 
 def extract(self):
-    source_crs = Projection.query.get(self.geometry.srid).crs
+    source_crs = db.session.query(Projection).get(self.geometry.srid).crs
     demfile = self.dataset.dem_path
 
     with rasterio.open(demfile) as dem:

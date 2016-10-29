@@ -15,48 +15,54 @@ from attitude.coordinates import centered
 from sqlalchemy.dialects.postgresql import array, ARRAY
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import relationship
+from sqlalchemy import (
+    Column, String, Text,
+    Integer, DateTime,
+    ForeignKey, Boolean, Float)
 
 from .tag import Tag, attitude_tag
 from ..feature import DatasetFeature, srid
 from ...database import db
+from ..base import BaseModel
 
-class Attitude(db.Model):
+class Attitude(BaseModel):
     __tablename__ = 'attitude'
     __mapper_args__ = dict(
         polymorphic_on='type',
         polymorphic_identity='single')
 
-    id=db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String)
-    feature_id = db.Column(
-        db.Integer,
-        db.ForeignKey('dataset_feature.id'))
+    id=Column(Integer, primary_key=True)
+    type = Column(String)
+    feature_id = Column(
+        Integer,
+        ForeignKey('dataset_feature.id'))
 
-    feature = db.relationship(DatasetFeature)
+    feature = relationship(DatasetFeature)
 
-    strike = db.Column(db.Float)
-    dip = db.Column(db.Float)
-    correlation_coefficient = db.Column(db.Float)
+    strike = Column(Float)
+    dip = Column(Float)
+    correlation_coefficient = Column(Float)
 
-    principal_axes = db.Column(ARRAY(db.Float,
+    principal_axes = Column(ARRAY(Float,
         dimensions=2,zero_indexes=True))
-    singular_values = db.Column(ARRAY(db.Float,zero_indexes=True))
-    covariance = db.Column(ARRAY(db.Float,zero_indexes=True))
-    n_samples = db.Column(db.Integer)
+    singular_values = Column(ARRAY(Float,zero_indexes=True))
+    covariance = Column(ARRAY(Float,zero_indexes=True))
+    n_samples = Column(Integer)
 
     geometry = association_proxy('feature','geometry')
-    location = db.Column(Geometry("POINT", srid=srid.world))
+    location = Column(Geometry("POINT", srid=srid.world))
 
-    valid = db.Column(db.Boolean)
-    member_of = db.Column(
-        db.Integer,
-        db.ForeignKey('attitude.id'))
+    valid = Column(Boolean)
+    member_of = Column(
+        Integer,
+        ForeignKey('attitude.id'))
 
-    group = db.relationship("AttitudeGroup",
+    group = relationship("AttitudeGroup",
             back_populates="measurements",
             remote_side=id)
 
-    _tags = db.relationship("Tag",
+    _tags = relationship("Tag",
         secondary=attitude_tag,
         backref='features')
     tags = association_proxy('_tags','name')
@@ -169,10 +175,10 @@ class AttitudeGroup(Attitude):
     __mapper_args__ = dict(
         polymorphic_identity='group')
 
-    same_plane = db.Column(db.Boolean,
+    same_plane = Column(Boolean,
             nullable=False, default=False)
 
-    measurements = db.relationship(Attitude)
+    measurements = relationship(Attitude)
 
     def __init__(self, attitudes, **kwargs):
         db.Model.__init__(self,**kwargs)

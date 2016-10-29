@@ -1,9 +1,7 @@
 from click import echo, style
-from elevation import app
 from elevation.manage import ElevationCommand
 
 @ElevationCommand.command()
-@app.context
 def shell():
     """
     Create a python interpreter inside
@@ -16,11 +14,13 @@ def shell():
     embed()
 
 @ElevationCommand.command()
-@app.context
 def serve():
     """
     Run a basic development server for the application.
     """
-    app.run()
+    from elevation.core import setup_app
+    app = setup_app()
+    with app.app_context():
+        app.run()
 
 ElevationCommand()
