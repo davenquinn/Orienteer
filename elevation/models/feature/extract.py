@@ -94,7 +94,7 @@ def extract_line(geom, dem, **kwargs):
     coords[:,:2] = N.array(geom.coords)
     return coords
 
-def extract_area(self, geom, dem):
+def extract_area(geom, dem, **kwargs):
     # RasterIO's image-reading algorithm uses the location
     # of polygon centers to determine the extent of polygons
     msk = geometry_mask(

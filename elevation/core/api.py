@@ -40,7 +40,7 @@ def tag_items(items, tagname, method):
     """ Add tags to items of any type that support the
         tagging interface.
     """
-    tag = Tag.query.get(tagname)
+    tag = db.session.query(Tag).get(tagname)
     if not tag:
         tag = Tag(tagname)
         db.session.add(tag)
@@ -60,7 +60,7 @@ def get_ids(model,ids):
     """ Get objects given a list of IDs"""
     if len(ids) == 0:
         return []
-    return model.query\
+    return db.session.query(model)\
         .filter(model.id.in_(ids)).all()
 
 @api.route('/feature/tag', methods=["POST","DELETE"])
@@ -99,12 +99,12 @@ def group():
     if request.method == "GET":
         return jsonify(
             data=[g.serialize()\
-                for g in AttitudeGroup.query.all()])
+                for g in db.session.query(AttitudeGroup).all()])
     elif request.method == "POST":
         # We're going to create a group
         # Need to decode bytes; might break py2 compatibility
         data = loads(request.data.decode('utf-8'))
-        features = [Attitude.query.get(i)
+        features = [db.session.query(Attitude).get(i)
             for i in data["measurements"]]
         if len(features) < 2:
             msg = "Cannot create group from less than two features"
@@ -112,7 +112,7 @@ def group():
         group = AttitudeGroup(features)
         db.session.add(group)
         # Delete unreferenced groups
-        for g in AttitudeGroup.query.all():
+        for g in db.session.query(AttitudeGroup).all():
             if len(g.measurements) == 0:
                 db.session.delete(g)
         db.session.commit()
@@ -121,7 +121,7 @@ def group():
 @api.route('/group/<id>',
     methods=["DELETE","POST"])
 def update_group(id):
-    group = AttitudeGroup.query.get(id)
+    group = db.session.query(AttitudeGroup).get(id)
     if request.method == "DELETE":
         db.session.delete(group)
         db.session.commit()
@@ -139,7 +139,7 @@ def data():
     log.info("Serializing attitude data")
     d = jsonify(
         data=[o.serialize()
-        for o in Attitude.query
+        for o in db.session.query(Attitude)
             .filter_by(type='single')
             .all()])
     log.info(d)

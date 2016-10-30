@@ -146,7 +146,7 @@ class GroupedFeature extends Spine.Module
 
     app.API "/group/#{@id}"
       .post JSON.stringify(data), (e,response)=>
-        if r.status == 200
+        if response.status == 200
           @updateAttributes response.data
           @constructor.trigger "updated", @
         else

@@ -181,7 +181,7 @@ class AttitudeGroup(Attitude):
     measurements = relationship(Attitude)
 
     def __init__(self, attitudes, **kwargs):
-        db.Model.__init__(self,**kwargs)
+        Attitude.__init__(self,**kwargs)
         self.measurements = attitudes
         self.calculate()
 

@@ -1,6 +1,7 @@
 from .dataset import Dataset
 from .feature import DatasetFeature
 from .attitude import Attitude, AttitudeGroup, Tag
+from ..database import db
 from ..core.proj import Projection
 
 def get_attitude(id):
@@ -16,4 +17,4 @@ def get_attitude(id):
         # for group ids
         cls = AttitudeGroup
         id *= -1
-    return cls.query.get(id)
+    return db.session.query(cls).get(id)
