@@ -12,6 +12,7 @@ CacheDatastore = require "../../shared/data/cache"
 
 MapnikLayer = require 'gis-core/frontend/mapnik-layer'
 setupProjection = require "gis-core/frontend/projection"
+style = require './style'
 
 class Map extends Spine.Controller
   class: "viewer"

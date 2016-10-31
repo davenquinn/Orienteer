@@ -1,16 +1,13 @@
 $ = require "jquery"
-Spine = require "spine"
 React = require 'react'
 ReactDOM = require 'react-dom'
 {createHistory, useBasename} = require 'history'
 {Router, Route, IndexRoute, hashHistory} = require 'react-router'
-{remote} = require "electron"
-setupMenu = require "../menu"
-
-Frontpage = require "./frontpage"
-
+{remote} = require 'electron'
+{reactifySpine} = require '../util'
+setupMenu = require '../menu'
 Map = require "../controls/map"
-
+Frontpage = require "./frontpage"
 Data = require "./data"
 AttitudePage = require "../endpoints/attitudes"
 Stereonet = require "../endpoints/stereonet"
@@ -34,26 +31,15 @@ class App
     @config = JSON.parse(JSON.stringify(c))
     @data = new Data
 
-reactifySpine = (cls, options)->
-  class SpineWrapper extends React.Component
-    constructor: (props)->
-      super props
-    render: ->
-      React.createElement "div"
-    componentDidMount: ->
-      options.el = ReactDOM.findDOMNode @
-      @component = new cls options
-    componentWillUnmount: ->
-    shouldComponentUpdate: ->false
-
 module.exports = ->
   app = new App
   setupMenu(app)
 
   class DataStereonet extends React.Component
     render: -> <Stereonet data={app.data} />
-  Attitude = reactifySpine AttitudePage, data: app.data
 
+  class Attitude extends React.Component
+    render: -> <AttitudePage data={app.data} />
 
   ReactDOM.render(
     <Router history={hashHistory}>
