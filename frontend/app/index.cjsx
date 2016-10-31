@@ -31,6 +31,9 @@ class App
     @config = JSON.parse(JSON.stringify(c))
     @data = new Data
 
+  toggleData: ->
+    return
+
 module.exports = ->
   app = new App
   setupMenu(app)

@@ -13,7 +13,8 @@ SplitPane = require 'react-split-pane'
 d3 = require "d3"
 $ = require "jquery"
 
-styles = require '../styles.styl'
+style = require '../styles.styl'
+style2 = require './style.styl'
 FilterData = require "../../controls/filter-data"
 
 f = d3.format "> 6.1f"
@@ -33,10 +34,16 @@ class MapControl extends React.Component
 class AttitudePage extends React.Component
   constructor: (props)->
     super props
-
   render: ->
-    <SplitPane split="vertical" defaultSize={200} primary="first">
+    <SplitPane
+      split="vertical"
+      size={-200}
+      enableResizing={false}
+      primary="second">
       <MapControl data={@props.data} />
+      <SelectionControl data={@props.data} />
     </SplitPane>
+
+  onResizePane: ->
 
 module.exports = AttitudePage

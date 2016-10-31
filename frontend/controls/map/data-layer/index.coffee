@@ -4,7 +4,6 @@ L = require "leaflet"
 Spine = require "spine"
 setupMarkers = require "./markers"
 marker = require './strike-dip'
-style = require '../style'
 
 Feature = require "../../../app/data/feature"
 GroupedFeature = require "../../../app/data/group"

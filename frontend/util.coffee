@@ -4,8 +4,8 @@ ReactDOM = require 'react-dom'
 reactifySpine = (cls, options)->
   # Wrap Spine controller in React component
   class SpineWrapper extends React.Component
-    constructor: (props)->
-      super props
+    constructor: (@props)->
+      super @props
     render: ->
       React.createElement "div"
     componentDidMount: ->
