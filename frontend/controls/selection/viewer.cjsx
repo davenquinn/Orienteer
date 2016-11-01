@@ -1,6 +1,7 @@
 React = require 'react'
 $ = require 'jquery'
 d3 = require "d3"
+style = require './style'
 
 sf = d3.format ">8.1f"
 df = d3.format ">6.1f"
@@ -69,6 +70,8 @@ class DataViewer extends React.Component
         <div className="data-container">
           <h4>Axis-aligned residuals</h4>
           <img src={"#{window.server_url}/elevation/attitude/#{@props.data.id}/axis-aligned.png"} />
+          <h4>Errorbar comparison</h4>
+          <img src={"#{window.server_url}/elevation/attitude/#{@props.data.id}/errorbars.png"} />
         </div>
       </div>
     </div>

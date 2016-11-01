@@ -2,6 +2,7 @@ import sys
 import logging
 from functools import wraps
 from flask import Flask, Blueprint, Response, render_template
+from attitude.display.plot.cov_types import axis_covariance
 
 # Python 2 and 3 compatibility
 try:
@@ -46,6 +47,13 @@ def attitude_data(id):
             pca=pca,
             angular_errors=tuple(N.degrees(i)
                 for i in pca.angular_errors()[::-1]))
+
+@elevation.route("/attitude/<id>/errorbars.png")
+def errorbars(id):
+    from ..models import get_attitude
+    attitude = get_attitude(id)
+    fig = axis_covariance(attitude.pca(), do_bootstrap=False)
+    return image(fig)
 
 @elevation.route("/attitude/<id>/axis-aligned.png")
 def principal_components(id):

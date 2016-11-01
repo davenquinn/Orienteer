@@ -1,10 +1,12 @@
 
 .sidebar {
+  &>div {
+    overflow-y: scroll;
+  }
   img {
     max-width: 100%;
   }
-  min-width: 30rem;
-  margin: 1rem;
+  padding: 1rem;
   div.controls {
     ul {
       list-style: none;
@@ -21,17 +23,5 @@
 
 }
 
-.selectionControl {
-
-  h3 { margin-top: 0; }
-  &>* {
-    flex: none;
-  }
-  position: relative;
-  .modal-controls {
-    position: absolute;
-    top: 0;
-    right: 0;
-    font-size: 1.5em;
-  }
-}
+.dataViewer
+  overflow-y: scroll

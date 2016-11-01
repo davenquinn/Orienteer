@@ -35,7 +35,7 @@ class AttitudePage extends React.Component
   render: ->
     <SplitPane
       split="vertical"
-      size={300}
+      minSize={300}
       primary="second">
       <MapControl data={@props.data} />
       <SelectionControl data={@props.data} />
