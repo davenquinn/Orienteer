@@ -12,6 +12,7 @@ class ListItem extends React.Component
     d = @props.data
     n = if d.records? then d.records.length else 1
     <span className="group">{n} attitudes</span>
+
   render: ->
     d = @props.data
     strike = sf(d.properties.strike)
@@ -19,57 +20,37 @@ class ListItem extends React.Component
     grouped = d.records?
 
     <li className="#{style.item}">
-      <span className="remove">
+      <span className="remove" onClick={@props.removeItem}>
         <i className='fa fa-remove'></i>
       </span>
-      <span className="strike">{strike}º</span>
-      <span className="dip">{dip}º</span>
-      {@renderGroupData() if grouped}
+      <span onClick={@props.focusItem}>
+        <span className="strike">{strike}º</span>
+        <span className="dip">{dip}º</span>
+        {@renderGroupData() if grouped}
+      </span>
     </li>
 
 class SelectionList extends React.Component
   defaultProps:
     focusItem: ->
+    removeItem: ->
   constructor: (@props)->
     super @props
 
-  update: =>
-    @log "Updating selection list"
-    @items = @ul.selectAll "li"
-      .data @selection.visible(), (d)->d.id
-
-    enter = @items.enter()
-      .append "li"
-        .html (d)->
-          template
-            strike: sf(d.properties.strike)
-            dip: df(d.properties.dip)
-            grouped: d.records?
-            n: if d.records? then d.records.length else 1
-        .on "mouseover", @data.hovered
-        .on "mouseout", @data.hovered
-        .on "click", @focusItem
-
-    enter.select "span.remove"
-      .on "click", @selection.update
-
-    @items.exit().remove()
-
-  focusItem: (d)=>
-    # Make the item show in a separate viewer
-    @trigger "focused", d
-
-  viewGroup: (e)->
-    node = e.currentTarget.parentNode
-    target = d3.select node
-    group =  target.data()[0]
-    @trigger "group-selected", group
-
-  renderItem: (d)->
-    <ListItem hovered={d.hovered} data={d} key={d.id} />
+  renderItem: (d)=>
+    onRemove = =>@props.removeItem d
+    onFocus = =>
+      console.log d
+      @props.focusItem d
+    <ListItem
+      hovered={d.hovered}
+      data={d}
+      key={d.id}
+      focusItem={onFocus}
+      removeItem={onRemove} />
   render: ->
     <ul className={style.list}>
-      {@props.selection.map @renderItem}
+      {@props.records.map @renderItem}
     </ul>
 
 module.exports = SelectionList

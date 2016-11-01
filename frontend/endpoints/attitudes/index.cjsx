@@ -5,8 +5,6 @@ Map = require "../../controls/map"
 SelectionControl = require "../../controls/selection"
 DataPanel = require "../../controls/data-panel"
 InfoBox = require "../../controls/info-box"
-template = require "./template.html"
-infoTemplate = require "./info-box.html"
 
 SplitPane = require 'react-split-pane'
 
@@ -37,8 +35,7 @@ class AttitudePage extends React.Component
   render: ->
     <SplitPane
       split="vertical"
-      size={-200}
-      enableResizing={false}
+      size={300}
       primary="second">
       <MapControl data={@props.data} />
       <SelectionControl data={@props.data} />

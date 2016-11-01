@@ -74,6 +74,7 @@
     "react-infinite": "^0.10.0",
     "react-router": "^2.8.1",
     "react-split-pane": "^0.1.51",
+    "react-switch-button": "^2.0.1",
     "react-tap-event-plugin": "^0.2.1",
     "stylus": "^0.54.5",
     "underscore": "^1.8.3",
