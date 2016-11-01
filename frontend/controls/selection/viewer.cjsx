@@ -1,33 +1,29 @@
 React = require 'react'
 $ = require 'jquery'
-Switch = require 'react-switch-button'
 d3 = require "d3"
 
 sf = d3.format ">8.1f"
 df = d3.format ">6.1f"
 
+strikeDip = (d)->
+  strike = sf(d.properties.strike)
+  dip = df(d.properties.dip)
+  <span><span className="strike">{strike}º</span> <span className="dip">{dip}º</span></span>
+
 class ListItem extends React.Component
   render: ->
     d = @props.data
-    strike = sf(d.properties.strike)
-    dip = df(d.properties.dip)
-    <li>
-      <span onClick={@props.focusItem}>
-        <span className="strike">{strike}º</span>
-        <span className="dip">{dip}º</span>
-      </span>
+    <li onClick={@props.focusItem}>
+      {strikeDip(d)}
     </li>
 
 class GroupedAttitudeControl extends React.Component
   renderListItem: (d)->
     <ListItem data={d} key={d.id} />
   render: ->
+    # Group type selector should go here...
     <div>
-      <Switch name='plane-type'
-          label="Parallel"
-          labelRight="Single"
-          defaultChecked={@props.data.same_plane} />
-      <h4>Component planes</h4>
+      <h4>Component planes ({@props.data.records.length})</h4>
       <ul className="selection-list">
         {@props.data.records.map @renderListItem}
       </ul>
@@ -66,8 +62,14 @@ class DataViewer extends React.Component
       </a>
       <div>
         <h2>{if grouped then 'Group' else 'Attitude'} {@props.data.id}</h2>
+        <ul>
+          <li>{strikeDip @props.data}</li>
+        </ul>
         {@renderGroupData() if grouped}
-        <div className="data-container">{@state.content}</div>
+        <div className="data-container">
+          <h4>Axis-aligned residuals</h4>
+          <img src={"#{window.server_url}/elevation/attitude/#{@props.data.id}/axis-aligned.png"} />
+        </div>
       </div>
     </div>
 

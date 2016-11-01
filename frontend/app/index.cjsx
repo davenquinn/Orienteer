@@ -36,7 +36,7 @@ class App
 
 module.exports = ->
   app = new App
-  setupMenu(app)
+  #setupMenu(app)
 
   class DataStereonet extends React.Component
     render: -> <Stereonet data={app.data} />
