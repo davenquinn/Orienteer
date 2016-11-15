@@ -31,7 +31,7 @@ class MapControl extends React.Component
 
 paneStyle =
   display: 'flex'
-  'flex-direction': 'column'
+  flexDirection: 'column'
 
 class AttitudePage extends React.Component
   constructor: (props)->
@@ -51,7 +51,7 @@ class AttitudePage extends React.Component
       paneStyle={paneStyle}
       pane2Style={s}>
       <MapControl data={@props.data} />
-      <SelectionControl data={@props.data} records={@props.selection}/>
+      <SelectionControl data={@props.data} records={@state.selection}/>
     </SplitPane>
 
   # The below is a shim but it'll work for now

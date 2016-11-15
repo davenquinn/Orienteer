@@ -58,21 +58,16 @@ class DataViewer extends React.Component
   render: ->
     grouped = @props.data.records?
     <div>
-      <a onClick={@props.close}>
-        <i className='fa fa-chevron-left'></i> Back
-      </a>
-      <div>
-        <h2>{if grouped then 'Group' else 'Attitude'} {@props.data.id}</h2>
-        <ul>
-          <li>{strikeDip @props.data}</li>
-        </ul>
-        {@renderGroupData() if grouped}
-        <div className="data-container">
-          <h4>Axis-aligned residuals</h4>
-          <img src={"#{window.server_url}/elevation/attitude/#{@props.data.id}/axis-aligned.png"} />
-          <h4>Errorbar comparison</h4>
-          <img src={"#{window.server_url}/elevation/attitude/#{@props.data.id}/errorbars.png"} />
-        </div>
+      <h2>{if grouped then 'Group' else 'Attitude'} {@props.data.id}</h2>
+      <ul>
+        <li>{strikeDip @props.data}</li>
+      </ul>
+      {@renderGroupData() if grouped}
+      <div className="data-container">
+        <h4>Axis-aligned residuals</h4>
+        <img src={"#{window.server_url}/elevation/attitude/#{@props.data.id}/axis-aligned.png"} />
+        <h4>Errorbar comparison</h4>
+        <img src={"#{window.server_url}/elevation/attitude/#{@props.data.id}/errorbars.png"} />
       </div>
     </div>
 

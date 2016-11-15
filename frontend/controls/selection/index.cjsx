@@ -7,13 +7,8 @@ style = require './style'
 class SelectionControl extends React.Component
   render: ->
     a = @props.actions
-    <div className="#{style.selectionControl} flex flex-container">
+    <div className="#{style.selectionControl}">
       <h3>Selection</h3>
-      <p className="modal-controls">
-        <span className="clear" onClick={a.clear}>
-           <i className="fa fa-remove"></i>
-        </span>
-      </p>
       <SelectionList
         records={@props.records}
         removeItem={a.removeItem}
@@ -21,42 +16,52 @@ class SelectionControl extends React.Component
       <p>
         <button
           className="group btn btn-default btn-sm"
-          onClick={@props.createGroup}>Group measurements</button>
+          onClick={a.createGroup}>Group measurements</button>
       </p>
     </div>
 
+class CloseButton extends React.Component
+  render: ->
+    <button className="clear btn btn-danger btn-tiny" onClick={@props.action}>
+      <i className={"fa fa-#{@props.icon}"}></i>{@props.text}
+    </button>
+
 class Sidebar extends React.Component
+  defaultProps:
+    records: []
   constructor: (@props)->
     super @props
     @state =
       focused: null
   render: ->
-    rec = @state.records
+    rec = @props.records
+
+    # Render nothing for empty selection
+    if rec.length == 0
+      return <div />
+
     # A selection management class
     s = @props.data.selection
 
+    closeButton = <CloseButton action={s.clear} text="Clear selection" icon="remove" />
     if @state.focused?
-      core = <ViewerControl
-                data={@state.focused}
-                close={@clearFocus} />
+      closeButton = <CloseButton action={@clearFocus} text="Back to selection" icon="chevron-left" />
+      core = <ViewerControl data={@state.focused} />
     else if rec.length == 1
-      core = <ViewerControl
-                data={@props.records[0]} />
-
-    else if rec.length > 1
+      core = <ViewerControl data={rec[0]} />
+    else
       actions =
-        clear: s.clear
         removeItem: s.update
         focusItem: @focusItem
         createGroup: s.createGroup
-
       core = <SelectionControl
                 records={rec}
                 actions={actions} />
-    else
-      core = <div />
 
-    <div className={style.sidebar}>
+    <div className={"#{style.sidebar} flex flex-container"} >
+      <div className="modal-controls">
+        {closeButton}
+      </div>
       {core}
     </div>
 
