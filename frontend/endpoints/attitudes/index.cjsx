@@ -4,7 +4,7 @@ ReactDOM = require 'react-dom'
 Map = require "../../controls/map"
 SelectionControl = require "../../controls/selection"
 DataPanel = require "../../controls/data-panel"
-InfoBox = require "../../controls/info-box"
+TagManager = require "../../controls/tag-manager"
 
 SplitPane = require 'react-split-pane'
 
@@ -43,6 +43,8 @@ class AttitudePage extends React.Component
     s = null
     if @state.selection.length == 0
       s = display: 'none'
+    else
+      s = overflowY: 'scroll'
 
     <SplitPane
       split="vertical"
@@ -51,7 +53,12 @@ class AttitudePage extends React.Component
       paneStyle={paneStyle}
       pane2Style={s}>
       <MapControl data={@props.data} />
-      <SelectionControl data={@props.data} records={@state.selection}/>
+      <div>
+        <SelectionControl data={@props.data} records={@state.selection}/>
+        <div>
+          <TagManager />
+        </div>
+      </div>
     </SplitPane>
 
   # The below is a shim but it'll work for now

@@ -1,10 +1,14 @@
 $ = require "jquery"
-d3 = require "d3"
 Spine = require "spine"
 template = require "./tag-manager.html"
 
 Data = require "../../app/data"
 Selection = require "../../app/data/selection"
+
+React = require 'react'
+ReactDOM = require 'react-dom'
+d3 = require 'd3'
+require 'd3-selection-multi'
 
 class TagManager extends Spine.Controller
   events:
@@ -83,4 +87,11 @@ class TagManager extends Spine.Controller
     @addTag input.val()
     input.val ""
 
-module.exports = TagManager
+class _TagManager extends React.Component
+  render: ->
+    React.createElement 'div'
+  componentDidMount: ->
+    el = ReactDOM.findDOMNode @
+    new TagManager el: el
+
+module.exports = _TagManager
