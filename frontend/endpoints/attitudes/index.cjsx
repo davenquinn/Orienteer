@@ -29,17 +29,43 @@ class MapControl extends React.Component
     @map.leaflet.remove()
   shouldComponentUpdate: ->false
 
+paneStyle =
+  display: 'flex'
+  'flex-direction': 'column'
+
 class AttitudePage extends React.Component
   constructor: (props)->
     super props
+    @state =
+      selection: []
+
   render: ->
+    s = null
+    if @state.selection.length == 0
+      s = display: 'none'
+
     <SplitPane
       split="vertical"
       minSize={300}
-      primary="second">
+      primary="second"
+      paneStyle={paneStyle}
+      pane2Style={s}>
       <MapControl data={@props.data} />
-      <SelectionControl data={@props.data} />
+      <SelectionControl data={@props.data} records={@props.selection}/>
     </SplitPane>
+
+  # The below is a shim but it'll work for now
+  componentDidMount: ->
+    @props.data.selection.bind "selection:updated", @updateSelection
+
+  componentWillUnmount: ->
+    @props.data.selection.unbind "selection:updated", @updateSelection
+
+  updateSelection: =>
+    @setState selection: @props.data.selection.records
+
+    # This is quite a hack
+    window.map.invalidateSize()
 
   onResizePane: ->
 

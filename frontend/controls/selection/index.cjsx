@@ -29,7 +29,6 @@ class Sidebar extends React.Component
   constructor: (@props)->
     super @props
     @state =
-      records: @props.data.selection.records
       focused: null
   render: ->
     rec = @state.records
@@ -42,7 +41,7 @@ class Sidebar extends React.Component
                 close={@clearFocus} />
     else if rec.length == 1
       core = <ViewerControl
-                data={@state.records[0]} />
+                data={@props.records[0]} />
 
     else if rec.length > 1
       actions =
@@ -66,15 +65,5 @@ class Sidebar extends React.Component
 
   clearFocus: (d)=>
     @setState focused: null
-
-  # The below is a shim but it'll work for now
-  componentDidMount: ->
-    @props.data.selection.bind "selection:updated", @updateSelection
-
-  componentWillUnmount: ->
-    @props.data.selection.unbind "selection:updated", @updateSelection
-
-  updateSelection: =>
-    @setState records: @props.data.selection.records
 
 module.exports = Sidebar
