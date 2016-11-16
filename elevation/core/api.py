@@ -36,53 +36,6 @@ def not_found(error):
         jsonify(status='error',
             message='Not found'), 404)
 
-def tag_items(items, tagname, method):
-    """ Add tags to items of any type that support the
-        tagging interface.
-    """
-    tag = db.session.query(Tag).get(tagname)
-    if not tag:
-        tag = Tag(tagname)
-        db.session.add(tag)
-
-    for f in items:
-        tagged = tag in f._tags
-        if method == "DELETE" and tagged:
-            f._tags.remove(tag)
-        if method == "POST" and not tagged:
-            f._tags.append(tag)
-    db.session.commit()
-
-    return jsonify(status="success", method=method,
-                tag=tagname, items=[i.serialize()
-        for i in items])
-
-def get_ids(model,ids):
-    """ Get objects given a list of IDs"""
-    if len(ids) == 0:
-        return []
-    return db.session.query(model)\
-        .filter(model.id.in_(ids)).all()
-
-@api.route('/feature/tag', methods=["POST","DELETE"])
-def feature_tag():
-    data = request.json
-    features = get_ids(DatasetFeature,data["features"])
-    return tag_items(features,data["tag"], request.method)
-
-@api.route('/group/tag', methods=["POST","DELETE"])
-def group_tag():
-    data = request.json
-    groups = get_ids(AttitudeGroup,data["groups"])
-    return tag_items(groups,data["tag"], request.method)
-
-@api.route('/attitude/tag', methods=["POST","DELETE"])
-def attitude_tag():
-    data = loads(request.data.decode('utf-8'))
-    features = (db.session.query(Attitude)
-        .filter(Attitude.id.in_(data['features']))).all()
-    return tag_items(features,data["tag"], request.method)
-
 @api.route('/group',
     methods=["GET", "POST"])
 def group():
