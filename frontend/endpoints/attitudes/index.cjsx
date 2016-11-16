@@ -5,6 +5,7 @@ Map = require "../../controls/map"
 SelectionControl = require "../../controls/selection"
 DataPanel = require "../../controls/data-panel"
 TagManager = require "../../controls/tag-manager"
+StereonetView = require "../stereonet/control"
 
 SplitPane = require 'react-split-pane'
 
@@ -57,6 +58,7 @@ class AttitudePage extends React.Component
         <SelectionControl data={@props.data} records={@state.selection}/>
         <div>
           <TagManager />
+          <StereonetView data={@state.selection} width={300} />
         </div>
       </div>
     </SplitPane>

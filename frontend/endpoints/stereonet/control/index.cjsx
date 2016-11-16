@@ -1,5 +1,6 @@
 React = require 'react'
 ReactDOM = require 'react-dom'
+Dimensions = require 'react-dimensions'
 d3 = require 'd3'
 require 'd3-selection-multi'
 {functions,math} = require 'attitude'
@@ -15,13 +16,19 @@ path = d3.geoPath()
   .projection proj
 
 class StereonetView extends React.Component
+  @defaultProps:
+    width: 500
   render: ->
     <svg />
   componentDidMount: ->
 
     el = ReactDOM.findDOMNode @
     svg = d3.select el
-      .attrs height: 800, width: 800
+      .attrs height: @props.width, width: @props.width
+
+    proj
+      .scale @props.width/2-20
+      .translate [@props.width/2, @props.width/2]
 
     # Setup basic element
     @container = svg.append 'g'
