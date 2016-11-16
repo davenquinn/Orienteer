@@ -19,7 +19,7 @@ class StereonetView extends React.Component
   @defaultProps:
     width: 500
   render: ->
-    <svg />
+    <svg className={style.container} />
   componentDidMount: ->
 
     el = ReactDOM.findDOMNode @

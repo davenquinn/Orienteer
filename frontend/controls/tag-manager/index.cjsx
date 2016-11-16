@@ -90,9 +90,26 @@ class _TagManager extends Spine.Controller
     @addTag input.val()
     input.val ""
 
+class TagList extends React.Component
+  render: ->
+    <ul>{<TagItem name={t.name} /> for t in @props.tags}</ul>
+
+class TagForm extends React.Component
+  render: ->
+    <form className='form-inline'>
+      <input
+        autocomplete="off"
+        class="form-control input-small"
+        type="text" name="tag" placeholder="Tag">
+    </form>
+
+
 class TagManager extends React.Component
   render: ->
-    <div></div>
+    <div>
+      <TagList tags=[] />
+      <TagForm />
+    </div>
   componentDidMount: ->
     el = ReactDOM.findDOMNode @
     new _TagManager el: el

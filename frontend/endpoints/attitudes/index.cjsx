@@ -12,8 +12,8 @@ SplitPane = require 'react-split-pane'
 d3 = require "d3"
 $ = require "jquery"
 
-style = require '../styles.styl'
-style2 = require './style.styl'
+style2 = require '../styles.styl'
+style = require './style.styl'
 FilterData = require "../../controls/filter-data"
 
 f = d3.format "> 6.1f"
@@ -54,9 +54,11 @@ class AttitudePage extends React.Component
       paneStyle={paneStyle}
       pane2Style={s}>
       <MapControl data={@props.data} />
-      <div>
-        <SelectionControl data={@props.data} records={@state.selection}/>
-        <div className={style2.sidebar}>
+      <div className={style.sidebar} >
+        <div className={style.sidebarComponent}>
+          <SelectionControl data={@props.data} records={@state.selection}/>
+        </div>
+        <div className={style.sidebarComponent}>
           <TagManager />
           <StereonetView data={@state.selection} width={300} />
         </div>
