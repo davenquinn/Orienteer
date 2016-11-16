@@ -30,6 +30,7 @@ class _TagManager extends Spine.Controller
     @updateFromSelection()
 
   update: (tags)=>
+    console.log "Updating tags", tags
 
     tags = @tags unless tags?
 

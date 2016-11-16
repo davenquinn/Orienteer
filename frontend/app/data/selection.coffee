@@ -37,24 +37,18 @@ class Selection extends BaseSelection
         .map (d)->d.id
     }
 
-  _recordsToTag: (rows)=>
-    ids = rows.map (d)->d.id
-    @records
-      .filter (d)->not d.hidden
-      .filter (d)->ids.indexOf(d.id) != -1
-
   addTag: (name)=>
     data = @_tagData name
     addTag [data.tag, data.features], (e,r)=>
       throw e if e
-      @_tagAdded name, records: @_recordsToTag(r.rows)
+      # We just assume that the right records are tagged
+      @_tagAdded name
 
   removeTag: (name)=>
     data = @_tagData name
     removeTag [data.tag, data.features], (e,r)=>
       throw e if e
-      console.log r.rows
-      @_tagRemoved name, records: @_recordsToTag(r.rows)
+      @_tagRemoved name
 
   createGroup: =>
     console.log "Creating group"
