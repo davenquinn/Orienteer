@@ -9,6 +9,7 @@ React = require 'react'
 ReactDOM = require 'react-dom'
 d3 = require 'd3'
 require 'd3-selection-multi'
+style = require './style'
 
 class TagManager extends Spine.Controller
   events:
@@ -17,7 +18,9 @@ class TagManager extends Spine.Controller
   constructor: ->
     super
     @el.html template
-    @ul = d3.select(@el[0]).select("ul")
+    @ul = d3.select(@el[0])
+      .attr 'class',style.tagManager
+      .select("ul")
     @tags = []
     @listenTo Data, "hovered", @updateFromHovered
     #@listenTo Data, "hover:exit", @updateFromSelection

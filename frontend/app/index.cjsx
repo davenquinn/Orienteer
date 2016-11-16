@@ -23,7 +23,6 @@ class App
     @API = require "./api"
     @opts = require "./options"
     @state = remote.app.state
-    @query = require('./database')
 
     # Share config from main process
     # Config can't be edited at runtime
@@ -31,9 +30,14 @@ class App
     @config = JSON.parse(JSON.stringify(c))
     @data = new Data
 
+    {storedProcedure} = @require 'database'
+    query = storedProcedure 'get-types'
+    query (e,r)=>
+      @data.featureTypes = r.rows
+
   require: (m)->
     ## App-scoped require to preclude nesting
-    require m
+    require "./#{m}"
 
   toggleData: ->
     return

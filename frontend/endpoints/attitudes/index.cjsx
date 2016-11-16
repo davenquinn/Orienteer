@@ -56,7 +56,7 @@ class AttitudePage extends React.Component
       <MapControl data={@props.data} />
       <div>
         <SelectionControl data={@props.data} records={@state.selection}/>
-        <div>
+        <div className={style2.sidebar}>
           <TagManager />
           <StereonetView data={@state.selection} width={300} />
         </div>

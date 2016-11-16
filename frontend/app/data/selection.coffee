@@ -2,6 +2,12 @@ Spine = require "spine"
 API = require "../api"
 GroupedFeature = require "./group"
 BaseSelection = require "../../shared/data/selection"
+path = require 'path'
+
+{storedProcedure} = require '../database'
+
+addTag = storedProcedure 'add-tag'
+removeTag = storedProcedure 'remove-tag'
 
 visible = (d)->not d.hidden
 
@@ -31,22 +37,24 @@ class Selection extends BaseSelection
         .map (d)->d.id
     }
 
-  _recordsToTag: =>
-    @records.filter (d)->not d.hidden
+  _recordsToTag: (rows)=>
+    ids = rows.map (d)->d.id
+    @records
+      .filter (d)->not d.hidden
+      .filter (d)->ids.indexOf(d.id) != -1
 
   addTag: (name)=>
     data = @_tagData name
-    app.API "/attitude/tag"
-      .send "POST", JSON.stringify(data), (e,r) =>
-        console.log r.response
-        @_tagAdded name, records: @_recordsToTag()
+    addTag [data.tag, data.features], (e,r)=>
+      throw e if e
+      @_tagAdded name, records: @_recordsToTag(r.rows)
 
   removeTag: (name)=>
     data = @_tagData name
-    app.API "/attitude/tag"
-      .send "DELETE", JSON.stringify(data), (e,r)=>
-        console.log r.data
-        @_tagRemoved name, records: @_recordsToTag()
+    removeTag [data.tag, data.features], (e,r)=>
+      throw e if e
+      console.log r.rows
+      @_tagRemoved name, records: @_recordsToTag(r.rows)
 
   createGroup: =>
     console.log "Creating group"

@@ -53,7 +53,8 @@ def tag_items(items, tagname, method):
             f._tags.append(tag)
     db.session.commit()
 
-    return jsonify(status="success", tag=tagname, items=[i.serialize()
+    return jsonify(status="success", method=method,
+                tag=tagname, items=[i.serialize()
         for i in items])
 
 def get_ids(model,ids):
@@ -77,21 +78,10 @@ def group_tag():
 
 @api.route('/attitude/tag', methods=["POST","DELETE"])
 def attitude_tag():
-    data = request.json
-
-    features,groups = [],[]
-    for f in data["features"]:
-        try:
-            group = f.startswith("G")
-        except AttributeError:
-            group = False
-        if group:
-            groups.append(int(f[1:]))
-        else:
-            features.append(int(f))
-    features = get_ids(DatasetFeature,features)
-    groups = get_ids(AttitudeGroup,groups)
-    return tag_items(features+groups,data["tag"], request.method)
+    data = loads(request.data.decode('utf-8'))
+    features = (db.session.query(Attitude)
+        .filter(Attitude.id.in_(data['features']))).all()
+    return tag_items(features,data["tag"], request.method)
 
 @api.route('/group',
     methods=["GET", "POST"])

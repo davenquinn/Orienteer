@@ -1,0 +1,30 @@
+.tag-field {
+  min-height: 3em;
+}
+
+.tagList {
+  li {
+    cursor: pointer;
+    padding: 0.1em 0.2em;
+    display: inline-block;
+    margin-right: 0.5em;
+    background: #ddd;
+    margin-bottom: 0.2em;
+  }
+  list-style: none;
+  padding-left: 0;
+}
+
+.tagManager {
+  ul {
+    @extend .tagList;
+  }
+  li {
+    .remove {
+      margin-left: 0.25em;
+    }
+    &.all {
+      background: lighten(dodgerblue, 20%);
+    }
+  }
+}

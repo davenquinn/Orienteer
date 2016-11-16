@@ -64,7 +64,7 @@ class StereonetView extends React.Component
     # Add dragging for debug purposes
     drag = d3.drag()
       .on 'drag', =>
-        proj.rotate [d3.event.x, -d3.event.y]
+        proj.rotate [-d3.event.x, -d3.event.y]
         @updatePaths()
     @container.call drag
 
