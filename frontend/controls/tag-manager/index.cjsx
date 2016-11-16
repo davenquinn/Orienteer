@@ -11,7 +11,7 @@ d3 = require 'd3'
 require 'd3-selection-multi'
 style = require './style'
 
-class TagManager extends Spine.Controller
+class _TagManager extends Spine.Controller
   events:
     "submit form": "submit"
     "keypress input": "onKeypress"
@@ -90,11 +90,11 @@ class TagManager extends Spine.Controller
     @addTag input.val()
     input.val ""
 
-class _TagManager extends React.Component
+class TagManager extends React.Component
   render: ->
-    React.createElement 'div'
+    <div></div>
   componentDidMount: ->
     el = ReactDOM.findDOMNode @
-    new TagManager el: el
+    new _TagManager el: el
 
-module.exports = _TagManager
+module.exports = TagManager
