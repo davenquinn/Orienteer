@@ -31,6 +31,10 @@ class App
     @config = JSON.parse(JSON.stringify(c))
     @data = new Data
 
+  require: (m)->
+    ## App-scoped require to preclude nesting
+    require m
+
   toggleData: ->
     return
 
