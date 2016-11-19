@@ -29,7 +29,9 @@ class GroupedAttitudeControl extends React.Component
         {@props.data.records.map @renderListItem}
       </ul>
       <p>
-        <button className="split btn btn-danger btn-sm">
+        <button
+          className="split btn btn-danger btn-sm"
+          onClick={@props.data.requestDestruction}>
           Split group
         </button>
       </p>

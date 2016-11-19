@@ -12,5 +12,6 @@ class Database(object):
         Session = sessionmaker(bind=self.engine)
         # create a Session
         self.session = Session()
+        return self.session
 
 db=Database()

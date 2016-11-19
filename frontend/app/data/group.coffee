@@ -105,7 +105,7 @@ class GroupedFeature extends Spine.Module
     d.group = null
   visible: => @records # alias to support same methods as view
 
-  requestDestruction: ->
+  requestDestruction: =>
     app.API "/group/#{@id}"
       .send "DELETE", (e,r)=>
         console.log r
