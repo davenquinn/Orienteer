@@ -12,6 +12,7 @@ from geoalchemy2.shape import from_shape, to_shape
 
 from attitude.orientation import Orientation
 from attitude.coordinates import centered
+from attitude.error.axes import sampling_axes, angular_errors
 from sqlalchemy.dialects.postgresql import array, ARRAY
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -49,6 +50,8 @@ class Attitude(BaseModel):
     singular_values = Column(ARRAY(Float,zero_indexes=True))
     covariance = Column(ARRAY(Float,zero_indexes=True))
     n_samples = Column(Integer)
+    max_angular_error = Column(Float)
+    min_angular_error = Column(Float)
 
     geometry = association_proxy('feature','geometry')
     location = Column(Geometry("POINT", srid=srid.world))
@@ -155,11 +158,18 @@ class Attitude(BaseModel):
             return
         self.principal_axes = pca.axes.tolist()
         self.singular_values = pca.singular_values.tolist()
-        self.covariance = N.diagonal(pca.covariance_matrix).tolist()
+
+        # Really this is hyperbolic axis lengths
+        # should change API to reflect this distinction
+        self.covariance = sampling_axes(pca).tolist()
         self.n_samples = pca.n
         self.strike, self.dip = pca.strike_dip()
         if self.dip == 90:
             self.valid = False
+
+        a = angular_errors(self.covariance)
+        self.min_angular_error = a[0]
+        self.max_angular_error = a[1]
 
         # Analogous to correlation coefficient for PCA
         # but not exactly the same
