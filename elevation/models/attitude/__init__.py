@@ -168,8 +168,8 @@ class Attitude(BaseModel):
             self.valid = False
 
         a = angular_errors(self.covariance)
-        self.min_angular_error = a[0]
-        self.max_angular_error = a[1]
+        self.min_angular_error = 2*N.degrees(a[0])
+        self.max_angular_error = 2*N.degrees(a[1])
 
         # Analogous to correlation coefficient for PCA
         # but not exactly the same
