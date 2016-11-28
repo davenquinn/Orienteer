@@ -5,7 +5,7 @@ StereonetView = require './control'
 d3 = require 'd3'
 require 'd3-selection-multi'
 style = require './main.styl'
-stereonet = require './control'
+stereonet = require '../controls/stereonet'
 
 class ListItem extends React.Component
   handleClick: =>
