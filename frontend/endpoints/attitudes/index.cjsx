@@ -1,12 +1,9 @@
 Spine = require "spine"
 React = require 'react'
 ReactDOM = require 'react-dom'
-{Measure} = require 'react-measure'
 Map = require "../../controls/map"
 SelectionControl = require "../../controls/selection"
-DataPanel = require "../../controls/data-panel"
-TagManager = require "../../controls/tag-manager"
-StereonetView = require "../../controls/stereonet"
+DataPane = require "./data-pane"
 
 SplitPane = require 'react-split-pane'
 
@@ -63,13 +60,9 @@ class AttitudePage extends React.Component
               records={@state.selection}
               hovered={@state.hovered} />
         </div>
-        <div className={style.sidebarComponent}>
-          <TagManager />
-          <StereonetView
-            data={@state.selection}
-            hovered={@state.hovered}
-            width={300} />
-        </div>
+        <DataPane
+          records={@state.selection}
+          hovered={@state.hovered} />
       </div>
     </SplitPane>
 

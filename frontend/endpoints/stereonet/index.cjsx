@@ -1,11 +1,10 @@
 React = require 'react'
 Infinite = require 'react-infinite'
-StereonetView = require './control'
 {Link} = require 'react-router'
 d3 = require 'd3'
 require 'd3-selection-multi'
 style = require './main.styl'
-stereonet = require '../controls/stereonet'
+StereonetView = require '../../controls/stereonet'
 
 class ListItem extends React.Component
   handleClick: =>
