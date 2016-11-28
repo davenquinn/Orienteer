@@ -13,7 +13,8 @@ class SelectionControl extends React.Component
         records={@props.records}
         hovered={@props.hovered}
         removeItem={a.removeItem}
-        focusItem={a.focusItem} />
+        focusItem={a.focusItem}
+        allowRemoval={true} />
       <p>
         <button
           className="group btn btn-default btn-sm"
@@ -48,9 +49,9 @@ class Sidebar extends React.Component
     closeButton = <CloseButton action={s.clear} text="Clear selection" icon="remove" />
     if @state.focused?
       closeButton = <CloseButton action={@clearFocus} text="Back to selection" icon="chevron-left" />
-      core = <ViewerControl data={@state.focused} />
+      core = <ViewerControl data={@state.focused} hovered={@props.hovered}  />
     else if rec.length == 1
-      core = <ViewerControl data={rec[0]} />
+      core = <ViewerControl data={rec[0]} hovered={@props.hovered} />
     else
       actions =
         removeItem: s.update

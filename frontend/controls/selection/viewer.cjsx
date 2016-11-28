@@ -2,6 +2,7 @@ React = require 'react'
 $ = require 'jquery'
 d3 = require "d3"
 style = require './style'
+SelectionList = require './list'
 
 sf = d3.format ">8.1f"
 df = d3.format ">6.1f"
@@ -11,13 +12,6 @@ strikeDip = (d)->
   dip = df(d.properties.dip)
   <span><span className="strike">{strike}º</span> <span className="dip">{dip}º</span></span>
 
-class ListItem extends React.Component
-  render: ->
-    d = @props.data
-    <li onClick={@props.focusItem}>
-      {strikeDip(d)}
-    </li>
-
 class GroupedAttitudeControl extends React.Component
   renderListItem: (d)->
     <ListItem data={d} key={d.id} />
@@ -25,9 +19,9 @@ class GroupedAttitudeControl extends React.Component
     # Group type selector should go here...
     <div>
       <h4>Component planes ({@props.data.records.length})</h4>
-      <ul className="selection-list">
-        {@props.data.records.map @renderListItem}
-      </ul>
+      <SelectionList
+        records={@props.data.records}
+        hovered={@props.hovered} />
       <p>
         <button
           className="split btn btn-danger btn-sm"
@@ -55,7 +49,9 @@ class DataViewer extends React.Component
     @setState content: c
 
   renderGroupData: ->
-    <GroupedAttitudeControl data={@props.data} />
+    <GroupedAttitudeControl
+      data={@props.data}
+      hovered={@props.hovered} />
 
   render: ->
     grouped = @props.data.records?
