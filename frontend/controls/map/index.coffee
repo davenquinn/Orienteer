@@ -3,7 +3,6 @@ SelectBox = require "./select-box"
 DataLayer = require "./data-layer"
 GIS = require 'gis-core'
 $ = require 'jquery'
-L = require 'leaflet'
 path = require 'path'
 React = require 'react'
 BackButton = require './back-button'
@@ -41,6 +40,7 @@ class Map extends Spine.Controller
 
     @leaflet.on "viewreset dragend", @extentChanged
     @leaflet.addHandler "boxSelect", SelectBox
+    @leaflet.boxSelect.enable()
     @leaflet.invalidateSize()
 
     # Set height in javascript (temporarily

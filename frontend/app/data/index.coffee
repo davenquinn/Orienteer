@@ -5,6 +5,7 @@ queue = require("d3-queue").queue
 Feature = require "./feature"
 GroupedFeature = require "./group"
 Selection = require "./selection"
+L = require 'leaflet'
 
 API = require "../api"
 
