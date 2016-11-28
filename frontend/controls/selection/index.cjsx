@@ -11,6 +11,7 @@ class SelectionControl extends React.Component
       <h3>Selection</h3>
       <SelectionList
         records={@props.records}
+        hovered={@props.hovered}
         removeItem={a.removeItem}
         focusItem={a.focusItem} />
       <p>
@@ -29,6 +30,7 @@ class CloseButton extends React.Component
 class Sidebar extends React.Component
   defaultProps:
     records: []
+    hovered: null
   constructor: (@props)->
     super @props
     @state =
@@ -56,6 +58,7 @@ class Sidebar extends React.Component
         createGroup: s.createGroup
       core = <SelectionControl
                 records={rec}
+                hovered={@props.hovered}
                 actions={actions} />
 
     <div className={"#{style.sidebar} flex flex-container"} >

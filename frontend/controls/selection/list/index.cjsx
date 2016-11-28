@@ -19,7 +19,13 @@ class ListItem extends React.Component
     dip = df(d.properties.dip)
     grouped = d.records?
 
-    <li className="#{style.item}">
+    cls = style.item
+    if @props.hovered
+      cls += " #{style.hovered}"
+
+    # This is crazy-inefficient
+    <li className={cls}
+      onMouseEnter={@mousein}>
       <span className="remove" onClick={@props.removeItem}>
         <i className='fa fa-remove'></i>
       </span>
@@ -29,6 +35,13 @@ class ListItem extends React.Component
         {@renderGroupData() if grouped}
       </span>
     </li>
+
+  # These handlers need some reworking
+  # but can probably stand for now
+  mousein: =>
+    app.data.hovered @props.data, true
+  mouseout: =>
+    app.data.hovered @props.data, false
 
 class SelectionList extends React.Component
   defaultProps:
@@ -42,8 +55,12 @@ class SelectionList extends React.Component
     onFocus = =>
       console.log d
       @props.focusItem d
+
+    h = false
+    if @props.hovered?
+      h = d.id == @props.hovered.id
     <ListItem
-      hovered={d.hovered}
+      hovered={h}
       data={d}
       key={d.id}
       focusItem={onFocus}

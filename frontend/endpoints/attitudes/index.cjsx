@@ -39,6 +39,7 @@ class AttitudePage extends React.Component
     super props
     @state =
       selection: []
+      hovered: null
 
   render: ->
     s = null
@@ -56,11 +57,13 @@ class AttitudePage extends React.Component
       <MapControl data={@props.data} />
       <div className={style.sidebar} >
         <div className={style.sidebarComponent}>
-          <SelectionControl data={@props.data} records={@state.selection}/>
+          <SelectionControl data={@props.data}
+              records={@state.selection}
+              hovered={@state.hovered} />
         </div>
         <div className={style.sidebarComponent}>
           <TagManager />
-          <StereonetView data={@state.selection} width={300} />
+          <StereonetView data={@state.selection} hovered={@state.hovered} width={300} />
         </div>
       </div>
     </SplitPane>
@@ -68,15 +71,20 @@ class AttitudePage extends React.Component
   # The below is a shim but it'll work for now
   componentDidMount: ->
     @props.data.selection.bind "selection:updated", @updateSelection
+    @props.data.constructor.bind "hovered", @updateHovered
 
   componentWillUnmount: ->
     @props.data.selection.unbind "selection:updated", @updateSelection
+    @props.data.constructor.unbind "hovered", @updateHovered
 
   updateSelection: =>
     @setState selection: @props.data.selection.records
 
     # This is quite a hack
     window.map.invalidateSize()
+
+  updateHovered: (d)=>
+    @setState hovered: d
 
   onResizePane: ->
 

@@ -102,9 +102,11 @@ class Data extends Spine.Module
       l = new L.LatLng a[1],a[0]
       bounds.contains l
 
-  hovered: (d)=>
+  hovered: (d, v)=>
     # set hover state
-    d.hovered = not d.hovered
+    if not v?
+      v = not d.hovered
+    d.hovered = v
     if d.records?
       for i in d.records
         i.hovered = d.hovered
