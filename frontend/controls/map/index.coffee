@@ -26,6 +26,10 @@ class Map extends Spine.Controller
     cfg.basedir ?= path.dirname app.config.configFile
     console.log cfg
     @setHeight()
+
+    layers = @settings.get()
+    cfg.initLayer = layers[0]
+
     @leaflet = new GIS.Map @el[0], cfg
     # Add overlay layer
     @dataLayer = new DataLayer
@@ -47,9 +51,11 @@ class Map extends Spine.Controller
       # Update cached layer information when
       # map is changed
       @visibleLayers = (v.id for k,v of @leaflet._layers)
+        .filter (d)->d?
       @settings.set @visibleLayers
 
     @leaflet.on 'layeradd layerremove', _
+    _()
 
   invalidateSize: =>
     # Shim for flexbox
