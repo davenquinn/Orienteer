@@ -11,7 +11,7 @@ class ListItem extends React.Component
   renderGroupData: ->
     d = @props.data
     n = if d.records? then d.records.length else 1
-    <span className="group">{n} attitudes</span>
+    <span className={style.group}>{n} attitudes</span>
 
   render: ->
     d = @props.data
@@ -24,8 +24,8 @@ class ListItem extends React.Component
         <i className='fa fa-remove'></i>
       </span>
       <span onClick={@props.focusItem}>
-        <span className="strike">{strike}º</span>
-        <span className="dip">{dip}º</span>
+        <span className={style.strike}>{strike}º</span>
+        <span className={style.dip}>{dip}º</span>
         {@renderGroupData() if grouped}
       </span>
     </li>
