@@ -14,7 +14,6 @@ class ListItem extends React.Component
     d = @props.data
     n = if d.records? then d.records.length else 1
     <span className={style.group}>{n} attitudes</span>
-
   render: ->
     d = @props.data
     strike = sf(d.properties.strike)
@@ -22,7 +21,7 @@ class ListItem extends React.Component
     grouped = d.records?
 
     cls = style.item
-    if @props.hovered
+    if d.hovered
       cls += " #{style.hovered}"
 
     # This is crazy-inefficient
@@ -41,6 +40,8 @@ class ListItem extends React.Component
       <i className='fa fa-remove'></i>
     </span>
 
+  isHovered: =>
+    app.data.isHovered @props.data
   # These handlers need some reworking
   # but can probably stand for now
   mousein: =>
@@ -65,7 +66,6 @@ class SelectionList extends React.Component
     if @props.hovered?
       h = d.id == @props.hovered.id
     <ListItem
-      hovered={h}
       data={d}
       key={d.id}
       focusItem={onFocus}

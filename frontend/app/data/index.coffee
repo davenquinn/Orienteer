@@ -6,12 +6,13 @@ Feature = require "./feature"
 GroupedFeature = require "./group"
 Selection = require "./selection"
 L = require 'leaflet'
+{update} = require 'immutability-helper'
 
 API = require "../api"
 
 class Data extends Spine.Module
   @extend Spine.Events
-
+  hoveredItem: null
   _filter: (d)->d
   fetched: false
   constructor: ->
@@ -44,18 +45,14 @@ class Data extends Spine.Module
   fetch: =>
     queue()
       .defer API("/attitude").get
-      .defer API("/group").get
-      .await (e,d1,d2)=>
+      .await (e,d1)=>
         if e
           throw e
-        console.log d1,d2
+        console.log d1
         console.log "Data received from server"
-        features = d1.data
-          .concat d2.data
-        console.log features
-        @setupData features
+        @setupData d1.data
         @fetched = true
-        @updateCache features
+        @updateCache d1.data
 
   onUpdated: =>
     rec = @records()
@@ -66,9 +63,8 @@ class Data extends Spine.Module
     Feature.reset()
     GroupedFeature.reset()
     for d in rawData
-      if d.measurements?
-        if d.measurements.length > 1
-          new GroupedFeature d
+      if d.type == 'GroupedAttitude'
+        new GroupedFeature d
       else
         new Feature d
     @constructor.trigger "updated"
@@ -111,9 +107,15 @@ class Data extends Spine.Module
       for i in d.records
         i.hovered = d.hovered
     if d.hovered
+      @hoveredItem = d.id
       @constructor.trigger "hovered", d
     else
+      @hoveredItem = null
       @constructor.trigger "hovered"
+
+  isHovered: (d)->
+    # Checks if item is hovered
+    @hoveredItem == d.id
 
   getFilter: (tags)=>
     tags = [{name: "bad",status: "none"}] unless tags
