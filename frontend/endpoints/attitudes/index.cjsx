@@ -3,9 +3,7 @@ React = require 'react'
 ReactDOM = require 'react-dom'
 Map = require "../../controls/map"
 SelectionControl = require "../../controls/selection"
-DataPanel = require "../../controls/data-panel"
-TagManager = require "../../controls/tag-manager"
-StereonetView = require "../stereonet/control"
+DataPane = require "./data-pane"
 
 SplitPane = require 'react-split-pane'
 
@@ -53,7 +51,8 @@ class AttitudePage extends React.Component
       minSize={300}
       primary="second"
       paneStyle={paneStyle}
-      pane2Style={s}>
+      pane2Style={s}
+      onChange={@onResizePane}>
       <MapControl data={@props.data} />
       <div className={style.sidebar} >
         <div className={style.sidebarComponent}>
@@ -61,10 +60,9 @@ class AttitudePage extends React.Component
               records={@state.selection}
               hovered={@state.hovered} />
         </div>
-        <div className={style.sidebarComponent}>
-          <TagManager />
-          <StereonetView data={@state.selection} hovered={@state.hovered} width={300} />
-        </div>
+        <DataPane
+          records={@state.selection}
+          hovered={@state.hovered} />
       </div>
     </SplitPane>
 
@@ -86,6 +84,7 @@ class AttitudePage extends React.Component
   updateHovered: (d)=>
     @setState hovered: d
 
-  onResizePane: ->
+  onResizePane: (size)->
+    console.log size
 
 module.exports = AttitudePage

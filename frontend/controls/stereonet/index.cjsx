@@ -23,15 +23,10 @@ class StereonetView extends React.Component
   componentDidMount: ->
 
     el = ReactDOM.findDOMNode @
-    svg = d3.select el
-      .attrs height: @props.width, width: @props.width
-
-    proj
-      .scale @props.width/2-20
-      .translate [@props.width/2, @props.width/2]
-
+    @svg = d3.select el
+    @updateSize()
     # Setup basic element
-    @container = svg.append 'g'
+    @container = @svg.append 'g'
       .attr 'class', 'orientation'
       .attr 'fill', 'white'
 
@@ -73,12 +68,22 @@ class StereonetView extends React.Component
     if prevProps.data.length != @props.data.length
       console.log "Data was changed"
     @dataChanged()
+    if prevProps.width != @props.width
+      console.log "Scale was changed"
+      @updateSize()
+
     @updatePaths()
 
   dataChanged: =>
     data = @props.data.map (d)->d.properties
     @main.call planes, data
     @main.call ellipses, data
+
+  updateSize: =>
+    @svg.attrs height: @props.width, width: @props.width
+    proj
+      .scale @props.width/2-20
+      .translate [@props.width/2, @props.width/2]
 
   updatePaths: =>
     @container.selectAll 'path'
