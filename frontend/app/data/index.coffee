@@ -12,16 +12,25 @@ API = require "../api"
 
 class Data extends Spine.Module
   @extend Spine.Events
+
+  # Methods for dealing with collections
+  # as a whole
+
+  @records: []
+  @index: []
+
+  @reset: ->
+    @records = []
+    @index = []
+
   hoveredItem: null
   _filter: (d)->d
   fetched: false
   constructor: ->
     super
-    # Add data from cache if available
-    cachedData = window.localStorage.getItem "attitudes"
-    features = JSON.parse cachedData
-    if features?
-      @setupData features
+    # Shim for deletion of collection attributes
+    GroupedFeature.collection = @constructor.records
+    Feature.collection = @constructor.records
 
     # Setup requests for updated data
     @fetch()
@@ -52,16 +61,13 @@ class Data extends Spine.Module
         console.log "Data received from server"
         @setupData d1.data
         @fetched = true
-        @updateCache d1.data
 
   onUpdated: =>
-    rec = @records()
     @constructor.trigger "updated"
 
   setupData: (rawData)->
     # Empties collections
-    Feature.reset()
-    GroupedFeature.reset()
+    @constructor.reset()
     for d in rawData
       if d.type == 'GroupedAttitude'
         new GroupedFeature d
@@ -75,25 +81,19 @@ class Data extends Spine.Module
     window.localStorage.setItem "attitudes", _
 
   get: (id)=>
-    if typeof id is "string"
-      return GroupedFeature.index[id]
-    else
-      return Feature.index[id]
-
-  records: ->
-    Feature.collection
-      .concat GroupedFeature.collection
+    @constructor.records.find (d)->d.id==id
 
   asGeoJSON: ->
     out =
       type: "FeatureCollection"
-      features: @records()
+      features: @constructor.records
 
   getTags: ->
-    tags.getUnique @records()
+    tags.getUnique @constructor.records
 
-  within: (bounds)->
-    @records().filter (d)->
+  within: (bounds)=>
+    console.log bounds
+    @constructor.records.filter (d)->
       a = d.properties.center.coordinates
       l = new L.LatLng a[1],a[0]
       bounds.contains l
