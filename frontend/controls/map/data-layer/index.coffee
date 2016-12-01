@@ -24,8 +24,13 @@ class DataLayer extends EventedShim
     super
   onAdd: ->
     super
-    # Shim for mismatched versions of D3
-    @svg = d3.select(@svg.node())
+
+    @setupProjection()
+    @svg = d3.select @_container
+      .classed "data-layer", true
+      .classed "leaflet-zoom-hide", true
+    @_map.on "viewreset", @resetView
+
     @container = @svg.append("g")
 
     setupMarkers(@container)
@@ -33,7 +38,7 @@ class DataLayer extends EventedShim
     if @data?
       @setupData @data
 
-  setupData: (@data)->
+  setupData: (@data)=>
     mdip = 5
     @cscale = d3.scaleLinear()
         .domain [0, mdip]
@@ -49,13 +54,6 @@ class DataLayer extends EventedShim
       @markers.classed "hovered", (d)-> d.hovered
 
     @listenTo @data.selection, "selection:updated", @updateSelection
-    @_map.on "zoomend", =>
-      # There is a weird bug with zooming in which zoom doesn't work
-      # before cached data is replaced from database
-      z = @_map.getZoom()
-      console.log "Resizing markers for zoom",z
-      @markers.call @setTransform
-      @features.attrs d: @path
 
     @container.append "g"
       .attrs class: "features"
@@ -65,6 +63,7 @@ class DataLayer extends EventedShim
       .selectAll "g"
 
     @updateData()
+    @_map.on "zoomend",@onZoom
 
   updateData: (filter)=>
     filter = @data.getFilter() unless filter?
@@ -121,6 +120,33 @@ class DataLayer extends EventedShim
     @features.exit().remove()
     @markers.exit().remove()
 
+  onZoom: =>
+    # There is a weird bug with zooming in which zoom doesn't work
+    # before cached data is replaced from database
+    z = @_map.getZoom()
+    console.log "Resizing markers for zoom",z
+
+    @container.select ".markers"
+      .selectAll "g"
+      .call @setTransform
+
+    @container.select ".features"
+      .selectAll "path"
+
+    @features.attrs d: @path
+
+  setupProjection: =>
+    f = @projectPoint
+    @projection = d3.geoTransform
+      point: (x,y)->
+        point = f(x,y)
+        return @stream.point point.x, point.y
+
+    @path = d3.geoPath().projection(@projection)
+
+  projectPoint: (x,y)=>
+    @_map.latLngToLayerPoint(new L.LatLng(y,x))
+
   setTransform: (sel)=>
     z = @_map.getZoom()
     proj = @projectPoint
@@ -137,7 +163,8 @@ class DataLayer extends EventedShim
   resetView: =>
     bounds = @path.bounds
       type: "FeatureCollection"
-      features: Feature.collection
+      features: @data.constructor.records
+                   .filter (d)->d.type == 'Feature'
 
     @markers.call @setTransform
     @features.attr 'd', @path

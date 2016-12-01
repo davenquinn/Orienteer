@@ -87,7 +87,7 @@ class MapControl extends React.Component
     $(@node).height window.innerHeight
 
   extentChanged: =>
-    @trigger "extents", @map.getBounds()
+    #@trigger "extents", @map.getBounds()
 
   setBounds: (b)=>
     @map.fitBounds(b)
