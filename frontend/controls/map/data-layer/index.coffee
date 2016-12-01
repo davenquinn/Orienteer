@@ -39,6 +39,8 @@ class DataLayer extends EventedShim
       @setupData @data
 
   setupData: (@data)=>
+    console.log "Setting up data layer"
+    console.log @data
     mdip = 5
     @cscale = d3.scaleLinear()
         .domain [0, mdip]

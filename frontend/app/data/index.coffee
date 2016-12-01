@@ -37,7 +37,6 @@ class Data extends Spine.Module
     @__fetchData()
 
     @selection = Selection
-
     @selection.bind "tags-updated", @filter
     Data.listenTo GroupedFeature, "deleted", (d)=>
       @onUpdated()
@@ -60,16 +59,11 @@ class Data extends Spine.Module
       .tap console.log
       .map (d)->
         # Transform raw data
-        console.log d
-        if d.type == 'group'
-          f = new GroupedFeature d
-        else
-          f = new Feature d
-        return f
+        new Feature d
       .tap console.log
       .then @setupData
       .catch (e)->
-        console.error e
+        throw e
 
   onUpdated: =>
     @constructor.trigger "updated"
@@ -77,7 +71,7 @@ class Data extends Spine.Module
   setupData: (rawData)=>
     @constructor.reset()
     for d in rawData
-      @constructor.records.push f
+      @constructor.records.push d
     @fetched = true
     @constructor.trigger "updated"
 

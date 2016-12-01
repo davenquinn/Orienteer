@@ -4,6 +4,9 @@ pgp = require('pg-promise')(promiseLib: Promise)
 {Buffer} = require 'buffer'
 {Geometry} = require 'wkx'
 
+debug = true
+Promise.longStackTraces()
+
 getOIDs = "SELECT oid, typname AS name
            FROM pg_type
            WHERE typname = ANY($1::text[])"
