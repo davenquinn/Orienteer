@@ -56,15 +56,15 @@ class MapControl extends React.Component
     # resolves awkward behavior with flexbox)
     $(window).on 'resize', @setHeight
 
-    _ = =>
+    setupCache = =>
       # Update cached layer information when
       # map is changed
       @visibleLayers = (v.id for k,v of @map._layers)
         .filter (d)->d?
       @settings.set @visibleLayers
 
-    @map.on 'layeradd layerremove', _
-    _()
+    @map.on 'layeradd layerremove', setupCache
+    setupCache()
 
   # React lifecycle methods
   componentWillUnmount: ->
@@ -101,9 +101,8 @@ class MapControl extends React.Component
   addData: (@data)=>
     @dataLayer.setupData @props.data
     @map.on "box-selected", (e)=>
-      f = @props.data.within(e.bounds)
-      f.filter (d)->not d.hidden
-      @data.selection.addSeveral f
+      @data.selectByBox(e.bounds)
+
 
 
 module.exports = MapControl

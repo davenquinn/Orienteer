@@ -8,6 +8,7 @@ Selection = require "./selection"
 L = require 'leaflet'
 {update} = require 'immutability-helper'
 
+{storedProcedure} = require '../database'
 API = require "../api"
 
 class Data extends Spine.Module
@@ -33,7 +34,7 @@ class Data extends Spine.Module
     Feature.collection = @constructor.records
 
     # Setup requests for updated data
-    @fetch()
+    @__fetchData()
 
     @selection = Selection
 
@@ -51,29 +52,33 @@ class Data extends Spine.Module
 
     Data.listenTo GroupedFeature, "updated", @onUpdated
 
-  fetch: =>
-    queue()
-      .defer API("/attitude").get
-      .await (e,d1)=>
-        if e
-          throw e
-        console.log d1
-        console.log "Data received from server"
-        @setupData d1.data
-        @fetched = true
+  __fetchData: =>
+    {storedProcedure, db} = app.require 'database'
+
+    sql = storedProcedure 'get-dataset'
+    db.query sql
+      .tap console.log
+      .map (d)->
+        # Transform raw data
+        console.log d
+        if d.type == 'group'
+          f = new GroupedFeature d
+        else
+          f = new Feature d
+        return f
+      .tap console.log
+      .then @setupData
+      .catch (e)->
+        console.error e
 
   onUpdated: =>
     @constructor.trigger "updated"
 
-  setupData: (rawData)->
-    # Empties collections
+  setupData: (rawData)=>
     @constructor.reset()
     for d in rawData
-      if d.type == 'GroupedAttitude'
-        f = new GroupedFeature d
-      else
-        f = new Feature d
       @constructor.records.push f
+    @fetched = true
     @constructor.trigger "updated"
 
   updateCache: (d)->
@@ -146,4 +151,10 @@ class Data extends Spine.Module
 
   filter: =>
     @constructor.trigger "filtered", @getFilter()
+
+  selectByBox: (bounds)=>
+    f = @data.within(bounds)
+    f.filter (d)->not d.hidden
+    @selection.addSeveral f
+
 module.exports = Data
