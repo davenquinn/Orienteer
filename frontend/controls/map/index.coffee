@@ -1,4 +1,3 @@
-Spine = require "spine"
 SelectBox = require "./select-box"
 DataLayer = require "./data-layer"
 React = require 'react'
@@ -15,11 +14,19 @@ MapnikLayer = require 'gis-core/frontend/mapnik-layer'
 setupProjection = require "gis-core/frontend/projection"
 style = require './style'
 
-class Map extends Spine.Controller
-  class: "viewer"
+class MapControl extends React.Component
   constructor: ->
     super
     window.map = @
+
+    @state =
+      dataIsConfigured: false
+  render: ->
+    React.createElement 'div'
+
+  componentDidMount: ->
+    @node = ReactDOM.findDOMNode @
+    console.log "Component mounted"
 
     @settings = new CacheDatastore 'map-visible-layers'
 
@@ -31,19 +38,19 @@ class Map extends Spine.Controller
     layers = @settings.get()
     cfg.initLayer = layers[0]
 
-    @leaflet = new GIS.Map @el[0], cfg
+    @map = new GIS.Map @node, cfg
     # Add overlay layer
     @dataLayer = new DataLayer
-    @dataLayer.addTo @leaflet
+    @dataLayer.addTo @map
     ovr = {"Bedding attitudes": @dataLayer}
-    @leaflet.addControl new BackButton
-    @leaflet.addLayerControl {}, ovr
-    @leaflet.addScalebar()
+    @map.addControl new BackButton
+    @map.addLayerControl {}, ovr
+    @map.addScalebar()
 
-    @leaflet.on "viewreset dragend", @extentChanged
-    @leaflet.addHandler "boxSelect", SelectBox
-    @leaflet.boxSelect.enable()
-    @leaflet.invalidateSize()
+    @map.on "viewreset dragend", @extentChanged
+    @map.addHandler "boxSelect", SelectBox
+    @map.boxSelect.enable()
+    @map.invalidateSize()
 
     # Set height in javascript (temporarily
     # resolves awkward behavior with flexbox)
@@ -52,61 +59,51 @@ class Map extends Spine.Controller
     _ = =>
       # Update cached layer information when
       # map is changed
-      @visibleLayers = (v.id for k,v of @leaflet._layers)
+      @visibleLayers = (v.id for k,v of @map._layers)
         .filter (d)->d?
       @settings.set @visibleLayers
 
-    @leaflet.on 'layeradd layerremove', _
+    @map.on 'layeradd layerremove', _
     _()
 
-  invalidateSize: =>
-    # Shim for flexbox
-    @leaflet.invalidateSize()
-
-  setHeight: =>
-    @el.height window.innerHeight
-
-  extentChanged: =>
-    @trigger "extents", @leaflet.getBounds()
-
-  setBounds: (b)=>
-    @leaflet.fitBounds(b)
-
-  getBounds: =>
-    b = @leaflet.getBounds()
-    out = [
-      [b._southWest.lat, b._southWest.lng]
-      [b._northEast.lat, b._northEast.lng]]
-
-  addData: (@data)=>
-    @dataLayer.setupData @data
-    @leaflet.on "box-selected", (e)=>
-      f = @data.within(e.bounds)
-      f.filter (d)->not d.hidden
-      @data.selection.addSeveral f
-
-class MapControl extends React.Component
-  constructor: ->
-    super
-    @state =
-      dataIsConfigured: false
-  render: ->
-    React.createElement 'div'
-
-  componentDidMount: ->
-    el = ReactDOM.findDOMNode @
-    @map = new Map el: el
-    console.log "Component mounted"
-
+  # React lifecycle methods
   componentWillUnmount: ->
-    @map.leaflet.remove()
+    @map.remove()
 
   componentDidUpdate: (prevProps, prevState)->
     console.log "Map updated"
     console.log @props.records
     c = @props.records.length
     if c > 0 and not @state.dataIsConfigured
-      @map.addData @props.data
+      @addData @props.data
       @state.dataIsConfigured = true
+
+  # Done with react lifecycle methods
+  invalidateSize: =>
+    # Shim for flexbox
+    @map.invalidateSize()
+
+  setHeight: =>
+    $(@node).height window.innerHeight
+
+  extentChanged: =>
+    @trigger "extents", @map.getBounds()
+
+  setBounds: (b)=>
+    @map.fitBounds(b)
+
+  getBounds: =>
+    b = @map.getBounds()
+    out = [
+      [b._southWest.lat, b._southWest.lng]
+      [b._northEast.lat, b._northEast.lng]]
+
+  addData: (@data)=>
+    @dataLayer.setupData @props.data
+    @map.on "box-selected", (e)=>
+      f = @props.data.within(e.bounds)
+      f.filter (d)->not d.hidden
+      @data.selection.addSeveral f
+
 
 module.exports = MapControl
