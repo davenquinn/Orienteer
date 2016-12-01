@@ -70,9 +70,10 @@ class Data extends Spine.Module
     @constructor.reset()
     for d in rawData
       if d.type == 'GroupedAttitude'
-        new GroupedFeature d
+        f = new GroupedFeature d
       else
-        new Feature d
+        f = new Feature d
+      @constructor.records.push f
     @constructor.trigger "updated"
 
   updateCache: (d)->

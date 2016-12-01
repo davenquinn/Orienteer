@@ -50,6 +50,7 @@
     "d3-tip": "^0.6.7",
     "dragdealer": "^0.9.8",
     "electron-browser-sync": "file:deps/electron-browser-sync",
+    "electron-log": "^1.2.2",
     "elemental": "^0.5.14",
     "font-awesome": "^4.5.0",
     "geojson-rewind": "^0.1.0",

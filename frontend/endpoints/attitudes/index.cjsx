@@ -1,7 +1,7 @@
 Spine = require "spine"
 React = require 'react'
 ReactDOM = require 'react-dom'
-Map = require "../../controls/map"
+MapControl = require "../../controls/map"
 SelectionControl = require "../../controls/selection"
 DataPane = require "./data-pane"
 
@@ -16,18 +16,6 @@ FilterData = require "../../controls/filter-data"
 
 f = d3.format "> 6.1f"
 
-class MapControl extends React.Component
-  render: ->
-    React.createElement 'div'
-  componentDidMount: ->
-    el = ReactDOM.findDOMNode @
-    @map = new Map el: el
-    @map.addData @props.data
-    console.log "Component mounted"
-  componentWillUnmount: ->
-    @map.leaflet.remove()
-  shouldComponentUpdate: ->false
-
 paneStyle =
   display: 'flex'
   flexDirection: 'column'
@@ -38,6 +26,7 @@ class AttitudePage extends React.Component
     @state =
       selection: []
       hovered: null
+      records: []
 
   render: ->
     s = null
@@ -53,7 +42,7 @@ class AttitudePage extends React.Component
       paneStyle={paneStyle}
       pane2Style={s}
       onChange={@onResizePane}>
-      <MapControl data={@props.data} />
+      <MapControl data={@props.data} records={@state.records} />
       <div className={style.sidebar} >
         <div className={style.sidebarComponent}>
           <SelectionControl data={@props.data}
@@ -70,6 +59,10 @@ class AttitudePage extends React.Component
   componentDidMount: ->
     @props.data.selection.bind "selection:updated", @updateSelection
     @props.data.constructor.bind "hovered", @updateHovered
+    @props.data.constructor.bind "updated", @updateData
+
+  updateData: =>
+    @setState records: @props.data.constructor.records
 
   componentWillUnmount: ->
     @props.data.selection.unbind "selection:updated", @updateSelection

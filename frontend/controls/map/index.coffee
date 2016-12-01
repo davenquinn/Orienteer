@@ -1,6 +1,8 @@
 Spine = require "spine"
 SelectBox = require "./select-box"
 DataLayer = require "./data-layer"
+React = require 'react'
+ReactDOM = require 'react-dom'
 GIS = require 'gis-core'
 $ = require 'jquery'
 path = require 'path'
@@ -83,4 +85,28 @@ class Map extends Spine.Controller
       f.filter (d)->not d.hidden
       @data.selection.addSeveral f
 
-module.exports = Map
+class MapControl extends React.Component
+  constructor: ->
+    super
+    @state =
+      dataIsConfigured: false
+  render: ->
+    React.createElement 'div'
+
+  componentDidMount: ->
+    el = ReactDOM.findDOMNode @
+    @map = new Map el: el
+    console.log "Component mounted"
+
+  componentWillUnmount: ->
+    @map.leaflet.remove()
+
+  componentDidUpdate: (prevProps, prevState)->
+    console.log "Map updated"
+    console.log @props.records
+    c = @props.records.length
+    if c > 0 and not @state.dataIsConfigured
+      @map.addData @props.data
+      @state.dataIsConfigured = true
+
+module.exports = MapControl

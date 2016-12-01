@@ -6,15 +6,12 @@ setupMarkers = require "./markers"
 marker = require './strike-dip'
 
 Feature = require "../../../app/data/feature"
+Data = require "../../../app/data"
 GroupedFeature = require "../../../app/data/group"
 DataLayerBase = require "gis-core/frontend/helpers/data-layer"
 
 mainCollection = ->
-  Feature.collection
-    .filter (d)->not d.group?
-    .concat GroupedFeature.collection
-
-#f = d3.format(".0f")
+  Data.records.filter (d)->not d.group?
 
 # mockup for future option
 showGroups = true
@@ -74,17 +71,23 @@ class DataLayer extends EventedShim
 
     # Features will stay constant unless
     # added to by creation of a new measurement
+    data = @data.constructor.records
+      .filter (d)->d.type == 'Feature'
+      .filter(filter)
     @features = @container.select ".features"
       .selectAll "path"
-      .data Feature.collection.filter(filter), (d)->d.id
+      .data data, (d)->d.id
 
+    mdata = @data.constructor.records
+      .filter (d)->not d.group?
+      .filter(filter)
     # The number of markers will fluctuate
     # depending on which measurements are
     # grouped, and (notably) whether groups
     # are shown in the GUI or not
     @markers = @container.select ".markers"
       .selectAll "g"
-      .data mainCollection().filter(filter), (d)->d.id
+      .data mdata, (d)->d.id
 
     clicked = (d)=>
       if showGroups
