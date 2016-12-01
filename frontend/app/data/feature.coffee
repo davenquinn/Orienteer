@@ -9,6 +9,8 @@ class Feature
     @type = 'Feature'
     @geometry = o.geometry
     @id = o.id
+    @is_group = o.is_group
+    @in_group = o.in_group
     @measurements = o.measurements
     @tags = o.tags or []
     @properties =

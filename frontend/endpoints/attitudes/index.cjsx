@@ -62,7 +62,7 @@ class AttitudePage extends React.Component
     @props.data.constructor.bind "updated", @updateData
 
   updateData: =>
-    @setState records: @props.data.constructor.records
+    @setState records: @props.data.records
 
   componentWillUnmount: ->
     @props.data.selection.unbind "selection:updated", @updateSelection

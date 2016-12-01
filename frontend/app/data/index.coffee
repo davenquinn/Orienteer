@@ -14,24 +14,14 @@ API = require "../api"
 class Data extends Spine.Module
   @extend Spine.Events
 
-  # Methods for dealing with collections
-  # as a whole
-
-  @records: []
-  @index: []
-
-  @reset: ->
-    @records = []
-    @index = []
-
   hoveredItem: null
   _filter: (d)->d
   fetched: false
   constructor: ->
     super
     # Shim for deletion of collection attributes
-    GroupedFeature.collection = @constructor.records
-    Feature.collection = @constructor.records
+    GroupedFeature.collection = @records
+    Feature.collection = @records
 
     # Setup requests for updated data
     @__fetchData()
@@ -54,25 +44,23 @@ class Data extends Spine.Module
   __fetchData: =>
     {storedProcedure, db} = app.require 'database'
 
+    # Grab data directly from postgresql dataset
+    # We used to use a Python API here but this
+    # is a factor of at least 100 quicker
     sql = storedProcedure 'get-dataset'
     db.query sql
-      .tap console.log
       .map (d)->
         # Transform raw data
         new Feature d
       .tap console.log
-      .then @setupData
+      .then (records)=>
+        @records = records
+        @fetched = true
+        @constructor.trigger 'updated'
       .catch (e)->
         throw e
 
   onUpdated: =>
-    @constructor.trigger "updated"
-
-  setupData: (rawData)=>
-    @constructor.reset()
-    for d in rawData
-      @constructor.records.push d
-    @fetched = true
     @constructor.trigger "updated"
 
   updateCache: (d)->
@@ -81,22 +69,25 @@ class Data extends Spine.Module
     window.localStorage.setItem "attitudes", _
 
   get: (id)=>
-    @constructor.records.find (d)->d.id==id
+    @records.find (d)->d.id==id
 
   asGeoJSON: ->
     out =
       type: "FeatureCollection"
-      features: @constructor.records
+      features: @records
 
   getTags: ->
-    tags.getUnique @constructor.records
+    tags.getUnique @records
 
   within: (bounds)=>
     console.log bounds
-    @constructor.records.filter (d)->
+    @records.filter (d)->
       a = d.properties.center.coordinates
       l = new L.LatLng a[1],a[0]
       bounds.contains l
+
+  reset: ->
+    @records = []
 
   hovered: (d, v)=>
     # set hover state

@@ -5,6 +5,8 @@ SELECT
   type,
   strike,
   dip,
+  is_group,
+  in_group,
   max_angular_error,
   min_angular_error,
   n_samples,

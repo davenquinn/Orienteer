@@ -72,15 +72,15 @@ class DataLayer extends EventedShim
 
     # Features will stay constant unless
     # added to by creation of a new measurement
-    data = @data.constructor.records
-      .filter (d)->d.type == 'Feature'
-      .filter(filter)
+    data = @data.records
+      .filter (d)->not d.is_group
+
     @features = @container.select ".features"
       .selectAll "path"
       .data data, (d)->d.id
 
-    mdata = @data.constructor.records
-      .filter (d)->not d.group?
+    mdata = @data.records
+      .filter (d)->not d.in_group
       .filter(filter)
     # The number of markers will fluctuate
     # depending on which measurements are
@@ -134,8 +134,7 @@ class DataLayer extends EventedShim
 
     @container.select ".features"
       .selectAll "path"
-
-    @features.attrs d: @path
+      .attrs d: @path
 
   setupProjection: =>
     f = @projectPoint
@@ -163,11 +162,6 @@ class DataLayer extends EventedShim
         dy: z/2
         "font-size": z
   resetView: =>
-    bounds = @path.bounds
-      type: "FeatureCollection"
-      features: @data.constructor.records
-                   .filter (d)->d.type == 'Feature'
-
     @markers.call @setTransform
     @features.attr 'd', @path
 
