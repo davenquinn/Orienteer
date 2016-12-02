@@ -18,7 +18,6 @@ class GroupedAttitudeControl extends React.Component
   render: ->
     # Group type selector should go here...
     rec = app.data.get(@props.data.measurements...)
-    console.log rec
     <div>
       <h4>Component planes ({rec.length})</h4>
       <SelectionList

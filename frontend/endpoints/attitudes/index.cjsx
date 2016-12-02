@@ -12,7 +12,6 @@ $ = require "jquery"
 
 style2 = require '../styles.styl'
 style = require './style.styl'
-FilterData = require "../../controls/filter-data"
 
 f = d3.format "> 6.1f"
 
