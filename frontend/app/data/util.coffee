@@ -6,6 +6,6 @@ module.exports =
 
   _not: (fn)->
     # Inverts a boolean-returning function
-    -> not fn arguments...
+    -> not fn(arguments...)
 
 

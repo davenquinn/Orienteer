@@ -84,6 +84,9 @@ class MapControl extends React.Component
     if @props.selection.length != prevProps.selection.length
       @dataLayer.updateSelection @props.selection
 
+    if @props.hovered != prevProps.hovered
+      @dataLayer.onHoverIn @props.hovered
+
   addData: (@data)=>
 
   # Done with react lifecycle methods

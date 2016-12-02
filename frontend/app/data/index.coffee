@@ -84,13 +84,6 @@ class Data extends Spine.Module
   getTags: ->
     tags.getUnique @records
 
-  within: (bounds)=>
-    console.log bounds
-    @records.filter (d)->
-      a = d.properties.center.coordinates
-      l = new L.LatLng a[1],a[0]
-      bounds.contains l
-
   reset: ->
     @records = []
 
@@ -151,9 +144,14 @@ class Data extends Spine.Module
   filter: =>
     @constructor.trigger "filtered", @getFilter()
 
+  within: (bounds)=>
+    @records.filter (d)->
+      a = d.center.coordinates
+      l = new L.LatLng a[1],a[0]
+      bounds.contains l
+
   selectByBox: (bounds)=>
-    f = @data.within(bounds)
-    f.filter (d)->not d.hidden
-    @selection.addSeveral f
+    f = @within(bounds)
+    @selection.add f...
 
 module.exports = Data

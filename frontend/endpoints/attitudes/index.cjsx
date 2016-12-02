@@ -43,7 +43,8 @@ class AttitudePage extends React.Component
       onChange={@onResizePane}>
       <MapControl
         records={@state.records}
-        selection={@state.selection} />
+        selection={@state.selection}
+        hovered={@state.hovered} />
       <div className={style.sidebar} >
         <div className={style.sidebarComponent}>
           <SelectionControl data={@props.data}
