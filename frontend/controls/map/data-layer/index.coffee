@@ -7,6 +7,8 @@ marker = require './strike-dip'
 
 DataLayerBase = require "gis-core/frontend/helpers/data-layer"
 
+{getIndexById} = require '../../../app/data/util'
+
 mainCollection = ->
   Data.records.filter (d)->not d.group?
 
@@ -151,17 +153,20 @@ class DataLayer extends EventedShim
 
   updateSelection: (sel)=>
     isInSelection = (d)->
-      ix = sel.findIndex (a)->
-        a.id ==d.id
+      ix = getIndexById sel, d
       ix != -1
 
-    @features.classed "selected", (d)=>
-      if showGroups and d.in_group
-        # Transfer selection to group
-        d = app.data.get d.member_of
-      f = isInSelection(d)
-      console.log(f,d) if f
-      isInSelection(d)
-    @markers.classed "selected", isInSelection
+    console.log "Updating selection on map"
+    @container.select ".features"
+      .selectAll "path"
+      .classed "selected", (d)=>
+        if showGroups and d.in_group
+          # Transfer selection to group
+          d = app.data.get d.member_of
+        isInSelection(d)
+
+    @container.select ".markers"
+      .selectAll "g"
+      .classed "selected", isInSelection
 
 module.exports = DataLayer

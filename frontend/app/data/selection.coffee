@@ -7,13 +7,11 @@ update = require 'immutability-helper'
 addTag = storedProcedure 'add-tag'
 removeTag = storedProcedure 'remove-tag'
 
+{getIndexById, _not} = require './util'
+
 visible = (d)->not d.hidden
 
 respectGroups = true
-
-getIndexById = (array, d)->
-  # Function to get index of matching element
-  array.findIndex (v)->v.id == d.id
 
 class BaseSelection extends Spine.Module
   @include Spine.Events
@@ -50,7 +48,7 @@ class BaseSelection extends Spine.Module
 
   add: (records...)=>
     u = {}
-    newRecords = records.filter (d)=>not @__isMember(d)
+    newRecords = records.filter _not(@__isMember)
     @records = update(@records,'$push': newRecords)
     @__notify()
 

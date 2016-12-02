@@ -82,7 +82,6 @@ class MapControl extends React.Component
       @dataLayer.updateData @props.records
 
     if @props.selection.length != prevProps.selection.length
-      console.log "Updating selection on map"
       @dataLayer.updateSelection @props.selection
 
   addData: (@data)=>
