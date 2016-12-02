@@ -60,21 +60,19 @@ class DataLayer extends EventedShim
     # Features will stay constant unless
     # added to by creation of a new measurement
     data = records
-      .filter (d)->not d.is_group
+      .filter (d)->not d.in_group
 
     @features = @container.select ".features"
       .selectAll "path"
       .data data, (d)->d.id
 
-    mdata = records
-      .filter (d)->not d.in_group
     # The number of markers will fluctuate
     # depending on which measurements are
     # grouped, and (notably) whether groups
     # are shown in the GUI or not
     @markers = @container.select ".markers"
       .selectAll "g"
-      .data mdata, (d)->d.id
+      .data data, (d)->d.id
 
     clicked = (d)=>
       #if showGroups
