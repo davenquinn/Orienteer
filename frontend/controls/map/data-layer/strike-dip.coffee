@@ -21,10 +21,10 @@ module.exports = (d)->
       stroke: "black"
 
   i.append "text"
-    .text d3.format(".0f")(d.properties.dip)
+    .text d3.format(".0f")(d.dip)
     .attrs
       class: "dip-magnitude"
       x: 10
       y: 0
       "text-anchor": "middle"
-      transform: "rotate(#{-d.properties.strike} 10 0)"
+      transform: "rotate(#{-d.strike} 10 0)"

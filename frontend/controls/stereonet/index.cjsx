@@ -66,18 +66,19 @@ class StereonetView extends React.Component
   componentDidUpdate: (prevProps,prevState)->
     console.log prevProps, @props
     if prevProps.data.length != @props.data.length
+      # This is currently broken
       console.log "Data was changed"
-    @dataChanged()
     if prevProps.width != @props.width
       console.log "Scale was changed"
       @updateSize()
+    else
+      @dataChanged()
 
     @updatePaths()
 
   dataChanged: =>
-    data = @props.data.map (d)->d.properties
-    @main.call planes, data
-    @main.call ellipses, data
+    @main.call planes, @props.data
+    @main.call ellipses, @props.data
 
   updateSize: =>
     @svg.attrs height: @props.width, width: @props.width

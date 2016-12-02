@@ -50,6 +50,9 @@ class MapControl extends React.Component
     @map.on "viewreset dragend", @extentChanged
     @map.addHandler "boxSelect", SelectBox
     @map.boxSelect.enable()
+    @map.on "box-selected", (e)=>
+      app.data.selectByBox(e.bounds)
+
     @map.invalidateSize()
 
     # Set height in javascript (temporarily
@@ -71,10 +74,18 @@ class MapControl extends React.Component
     @map.remove()
 
   componentDidUpdate: (prevProps, prevState)->
-    c = @props.records.length
-    if c > 0 and not @state.dataIsConfigured
-      @addData @props.data
-      @state.dataIsConfigured = true
+
+    # Check if there are changes to records
+    c = @props.records
+    if @props.records.length != prevProps.records.length
+      console.log "Dataset has changed"
+      @dataLayer.updateData @props.records
+
+    if @props.selection.length != prevProps.selection.length
+      console.log "Updating selection on map"
+      @dataLayer.updateSelection @props.selection
+
+  addData: (@data)=>
 
   # Done with react lifecycle methods
   invalidateSize: =>
@@ -95,12 +106,5 @@ class MapControl extends React.Component
     out = [
       [b._southWest.lat, b._southWest.lng]
       [b._northEast.lat, b._northEast.lng]]
-
-  addData: (@data)=>
-    @dataLayer.setupData @props.data
-    @map.on "box-selected", (e)=>
-      @data.selectByBox(e.bounds)
-
-
 
 module.exports = MapControl

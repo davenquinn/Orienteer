@@ -5,9 +5,6 @@ Spine = require "spine"
 setupMarkers = require "./markers"
 marker = require './strike-dip'
 
-Feature = require "../../../app/data/feature"
-Data = require "../../../app/data"
-GroupedFeature = require "../../../app/data/group"
 DataLayerBase = require "gis-core/frontend/helpers/data-layer"
 
 mainCollection = ->
@@ -35,27 +32,11 @@ class DataLayer extends EventedShim
 
     setupMarkers(@container)
 
-    if @data?
-      @setupData @data
-
-  setupData: (@data)=>
     console.log "Setting up data layer"
-    console.log @data
     mdip = 5
     @cscale = d3.scaleLinear()
         .domain [0, mdip]
         .range ["white","red"]
-
-    @listenTo @data.constructor, "updated", @updateData
-    @listenTo @data.constructor, "filtered", @updateData
-    @listenTo @data.constructor, "hovered", (data)=>
-      # We dont' care about hover-leave, where
-      # data isn't defined.
-      return unless data?
-      @features.classed "hovered", (d)-> d.hovered
-      @markers.classed "hovered", (d)-> d.hovered
-
-    @listenTo @data.selection, "selection:updated", @updateSelection
 
     @container.append "g"
       .attrs class: "features"
@@ -64,24 +45,27 @@ class DataLayer extends EventedShim
       .attr 'class', "markers"
       .selectAll "g"
 
-    @updateData()
     @_map.on "zoomend",@onZoom
 
-  updateData: (filter)=>
-    filter = @data.getFilter() unless filter?
+  onHoverIn: (data)=>
+    # We dont' care about hover-leave, where
+    # data isn't defined.
+    return unless data?
+    @features.classed "hovered", (d)-> d.hovered
+    @markers.classed "hovered", (d)-> d.hovered
 
+  updateData: (records)=>
     # Features will stay constant unless
     # added to by creation of a new measurement
-    data = @data.records
+    data = records
       .filter (d)->not d.is_group
 
     @features = @container.select ".features"
       .selectAll "path"
       .data data, (d)->d.id
 
-    mdata = @data.records
+    mdata = records
       .filter (d)->not d.in_group
-      .filter(filter)
     # The number of markers will fluctuate
     # depending on which measurements are
     # grouped, and (notably) whether groups
@@ -93,11 +77,11 @@ class DataLayer extends EventedShim
     clicked = (d)=>
       #if showGroups
         #d = d.group if d.group?
-      @data.selection.update d
+      app.data.selection.update d
     hovered = (d)=>
       #if showGroups
         #d = d.group if d.group?
-      @data.hovered d
+      app.data.hovered d
 
     applyEvents = (sel)->
       sel
@@ -152,8 +136,8 @@ class DataLayer extends EventedShim
     z = @_map.getZoom()
     proj = @projectPoint
     sel.attrs transform: (d)->
-      s = d.properties.strike
-      c = d.properties.center.coordinates
+      s = d.strike
+      c = d.center.coordinates
       c = proj(c[0],c[1])
       "translate(#{c.x} #{c.y}) rotate(#{s} 0 0) scale(#{1+0.2*z})"
     z = 5+0.2*z
@@ -166,16 +150,18 @@ class DataLayer extends EventedShim
     @features.attr 'd', @path
 
   updateSelection: (sel)=>
-    sel = @data.selection.records unless sel
-    console.log "Updating selection on map"
+    isInSelection = (d)->
+      ix = sel.findIndex (a)->
+        a.id ==d.id
+      ix != -1
 
     @features.classed "selected", (d)=>
-      if showGroups
+      if showGroups and d.in_group
         # Transfer selection to group
-        d = d.group if d.group?
-      sel.indexOf(d) != -1
-
-    @markers.classed "selected", (d)=>
-      sel.indexOf(d) != -1
+        d = app.data.get d.member_of
+      f = isInSelection(d)
+      console.log(f,d) if f
+      isInSelection(d)
+    @markers.classed "selected", isInSelection
 
 module.exports = DataLayer

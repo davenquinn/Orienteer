@@ -2,10 +2,10 @@ Spine = require "spine"
 tags = require "../../shared/data/tags"
 d3 = require "d3"
 queue = require("d3-queue").queue
-Feature = require "./feature"
 GroupedFeature = require "./group"
 Selection = require "./selection"
 L = require 'leaflet'
+_ = require 'underscore'
 update = require 'immutability-helper'
 
 {storedProcedure} = require '../database'
@@ -19,10 +19,6 @@ class Data extends Spine.Module
   fetched: false
   constructor: ->
     super
-    # Shim for deletion of collection attributes
-    GroupedFeature.collection = @records
-    Feature.collection = @records
-
     # Setup requests for updated data
     @__fetchData()
 
@@ -51,7 +47,11 @@ class Data extends Spine.Module
     db.query sql
       .map (d)->
         # Transform raw data
-        new Feature d
+        d = _.clone d
+        d.grouped = d.type == 'group'
+        d.type = 'Feature'
+        d.tags ?= []
+        return d
       .tap console.log
       .then (records)=>
         @records = records
@@ -94,30 +94,29 @@ class Data extends Spine.Module
   reset: ->
     @records = []
 
-  hovered: (d, v)=>
+  hovered: (d)=>
 
     # Unset current hovered item
-    ix = @records.findIndex (v)->v.hovered
-    dix = @records.findIndex (v)->d.id == v.id
+    ix = @records.findIndex (a)->a.hovered
+    dix = @records.findIndex (a)->d.id == a.id
     console.log ix, dix
 
     u = {}
     if dix != ix and ix >= 0
       u["#{ix}"] = {hovered: {'$set':false}}
 
-    if not v?
-      v = not d.hovered
-    u["#{dix}"] = {hovered: {'$set':v}}
+    v = not d.hovered
+    if v
+      u["#{dix}"] = {hovered: {'$set':v}}
 
     @records = update(@records,u)
 
     d = @records[dix]
     if d.hovered
       @hoveredItem = d.id
-      @constructor.trigger "hovered", d
     else
       @hoveredItem = null
-      @constructor.trigger "hovered"
+    @constructor.trigger "hovered", @hoveredItem
 
   isHovered: (d)->
     # Checks if item is hovered

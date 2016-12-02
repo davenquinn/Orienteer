@@ -16,8 +16,8 @@ class ListItem extends React.Component
     <span className={style.group}>{n} attitudes</span>
   render: ->
     d = @props.data
-    strike = sf(d.properties.strike)
-    dip = df(d.properties.dip)
+    strike = sf(d.strike)
+    dip = df(d.dip)
     grouped = d.records?
 
     cls = style.item

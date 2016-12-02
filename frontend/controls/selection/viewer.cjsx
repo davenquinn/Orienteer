@@ -8,8 +8,8 @@ sf = d3.format ">8.1f"
 df = d3.format ">6.1f"
 
 strikeDip = (d)->
-  strike = sf(d.properties.strike)
-  dip = df(d.properties.dip)
+  strike = sf(d.strike)
+  dip = df(d.dip)
   <span><span className="strike">{strike}º</span> <span className="dip">{dip}º</span></span>
 
 class GroupedAttitudeControl extends React.Component

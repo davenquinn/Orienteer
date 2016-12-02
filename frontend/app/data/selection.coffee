@@ -1,17 +1,103 @@
 Spine = require "spine"
-API = require "../api"
 GroupedFeature = require "./group"
-BaseSelection = require "../../shared/data/selection"
 path = require 'path'
-
+tags = require "../../shared/data/tags"
 {storedProcedure} = require '../database'
-
+update = require 'immutability-helper'
 addTag = storedProcedure 'add-tag'
 removeTag = storedProcedure 'remove-tag'
 
 visible = (d)->not d.hidden
 
 respectGroups = true
+
+getIndexById = (array, d)->
+  # Function to get index of matching element
+  array.findIndex (v)->v.id == d.id
+
+class BaseSelection extends Spine.Module
+  @include Spine.Events
+  constructor: ->
+    super
+    @records = []
+
+  getTags: =>
+    records = @records
+    arr = tags.get records
+    func = (d, name)->
+      d[name] = 0 unless name of d
+      d[name] += 1
+      return d
+    data = arr.reduce func, {}
+    arr = []
+    for tag, num of data
+      arr.push
+        name: tag
+        all: num >= records.length
+    return arr
+
+  empty: =>not @records.length
+
+  __notify: =>
+    @trigger "selection:updated", @records
+
+  __index: (d)=>
+    getIndexById @records, d
+
+  __isMember: (d)=>
+    ix = @__index d
+    ix != -1
+
+  add: (records...)=>
+    u = {}
+    newRecords = records.filter (d)=>not @__isMember(d)
+    @records = update(@records,'$push': newRecords)
+    @__notify()
+
+  remove: (records...)=>
+    @records = @records.filter (d)->
+      ix = getIndexById(records,d)
+      # Get all records not in the
+      # original set
+      ix == -1
+    @__notify()
+
+  # Composite addition methods
+  update: (d)=>
+    # Either adds or removes depending on presence
+    if @__isMember d
+      @remove d
+    else
+      @add d
+
+  fromRecords: (records)=>
+    @records = records
+    @__notify()
+
+  contains: (d)=>
+    @records.indexOf(d) >= 0
+
+  clear: =>
+    @records = []
+    @__notify()
+
+  _tagRemoved: (name, opts={})=>
+    records = opts.records or @records
+    records.forEach (d)->
+      i = d.tags.indexOf name
+      if i >= 0
+        d.tags.splice(i,1)
+    @trigger "tags-updated", @getTags()
+
+  _tagAdded: (name, opts={})=>
+    # Adds tag to each record and
+    # signals application that it is done
+    records = opts.records or @records
+    records.forEach (d)->
+      i = d.tags.indexOf name
+      if i == -1
+        d.tags.push name
+    @trigger "tags-updated", @getTags()
 
 class Selection extends BaseSelection
   _add: (d)=>

@@ -41,7 +41,9 @@ class AttitudePage extends React.Component
       paneStyle={paneStyle}
       pane2Style={s}
       onChange={@onResizePane}>
-      <MapControl data={@props.data} records={@state.records} />
+      <MapControl
+        records={@state.records}
+        selection={@state.selection} />
       <div className={style.sidebar} >
         <div className={style.sidebarComponent}>
           <SelectionControl data={@props.data}
@@ -67,8 +69,9 @@ class AttitudePage extends React.Component
     @props.data.selection.unbind "selection:updated", @updateSelection
     @props.data.constructor.unbind "hovered", @updateHovered
 
-  updateSelection: =>
-    @setState selection: @props.data.selection.records
+  updateSelection: (records)=>
+    console.log "Selection updated",records
+    @setState selection: records
 
     # This is quite a hack
     window.map.invalidateSize()
