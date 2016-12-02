@@ -21,10 +21,10 @@ drawPlanes = (el,data)->
   planes.exit().remove()
 
   el.selectAll '.error'
-    .attrs class: style.error
+    .classed style.error, true
 
   el.selectAll '.nominal'
-    .attrs class: style.nominal
+    .classed style.nominal, true
 
 drawEllipses = (el, data)->
 

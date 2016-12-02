@@ -42,19 +42,24 @@ class DataLayer extends EventedShim
 
     @container.append "g"
       .attrs class: "features"
-
-    @markers = @container.append "g"
+    @container.append "g"
       .attr 'class', "markers"
-      .selectAll "g"
 
     @_map.on "zoomend",@onZoom
 
-  onHoverIn: (data)=>
+  onHoverIn: (hovered)=>
     # We dont' care about hover-leave, where
     # data isn't defined.
-    return unless data?
-    @features.classed "hovered", (d)-> d.hovered
-    @markers.classed "hovered", (d)-> d.hovered
+    return unless hovered?
+    fn = (d)-> d.id == hovered
+
+    @container.select ".features"
+      .selectAll "path"
+      .classed "hovered", fn
+
+    @container.select ".markers"
+      .selectAll "g"
+      .classed "hovered", fn
 
   updateData: (records)=>
     # Features will stay constant unless

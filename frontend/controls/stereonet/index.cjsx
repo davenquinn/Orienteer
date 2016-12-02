@@ -48,6 +48,8 @@ class StereonetView extends React.Component
       .attrs class: style.graticule
 
     @main = @container.append 'g'
+    @hoverOverlay = @container.append 'g'
+      .attrs class: 'hover-overlay'
 
     @container.append "use"
       .attrs
@@ -71,10 +73,17 @@ class StereonetView extends React.Component
     if prevProps.width != @props.width
       console.log "Scale was changed"
       @updateSize()
+    else if prevProps.hovered != @props.hovered
+      @updateHovered()
     else
       @dataChanged()
 
     @updatePaths()
+
+  updateHovered: =>
+    v = app.data.get @props.hovered
+    @hoverOverlay.call planes, [v]
+    @hoverOverlay.call ellipses, [v]
 
   dataChanged: =>
     @main.call planes, @props.data

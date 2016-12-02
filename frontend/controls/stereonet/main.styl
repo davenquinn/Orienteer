@@ -29,5 +29,19 @@
 .nominal {
   stroke: #888
   fill: none;
-  stroke-width: 1
+  stroke-width: 0.5
 }
+
+:global
+  g.hover-overlay
+    .plane
+      .error
+        fill: red
+      .nominal
+        stroke: red
+        stroke-width: 1
+    .ellipse
+      fill: red
+      fill-opacity: 0.5
+      stroke: red
+      stroke-dasharray: none
