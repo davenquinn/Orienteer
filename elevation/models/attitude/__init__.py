@@ -12,7 +12,7 @@ from geoalchemy2.shape import from_shape, to_shape
 
 from attitude.orientation import Orientation
 from attitude.coordinates import centered
-from attitude.error.axes import sampling_axes, angular_errors
+from attitude.error.axes import sampling_axes, noise_axes, angular_errors
 from sqlalchemy.dialects.postgresql import array, ARRAY
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -161,7 +161,7 @@ class Attitude(BaseModel):
 
         # Really this is hyperbolic axis lengths
         # should change API to reflect this distinction
-        self.covariance = sampling_axes(pca).tolist()
+        self.covariance = noise_axes(pca).tolist()
         self.n_samples = pca.n
         self.strike, self.dip = pca.strike_dip()
         if self.dip == 90:

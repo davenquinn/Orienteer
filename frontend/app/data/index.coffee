@@ -6,7 +6,7 @@ Feature = require "./feature"
 GroupedFeature = require "./group"
 Selection = require "./selection"
 L = require 'leaflet'
-{update} = require 'immutability-helper'
+update = require 'immutability-helper'
 
 {storedProcedure} = require '../database'
 API = require "../api"
@@ -68,8 +68,13 @@ class Data extends Spine.Module
     _ = JSON.stringify d
     window.localStorage.setItem "attitudes", _
 
-  get: (id)=>
-    @records.find (d)->d.id==id
+  get: (ids...)=>
+    if ids.length == 1
+      rec = @records.find (d)->d.id==ids[0]
+    else
+      rec = @records.filter (d)->
+        ids.indexOf(d.id)!=-1
+    rec
 
   asGeoJSON: ->
     out =
@@ -90,13 +95,23 @@ class Data extends Spine.Module
     @records = []
 
   hovered: (d, v)=>
-    # set hover state
+
+    # Unset current hovered item
+    ix = @records.findIndex (v)->v.hovered
+    dix = @records.findIndex (v)->d.id == v.id
+    console.log ix, dix
+
+    u = {}
+    if dix != ix and ix >= 0
+      u["#{ix}"] = {hovered: {'$set':false}}
+
     if not v?
       v = not d.hovered
-    d.hovered = v
-    if d.records?
-      for i in d.records
-        i.hovered = d.hovered
+    u["#{dix}"] = {hovered: {'$set':v}}
+
+    @records = update(@records,u)
+
+    d = @records[dix]
     if d.hovered
       @hoveredItem = d.id
       @constructor.trigger "hovered", d

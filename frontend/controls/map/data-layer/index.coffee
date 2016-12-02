@@ -91,12 +91,12 @@ class DataLayer extends EventedShim
       .data mdata, (d)->d.id
 
     clicked = (d)=>
-      if showGroups
-        d = d.group if d.group?
+      #if showGroups
+        #d = d.group if d.group?
       @data.selection.update d
     hovered = (d)=>
-      if showGroups
-        d = d.group if d.group?
+      #if showGroups
+        #d = d.group if d.group?
       @data.hovered d
 
     applyEvents = (sel)->

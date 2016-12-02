@@ -75,7 +75,7 @@ class AttitudePage extends React.Component
     window.map.invalidateSize()
 
   updateHovered: (d)=>
-    @setState hovered: d
+    @setState hovered: d, records: @props.data.records
 
   onResizePane: (size)->
     console.log size

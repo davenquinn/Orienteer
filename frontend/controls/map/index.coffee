@@ -71,8 +71,6 @@ class MapControl extends React.Component
     @map.remove()
 
   componentDidUpdate: (prevProps, prevState)->
-    console.log "Map updated"
-    console.log @props.records
     c = @props.records.length
     if c > 0 and not @state.dataIsConfigured
       @addData @props.data

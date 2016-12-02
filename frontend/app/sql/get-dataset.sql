@@ -2,6 +2,7 @@ SELECT
   id,
   geometry geometry,
   measurements,
+  member_of,
   type,
   strike,
   dip,

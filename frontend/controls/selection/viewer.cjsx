@@ -17,10 +17,12 @@ class GroupedAttitudeControl extends React.Component
     <ListItem data={d} key={d.id} />
   render: ->
     # Group type selector should go here...
+    rec = app.data.get(@props.data.measurements...)
+    console.log rec
     <div>
-      <h4>Component planes ({@props.data.records.length})</h4>
+      <h4>Component planes ({rec.length})</h4>
       <SelectionList
-        records={@props.data.records}
+        records={rec}
         hovered={@props.hovered} />
       <p>
         <button
@@ -54,7 +56,7 @@ class DataViewer extends React.Component
       hovered={@props.hovered} />
 
   render: ->
-    grouped = @props.data.records?
+    grouped = @props.data.is_group
     <div>
       <h2>{if grouped then 'Group' else 'Attitude'} {@props.data.id}</h2>
       <ul>
