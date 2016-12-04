@@ -2,7 +2,7 @@ import sys
 import logging
 from functools import wraps
 from flask import Flask, Blueprint, Response, render_template
-from attitude.display.plot.cov_types import axis_covariance
+from attitude.plot import error_comparison
 
 # Python 2 and 3 compatibility
 try:
@@ -23,6 +23,10 @@ log2.setLevel(logging.INFO)
 
 elevation = Blueprint('elevation',__name__)
 
+def get_attitude(id):
+    from ..models import Attitude
+    return db.session.query(Attitude).get(id)
+
 def image(fig):
     i_ = BytesIO()
     fig.savefig(i_,
@@ -36,8 +40,6 @@ def image(fig):
 @elevation.route("/attitude/<id>/data.html")
 def attitude_data(id):
     import numpy as N
-    from ..models import get_attitude
-
     attitude = get_attitude(id)
     pca = attitude.pca()
     return render_template("data-area.html",
@@ -50,23 +52,18 @@ def attitude_data(id):
 
 @elevation.route("/attitude/<id>/errorbars.png")
 def errorbars(id):
-    from ..models import get_attitude
     attitude = get_attitude(id)
-    fig = axis_covariance(attitude.pca(), do_bootstrap=False)
+    fig = error_comparison(attitude.pca(), do_bootstrap=False)
     return image(fig)
 
 @elevation.route("/attitude/<id>/axis-aligned.png")
 def principal_components(id):
-    from ..models import get_attitude
-
     attitude = get_attitude(id)
     fig = attitude.plot_aligned()
     return image(fig)
 
 @elevation.route("/attitude/<id>/error.png")
 def error_ellipse(id):
-    from ..models import get_attitude
-
     attitude = get_attitude(id)
     fig = attitude.error_ellipse()
     return image(fig)
@@ -77,8 +74,6 @@ def __setup_endpoints(app, db):
     app.register_blueprint(elevation,url_prefix="/elevation")
     app.register_blueprint(api,url_prefix="/api")
 
-
-
 def setup_app():
     app = Flask(__name__)
     app.config.from_object('elevation.config')
@@ -86,7 +81,6 @@ def setup_app():
     db.init_app(app)
     __setup_endpoints(app,db)
     log.info("App setup complete")
-
 
     def within_context(func):
         @wraps(func)

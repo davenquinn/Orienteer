@@ -24,11 +24,13 @@ class StereonetView extends React.Component
 
     el = ReactDOM.findDOMNode @
     @svg = d3.select el
+
     @updateSize()
     # Setup basic element
-    @container = @svg.append 'g'
-      .attr 'class', 'orientation'
-      .attr 'fill', 'white'
+    @container = @svg
+      .append 'g'
+        .attr 'class', 'orientation'
+        .attr 'fill', 'white'
 
     @container.append "defs"
       .append "path"
