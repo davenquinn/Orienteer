@@ -30,11 +30,6 @@ class App
     @config = JSON.parse(JSON.stringify(c))
     @data = new Data
 
-    {storedProcedure, db} = @require 'database'
-    sql = storedProcedure 'get-types'
-    db.query sql
-      .then (e,r)=>@data.featureTypes = r
-
   require: (m)->
     ## App-scoped require to preclude nesting
     require "./#{m}"

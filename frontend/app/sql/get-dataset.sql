@@ -6,6 +6,7 @@ SELECT
   type,
   strike,
   dip,
+  class,
   is_group,
   in_group,
   max_angular_error,

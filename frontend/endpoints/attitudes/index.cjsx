@@ -26,6 +26,7 @@ class AttitudePage extends React.Component
       selection: []
       hovered: null
       records: []
+      featureTypes: []
 
   render: ->
     s = null
@@ -53,7 +54,8 @@ class AttitudePage extends React.Component
         </div>
         <DataPane
           records={@state.selection}
-          hovered={@state.hovered} />
+          hovered={@state.hovered}
+          featureTypes={@state.featureTypes} />
       </div>
     </SplitPane>
 
@@ -62,6 +64,8 @@ class AttitudePage extends React.Component
     @props.data.selection.bind "selection:updated", @updateSelection
     @props.data.constructor.bind "hovered", @updateHovered
     @props.data.constructor.bind "updated", @updateData
+    @props.data.constructor.bind "feature-types", (types)=>
+      @setState featureTypes: types
 
   updateData: =>
     @setState records: @props.data.records

@@ -40,6 +40,14 @@ class Data extends Spine.Module
   __fetchData: =>
     {storedProcedure, db} = app.require 'database'
 
+    @featureTypes = []
+    sql = storedProcedure 'get-types'
+    db.query sql
+      .tap console.log
+      .then (records)=>
+        @featureTypes = records
+        @constructor.trigger 'feature-types', records
+
     # Grab data directly from postgresql dataset
     # We used to use a Python API here but this
     # is a factor of at least 100 quicker
@@ -153,5 +161,21 @@ class Data extends Spine.Module
   selectByBox: (bounds)=>
     f = @within(bounds)
     @selection.add f...
+
+  # Change data class
+  changeClass: (type, records)=>
+    {storedProcedure, db} = app.require 'database'
+    sql = storedProcedure "update-types"
+    db.query sql, [type,records.map (d)->d.id]
+      .then @onClassChanged
+  onClassChanged: (records)=>
+    toUpdate = {}
+    for i in records
+      ix = @records.findIndex (a)->i.id == a.id
+      toUpdate[ix]={class:{"$set":i.class}}
+      six = @selection.records.findIndex (a)->i.id == a.id
+
+    @records = update(@records,toUpdate)
+    @constructor.trigger "updated",@records
 
 module.exports = Data
