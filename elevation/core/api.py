@@ -36,30 +36,24 @@ def not_found(error):
         jsonify(status='error',
             message='Not found'), 404)
 
-@api.route('/group',
-    methods=["GET", "POST"])
+@api.route('/group', methods=["POST"])
 def group():
-    if request.method == "GET":
-        return jsonify(
-            data=[g.serialize()\
-                for g in db.session.query(AttitudeGroup).all()])
-    elif request.method == "POST":
-        # We're going to create a group
-        # Need to decode bytes; might break py2 compatibility
-        data = loads(request.data.decode('utf-8'))
-        features = [db.session.query(Attitude).get(i)
-            for i in data["measurements"]]
-        if len(features) < 2:
-            msg = "Cannot create group from less than two features"
-            raise InvalidUsage(msg)
-        group = AttitudeGroup(features)
-        db.session.add(group)
-        # Delete unreferenced groups
-        for g in db.session.query(AttitudeGroup).all():
-            if len(g.measurements) == 0:
-                db.session.delete(g)
-        db.session.commit()
-        return jsonify(data=group.serialize())
+    # We're going to create a group
+    # Need to decode bytes; might break py2 compatibility
+    data = loads(request.data.decode('utf-8'))
+    features = [db.session.query(Attitude).get(i)
+        for i in data["measurements"]]
+    if len(features) < 2:
+        msg = "Cannot create group from less than two features"
+        raise InvalidUsage(msg)
+    group = AttitudeGroup(features)
+    db.session.add(group)
+    # Delete unreferenced groups
+    for g in db.session.query(AttitudeGroup).all():
+        if len(g.measurements) == 0:
+            db.session.delete(g)
+    db.session.commit()
+    return jsonify(data=group.serialize())
 
 @api.route('/group/<id>',
     methods=["DELETE","POST"])
@@ -80,10 +74,10 @@ def update_group(id):
 @api.route("/attitude", methods=["GET"])
 def data():
     log.info("Serializing attitude data")
-    d = jsonify(
+    return jsonify(
         data=[o.serialize()
         for o in db.session.query(Attitude)
-            .filter_by(type='single')
+            # Descending order to put groups last
+            # This is bit of a hack
+            .order_by(Attitude.type.desc())
             .all()])
-    log.info(d)
-    return d

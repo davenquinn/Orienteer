@@ -1,31 +1,24 @@
-class Feature
-  @collection: []
-  @index: new Array
-  @get: (id)->@index[id]
-
-  @reset: ->
-    # Resets collection in anticipation of
-    # updating with new data from server
-    @index = new Array
-    @collection = []
-
-  hovered: false
-  hidden: false
-  selected: false
-  group: null
-  grouped: false
-  constructor: (options)->
-    for key of options
-      @[key] = options[key]
-
-    @constructor.collection.push @
-    @constructor.index[@id] = @
-
-  setGroup: (group)=>
-    if @group is null
-      @group = group
-    else
-      @group.removeFeature @
-      @group = group
-
-module.exports = Feature
+module.exports = (o)->
+  # Create a feature from a row object
+  {
+    grouped: o.type == 'group'
+    type: 'Feature'
+    geometry: o.geometry
+    member_of: o.member_of
+    id: o.id
+    is_group: o.is_group
+    in_group: o.in_group
+    measurements: o.measurements
+    tags: o.tags or []
+    properties:
+      strike: o.strike
+      dip: o.dip
+      center: o.center
+      axes: o.axes
+      covariance: o.covariance
+      n_samples: o.n_samples
+      angular_errors: [
+        o.min_angular_error
+        o.max_angular_error
+      ]
+  }

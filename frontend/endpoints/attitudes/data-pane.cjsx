@@ -2,6 +2,7 @@ React = require 'react'
 Measure = require 'react-measure'
 Stereonet = require "../../controls/stereonet"
 TagManager = require "../../controls/tag-manager"
+SelectType = require "../../controls/select-type"
 {debounce} = require "underscore"
 style = require './style'
 
@@ -17,6 +18,9 @@ class DataPane extends React.Component
     <Measure onMeasure={@setSize}>
       <div className={style.sidebarComponent}>
         <TagManager />
+        <SelectType
+          records={@props.records}
+          featureTypes={@props.featureTypes} />
         <Stereonet
           data={@props.records}
           hovered={@props.hovered}

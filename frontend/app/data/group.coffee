@@ -17,20 +17,11 @@ featureIDs = (records)->
 class GroupedFeature extends Spine.Module
   @extend Spine.Events
   @extend Feature
-
-  @collection: []
-  @index: {}
   @get: (id)=>
     if isNaN(id)
       # We're working with gids
       id = id.slice(1)
     @index[id]
-
-  @reset: ->
-    # Empties collection in preparation
-    # for updating data.
-    @collection = []
-    @index = {}
 
   @create: (records, callback)->
     data =

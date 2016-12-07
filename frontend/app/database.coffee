@@ -1,48 +1,46 @@
 # Can't use native pg extension right now
-pg = require 'pg'
-fs = require 'fs'
-path = require 'path'
+Promise = require 'bluebird'
+pgp = require('pg-promise')(promiseLib: Promise)
+{Buffer} = require 'buffer'
+{Geometry} = require 'wkx'
+
+debug = true
+Promise.longStackTraces()
+
+getOIDs = "SELECT oid, typname AS name
+           FROM pg_type
+           WHERE typname = ANY($1::text[])"
 
 conString = "postgres://localhost/syrtis"
+db = pgp conString
 
-query = (args...)->
-  ###
-  arguments:
-    sql string
-    ((data))
-    (callback)
-  ###
-  sql = args[0]
-  console.log sql
-  data = null
-  callback = (e,r)->
-  if args.length == 2
-    callback = args[1]
-  if args.length == 3
-    data = args[1]
-    callback = args[2]
+defaults =
+  geoJSON: false
 
-  config =
-    host: 'localhost'
-    user: 'Daven'
-    database: 'syrtis'
+# Setup parsers
+# This includes a bit of a race condition that
+# could prove pernicious
+parsers =
+  geometry: (val)->
+    buf = new Buffer val,'hex'
+    Geometry.parse buf
 
-  client = new pg.Client(config)
+db.query getOIDs, [Object.keys parsers]
+  .then (res)->
+    for o in res
+      types = pgp.pg.types
+      types.setTypeParser o.oid, parseVal(parsers[o.name])
 
-  client.connect (e)->
-    callback(e) if e
-    client.query sql, data, (err, res)->
-      callback(err, res)
-      client.end()
+parseVal = (func)->
+  (v)->
+    return unless v?
+    v = func v
+    v.toGeoJSON()
 
 module.exports =
-  query: query
+  db: db
   storedProcedure: (procID)->
-    # Returns a function that uses a stored
-    # query from a file
+    # Returns a stored procedure
     fn = path.join __dirname, 'sql', "#{procID}.sql"
-    sql = fs.readFileSync(fn).toString()
-    (args...)->
-      args.unshift sql
-      console.log args
-      query(args...)
+    new pgp.QueryFile fn, minify: true
+

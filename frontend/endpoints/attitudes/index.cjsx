@@ -1,7 +1,7 @@
 Spine = require "spine"
 React = require 'react'
 ReactDOM = require 'react-dom'
-Map = require "../../controls/map"
+MapControl = require "../../controls/map"
 SelectionControl = require "../../controls/selection"
 DataPane = require "./data-pane"
 
@@ -12,21 +12,8 @@ $ = require "jquery"
 
 style2 = require '../styles.styl'
 style = require './style.styl'
-FilterData = require "../../controls/filter-data"
 
 f = d3.format "> 6.1f"
-
-class MapControl extends React.Component
-  render: ->
-    React.createElement 'div'
-  componentDidMount: ->
-    el = ReactDOM.findDOMNode @
-    @map = new Map el: el
-    @map.addData @props.data
-    console.log "Component mounted"
-  componentWillUnmount: ->
-    @map.leaflet.remove()
-  shouldComponentUpdate: ->false
 
 paneStyle =
   display: 'flex'
@@ -38,6 +25,8 @@ class AttitudePage extends React.Component
     @state =
       selection: []
       hovered: null
+      records: []
+      featureTypes: []
 
   render: ->
     s = null
@@ -53,7 +42,10 @@ class AttitudePage extends React.Component
       paneStyle={paneStyle}
       pane2Style={s}
       onChange={@onResizePane}>
-      <MapControl data={@props.data} />
+      <MapControl
+        records={@state.records}
+        selection={@state.selection}
+        hovered={@state.hovered} />
       <div className={style.sidebar} >
         <div className={style.sidebarComponent}>
           <SelectionControl data={@props.data}
@@ -62,7 +54,8 @@ class AttitudePage extends React.Component
         </div>
         <DataPane
           records={@state.selection}
-          hovered={@state.hovered} />
+          hovered={@state.hovered}
+          featureTypes={@state.featureTypes} />
       </div>
     </SplitPane>
 
@@ -70,19 +63,26 @@ class AttitudePage extends React.Component
   componentDidMount: ->
     @props.data.selection.bind "selection:updated", @updateSelection
     @props.data.constructor.bind "hovered", @updateHovered
+    @props.data.constructor.bind "updated", @updateData
+    @props.data.constructor.bind "feature-types", (types)=>
+      @setState featureTypes: types
+
+  updateData: =>
+    @setState records: @props.data.records
 
   componentWillUnmount: ->
     @props.data.selection.unbind "selection:updated", @updateSelection
     @props.data.constructor.unbind "hovered", @updateHovered
 
-  updateSelection: =>
-    @setState selection: @props.data.selection.records
+  updateSelection: (records)=>
+    console.log "Selection updated",records
+    @setState selection: records
 
     # This is quite a hack
     window.map.invalidateSize()
 
   updateHovered: (d)=>
-    @setState hovered: d
+    @setState hovered: d, records: @props.data.records
 
   onResizePane: (size)->
     console.log size

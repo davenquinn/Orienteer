@@ -24,11 +24,13 @@ class StereonetView extends React.Component
 
     el = ReactDOM.findDOMNode @
     @svg = d3.select el
+
     @updateSize()
     # Setup basic element
-    @container = @svg.append 'g'
-      .attr 'class', 'orientation'
-      .attr 'fill', 'white'
+    @container = @svg
+      .append 'g'
+        .attr 'class', 'orientation'
+        .attr 'fill', 'white'
 
     @container.append "defs"
       .append "path"
@@ -48,6 +50,8 @@ class StereonetView extends React.Component
       .attrs class: style.graticule
 
     @main = @container.append 'g'
+    @hoverOverlay = @container.append 'g'
+      .attrs class: 'hover-overlay'
 
     @container.append "use"
       .attrs
@@ -66,18 +70,26 @@ class StereonetView extends React.Component
   componentDidUpdate: (prevProps,prevState)->
     console.log prevProps, @props
     if prevProps.data.length != @props.data.length
+      # This is currently broken
       console.log "Data was changed"
-    @dataChanged()
     if prevProps.width != @props.width
       console.log "Scale was changed"
       @updateSize()
+    else if prevProps.hovered != @props.hovered
+      @updateHovered()
+    else
+      @dataChanged()
 
     @updatePaths()
 
+  updateHovered: =>
+    v = app.data.get @props.hovered
+    @hoverOverlay.call planes, [v]
+    @hoverOverlay.call ellipses, [v]
+
   dataChanged: =>
-    data = @props.data.map (d)->d.properties
-    @main.call planes, data
-    @main.call ellipses, data
+    @main.call planes, @props.data
+    @main.call ellipses, @props.data
 
   updateSize: =>
     @svg.attrs height: @props.width, width: @props.width
