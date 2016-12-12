@@ -2,7 +2,6 @@ import sys
 import logging
 from functools import wraps
 from flask import Flask, Blueprint, Response, render_template
-from attitude.plot import error_comparison
 
 # Python 2 and 3 compatibility
 try:
@@ -52,6 +51,7 @@ def attitude_data(id):
 
 @elevation.route("/attitude/<id>/errorbars.png")
 def errorbars(id):
+    from attitude.plot import error_comparison
     attitude = get_attitude(id)
     fig = error_comparison(attitude.pca(), do_bootstrap=False)
     return image(fig)
