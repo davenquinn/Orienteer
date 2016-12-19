@@ -4,11 +4,13 @@ from shapely.geometry import mapping, shape
 
 import numpy as N
 from sqlalchemy.dialects.postgresql import array, ARRAY
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.sql.expression import func, text
+from sqlalchemy.orm import relationship
+from sqlalchemy import (
+    Column, String, Text, Integer,
+    DateTime, ForeignKey, Boolean, Float)
 
 from ..base import db, BaseModel
-from ..tag import Tag, feature_tag
 
 from ...core.proj import srid
 
@@ -23,23 +25,15 @@ class DatasetFeature(BaseModel):
     and incorporates elevation data.
     """
     __tablename__ = "dataset_feature"
-    __mapper_args__ = dict(
-        polymorphic_identity = 'DatasetFeature',
-        polymorphic_on = 'type')
 
-    id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(64)) # Polymorphic discriminator column
-    geometry = db.Column(Geometry(srid=srid.world))
-    date_created = db.Column(db.DateTime,server_default=text("now()"), nullable=False)
+    id = Column(Integer, primary_key=True)
+    type = Column(String(64)) # Polymorphic discriminator column
+    geometry = Column(Geometry(srid=srid.world))
+    date_created = Column(DateTime,server_default=text("now()"), nullable=False)
 
     mapping = property(lambda self: self.__geo_interface__)
     shape = property(lambda self: to_shape(self.geometry))
-
-    _tags = db.relationship("Tag",
-        secondary=feature_tag,
-        backref='features')
-    tags = association_proxy('_tags','name')
-    dataset = db.relationship("Dataset",
+    dataset = relationship("Dataset",
         backref='features')
 
     @property
@@ -48,8 +42,11 @@ class DatasetFeature(BaseModel):
             type="Feature",
             geometry=mapping(to_shape(self.geometry)))
 
-    dataset_id = db.Column(db.String(64), db.ForeignKey('dataset.id'))
-    extracted = db.Column(ARRAY(db.Float, dimensions=2,zero_indexes=True))
+    dataset_id = Column(String(64), ForeignKey('dataset.id'))
+    extracted = Column(ARRAY(Float, dimensions=2,zero_indexes=True))
+    # Column to track whether the dataset_id
+    # was set using a script or user-specified
+    dataset_id_autoset = Column(Boolean, default=False, nullable=False)
 
     from .extract import extract
 
@@ -60,17 +57,3 @@ class DatasetFeature(BaseModel):
     def array(self):
         return N.array(self.extracted)
 
-    def map(self, size=(800,800), buffer=200):
-        import mapnik as M
-        from ..dataset.map import Map
-        m = Map(self.dataset,*size)
-        geom = self.session.scalar(
-            self.geometry.ST_Centroid()
-                .ST_Transform(srid.mars_eqc)
-                .ST_Buffer(buffer))
-        bounds = to_shape(geom).bounds
-        m.zoom_to_box(M.Envelope(*bounds))
-        return m
-
-    def calculate(self):
-        pass

@@ -1,38 +1,22 @@
 require("coffee-script/register")
 require("node-cjsx/register")
+require("electron-browser-sync/inject");
 require('./style')
 
 require("handlebars")
 require.extensions['.html'] = require.extensions['.hbs']
 
-remote = require("electron").remote;
 path = require("path")
 
-client_url = remote.getGlobal("BROWSER_SYNC_CLIENT_URL")
+remote = require("electron").remote;
 stylePath = remote.getGlobal("STYLE_PATH")
-
 stylesheetPath = path.join(stylePath,styleName+'.css')
 
-if (client_url) {
-  current = document.currentScript;
-  script = document.createElement('script');
-  script.src = client_url;
-  script.async = true;
-  current.parentNode.insertBefore(script, current);
-  console.log("Using node version",process.version);
+console.log("Using node version",process.version);
 
-  /* Append stylesheet */
-  li = document.createElement('link')
-  li.type = 'text/css'
-  li.rel = 'stylesheet'
-  li.href = 'file://'+stylesheetPath;
-  document.head.appendChild(li);
-
-  stylesheetPath = path.join(stylePath,'elemental.css')
-  /* Append stylesheet */
-  li = document.createElement('link')
-  li.type = 'text/css'
-  li.rel = 'stylesheet'
-  li.href = 'file://'+stylesheetPath;
-  document.head.appendChild(li);
-}
+/* Append stylesheet */
+li = document.createElement('link')
+li.type = 'text/css'
+li.rel = 'stylesheet'
+li.href = 'file://'+stylesheetPath;
+document.head.appendChild(li);

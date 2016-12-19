@@ -6,12 +6,12 @@ install_requires = [
     'fiona',
     'shapely',
     'rasterio',
-    'gdal',
     'flask',
     'sqlalchemy',
     'pyproj',
     'mplstereonet',
     'gunicorn',
+    'pg-projector',
     'Flask-SQLAlchemy'
     ]
 

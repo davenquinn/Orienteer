@@ -8,22 +8,16 @@ module.exports = (app)->
       label: 'Application'
       submenu: [
         {
-          label: 'Edit data'
-          accelerator: 'Command+E'
-          click: ->
-            app.toggleEditor()
-        }
-        {
           label: 'Filter Data'
           accelerator: 'Command+F'
           click: ->
-            app.page.toggleFilter()
+            app.toggleData()
         }
         {
           label: 'Data Panel'
           accelerator: 'Command+D'
           click: ->
-            app.page.toggleData()
+            app.toggleData()
         }
       ]
     }

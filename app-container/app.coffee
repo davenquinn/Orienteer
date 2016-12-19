@@ -53,9 +53,11 @@ module.exports = (url, cfg)->
 
   # Right now, the environment variable "NODE_MAP_CONFIG"
   # should point to the config file
-  config = setupConfig process.env.ELEVATION_NODE_CONFIG
-  config = _.defaults(cfg or {}, config)
-  app.config = config
+  fn = process.env.ELEVATION_NODE_CONFIG
+  if fn?
+    config = setupConfig fn
+    cfg = _.defaults(cfg or {}, config)
+  app.config = cfg
   app.state = {page: 'attitudes'}
 
   q = queue().defer setupApp
@@ -64,7 +66,6 @@ module.exports = (url, cfg)->
 
   q.await (e,ready,bs)->
       if bs?
-        global.BROWSER_SYNC_CLIENT_URL = bs.url
         global.STYLE_PATH = path.join(
           process.env.PWD, app.config.buildDir, 'styles')
       startApp(url)

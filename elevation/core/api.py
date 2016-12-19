@@ -1,7 +1,7 @@
 import os
 from click import echo
 from flask import Blueprint, request, make_response, jsonify
-from json import dumps
+from json import dumps, loads
 import logging
 
 from ..database import db
@@ -36,96 +36,35 @@ def not_found(error):
         jsonify(status='error',
             message='Not found'), 404)
 
-def tag_items(items, tagname, method):
-    """ Add tags to items of any type that support the
-        tagging interface.
-    """
-    tag = Tag.query.get(tagname)
-    if not tag:
-        tag = Tag(tagname)
-        db.session.add(tag)
-
-    for f in items:
-        tagged = tag in f._tags
-        if method == "DELETE" and tagged:
-            f._tags.remove(tag)
-        if method == "POST" and not tagged:
-            f._tags.append(tag)
-    db.session.commit()
-
-    return jsonify(status="success", tag=tagname, items=[i.serialize()
-        for i in items])
-
-def get_ids(model,ids):
-    """ Get objects given a list of IDs"""
-    if len(ids) == 0:
-        return []
-    return model.query\
-        .filter(model.id.in_(ids)).all()
-
-@api.route('/feature/tag', methods=["POST","DELETE"])
-def feature_tag():
-    data = request.json
-    features = get_ids(DatasetFeature,data["features"])
-    return tag_items(features,data["tag"], request.method)
-
-@api.route('/group/tag', methods=["POST","DELETE"])
-def group_tag():
-    data = request.json
-    groups = get_ids(AttitudeGroup,data["groups"])
-    return tag_items(groups,data["tag"], request.method)
-
-@api.route('/attitude/tag', methods=["POST","DELETE"])
-def attitude_tag():
-    data = request.json
-
-    features,groups = [],[]
-    for f in data["features"]:
-        try:
-            group = f.startswith("G")
-        except AttributeError:
-            group = False
-        if group:
-            groups.append(int(f[1:]))
-        else:
-            features.append(int(f))
-    features = get_ids(DatasetFeature,features)
-    groups = get_ids(AttitudeGroup,groups)
-    return tag_items(features+groups,data["tag"], request.method)
-
-@api.route('/group',
-    methods=["GET", "POST"])
+@api.route('/group', methods=["POST"])
 def group():
-    if request.method == "GET":
-        return jsonify(
-            data=[g.serialize()\
-                for g in AttitudeGroup.query.all()])
-    elif request.method == "POST":
-        data = request.get_json()
-        features = [Attitude.query.get(i)
-            for i in data["measurements"]]
-        if len(features) < 2:
-            msg = "Cannot create group from less than two features"
-            raise InvalidUsage(msg)
-        group = AttitudeGroup(features)
-        db.session.add(group)
-        # Delete unreferenced groups
-        for g in AttitudeGroup.query.all():
-            if len(g.measurements) == 0:
-                db.session.delete(g)
-        db.session.commit()
-        return jsonify(data=group.serialize())
+    # We're going to create a group
+    # Need to decode bytes; might break py2 compatibility
+    data = loads(request.data.decode('utf-8'))
+    features = [db.session.query(Attitude).get(i)
+        for i in data["measurements"]]
+    if len(features) < 2:
+        msg = "Cannot create group from less than two features"
+        raise InvalidUsage(msg)
+    group = AttitudeGroup(features)
+    db.session.add(group)
+    # Delete unreferenced groups
+    for g in db.session.query(AttitudeGroup).all():
+        if len(g.measurements) == 0:
+            db.session.delete(g)
+    db.session.commit()
+    return jsonify(data=group.serialize())
 
 @api.route('/group/<id>',
     methods=["DELETE","POST"])
 def update_group(id):
-    group = AttitudeGroup.query.get(id)
+    group = db.session.query(AttitudeGroup).get(id)
     if request.method == "DELETE":
         db.session.delete(group)
         db.session.commit()
         return jsonify(status="success")
     if request.method == "POST":
-        data = request.get_json()
+        data = loads(request.data.decode('utf-8'))
         group.same_plane = data["same_plane"]
         group.calculate()
         db.session.add(group)
@@ -135,8 +74,10 @@ def update_group(id):
 @api.route("/attitude", methods=["GET"])
 def data():
     log.info("Serializing attitude data")
-    d = jsonify(
+    return jsonify(
         data=[o.serialize()
-        for o in Attitude.query.all()])
-    log.info(d)
-    return d
+        for o in db.session.query(Attitude)
+            # Descending order to put groups last
+            # This is bit of a hack
+            .order_by(Attitude.type.desc())
+            .all()])

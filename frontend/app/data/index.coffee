@@ -2,30 +2,27 @@ Spine = require "spine"
 tags = require "../../shared/data/tags"
 d3 = require "d3"
 queue = require("d3-queue").queue
-Feature = require "./feature"
 GroupedFeature = require "./group"
 Selection = require "./selection"
+L = require 'leaflet'
+_ = require 'underscore'
+update = require 'immutability-helper'
 
+{storedProcedure} = require '../database'
 API = require "../api"
 
 class Data extends Spine.Module
   @extend Spine.Events
 
+  hoveredItem: null
   _filter: (d)->d
   fetched: false
   constructor: ->
     super
-    # Add data from cache if available
-    cachedData = window.localStorage.getItem "attitudes"
-    features = JSON.parse cachedData
-    if features?
-      @setupData features
-
     # Setup requests for updated data
-    @fetch()
+    @__fetchData()
 
     @selection = Selection
-
     @selection.bind "tags-updated", @filter
     Data.listenTo GroupedFeature, "deleted", (d)=>
       @onUpdated()
@@ -40,36 +37,38 @@ class Data extends Spine.Module
 
     Data.listenTo GroupedFeature, "updated", @onUpdated
 
-  fetch: =>
-    queue()
-      .defer API("/attitude").get
-      .defer API("/group").get
-      .await (e,d1,d2)=>
-        if e
-          throw e
-        console.log d1,d2
-        console.log "Data received from server"
-        features = d1.data
-          .concat d2.data
-        console.log features
-        @setupData features
+  __fetchData: =>
+    {storedProcedure, db} = app.require 'database'
+
+    @featureTypes = []
+    sql = storedProcedure 'get-types'
+    db.query sql
+      .tap console.log
+      .then (records)=>
+        @featureTypes = records
+        @constructor.trigger 'feature-types', records
+
+    # Grab data directly from postgresql dataset
+    # We used to use a Python API here but this
+    # is a factor of at least 100 quicker
+    sql = storedProcedure 'get-dataset'
+    db.query sql
+      .map (d)->
+        # Transform raw data
+        d = _.clone d
+        d.grouped = d.type == 'group'
+        d.type = 'Feature'
+        d.tags ?= []
+        return d
+      .tap console.log
+      .then (records)=>
+        @records = records
         @fetched = true
-        @updateCache features
+        @constructor.trigger 'updated'
+      .catch (e)->
+        throw e
 
   onUpdated: =>
-    rec = @records()
-    @constructor.trigger "updated"
-
-  setupData: (rawData)->
-    # Empties collections
-    Feature.reset()
-    GroupedFeature.reset()
-    for d in rawData
-      if d.measurements?
-        if d.measurements.length > 1
-          new GroupedFeature d
-      else
-        new Feature d
     @constructor.trigger "updated"
 
   updateCache: (d)->
@@ -77,40 +76,52 @@ class Data extends Spine.Module
     _ = JSON.stringify d
     window.localStorage.setItem "attitudes", _
 
-  get: (id)=>
-    if typeof id is "string"
-      return GroupedFeature.index[id]
+  get: (ids...)=>
+    if ids.length == 1
+      rec = @records.find (d)->d.id==ids[0]
     else
-      return Feature.index[id]
-
-  records: ->
-    Feature.collection
-      .concat GroupedFeature.collection
+      rec = @records.filter (d)->
+        ids.indexOf(d.id)!=-1
+    rec
 
   asGeoJSON: ->
     out =
       type: "FeatureCollection"
-      features: @records()
+      features: @records
 
   getTags: ->
-    tags.getUnique @records()
+    tags.getUnique @records
 
-  within: (bounds)->
-    @records().filter (d)->
-      a = d.properties.center.coordinates
-      l = new L.LatLng a[1],a[0]
-      bounds.contains l
+  reset: ->
+    @records = []
 
   hovered: (d)=>
-    # set hover state
-    d.hovered = not d.hovered
-    if d.records?
-      for i in d.records
-        i.hovered = d.hovered
+
+    # Unset current hovered item
+    ix = @records.findIndex (a)->a.hovered
+    dix = @records.findIndex (a)->d.id == a.id
+    console.log ix, dix
+
+    u = {}
+    if dix != ix and ix >= 0
+      u["#{ix}"] = {hovered: {'$set':false}}
+
+    v = not d.hovered
+    if v
+      u["#{dix}"] = {hovered: {'$set':v}}
+
+    @records = update(@records,u)
+
+    d = @records[dix]
     if d.hovered
-      @constructor.trigger "hovered", d
+      @hoveredItem = d.id
     else
-      @constructor.trigger "hovered"
+      @hoveredItem = null
+    @constructor.trigger "hovered", @hoveredItem
+
+  isHovered: (d)->
+    # Checks if item is hovered
+    @hoveredItem == d.id
 
   getFilter: (tags)=>
     tags = [{name: "bad",status: "none"}] unless tags
@@ -140,4 +151,31 @@ class Data extends Spine.Module
 
   filter: =>
     @constructor.trigger "filtered", @getFilter()
+
+  within: (bounds)=>
+    @records.filter (d)->
+      a = d.center.coordinates
+      l = new L.LatLng a[1],a[0]
+      bounds.contains l
+
+  selectByBox: (bounds)=>
+    f = @within(bounds)
+    @selection.add f...
+
+  # Change data class
+  changeClass: (type, records)=>
+    {storedProcedure, db} = app.require 'database'
+    sql = storedProcedure "update-types"
+    db.query sql, [type,records.map (d)->d.id]
+      .then @onClassChanged
+  onClassChanged: (records)=>
+    toUpdate = {}
+    for i in records
+      ix = @records.findIndex (a)->i.id == a.id
+      toUpdate[ix]={class:{"$set":i.class}}
+      six = @selection.records.findIndex (a)->i.id == a.id
+
+    @records = update(@records,toUpdate)
+    @constructor.trigger "updated",@records
+
 module.exports = Data

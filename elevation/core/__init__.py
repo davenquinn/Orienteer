@@ -1,7 +1,8 @@
 import sys
 import logging
+from functools import wraps
 from flask import Flask, Blueprint, Response, render_template
-import numpy as N
+
 # Python 2 and 3 compatibility
 try:
     from io import BytesIO
@@ -21,6 +22,10 @@ log2.setLevel(logging.INFO)
 
 elevation = Blueprint('elevation',__name__)
 
+def get_attitude(id):
+    from ..models import Attitude
+    return db.session.query(Attitude).get(id)
+
 def image(fig):
     i_ = BytesIO()
     fig.savefig(i_,
@@ -33,8 +38,7 @@ def image(fig):
 
 @elevation.route("/attitude/<id>/data.html")
 def attitude_data(id):
-    from ..models import get_attitude
-
+    import numpy as N
     attitude = get_attitude(id)
     pca = attitude.pca()
     return render_template("data-area.html",
@@ -45,18 +49,21 @@ def attitude_data(id):
             angular_errors=tuple(N.degrees(i)
                 for i in pca.angular_errors()[::-1]))
 
+@elevation.route("/attitude/<id>/errorbars.png")
+def errorbars(id):
+    from attitude.plot import error_comparison
+    attitude = get_attitude(id)
+    fig = error_comparison(attitude.pca(), do_bootstrap=False)
+    return image(fig)
+
 @elevation.route("/attitude/<id>/axis-aligned.png")
 def principal_components(id):
-    from ..models import get_attitude
-
     attitude = get_attitude(id)
     fig = attitude.plot_aligned()
     return image(fig)
 
 @elevation.route("/attitude/<id>/error.png")
 def error_ellipse(id):
-    from ..models import get_attitude
-
     attitude = get_attitude(id)
     fig = attitude.error_ellipse()
     return image(fig)
@@ -74,4 +81,14 @@ def setup_app():
     db.init_app(app)
     __setup_endpoints(app,db)
     log.info("App setup complete")
+
+    def within_context(func):
+        @wraps(func)
+        def wrapper(*args,**kwargs):
+            with app.app_context():
+                return func(*args,**kwargs)
+        return wrapper
+
+    app.context = within_context
+
     return app

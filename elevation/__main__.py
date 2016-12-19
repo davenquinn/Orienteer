@@ -1,8 +1,6 @@
-from IPython import embed
 from click import echo, style
-
-from elevation import app
 from elevation.manage import ElevationCommand
+from . import app, db
 
 @ElevationCommand.command()
 def shell():
@@ -10,6 +8,7 @@ def shell():
     Create a python interpreter inside
     the application.
     """
+    from IPython import embed
     from . import models as m
     _ = style("Elevation",fg="green")
     echo("Welcome to the "+_+" application!")
@@ -20,7 +19,9 @@ def serve():
     """
     Run a basic development server for the application.
     """
-    app.run()
+    from elevation.core import setup_app
+    app = setup_app()
+    with app.app_context():
+        app.run()
 
-with app.app_context():
-    ElevationCommand()
+ElevationCommand()

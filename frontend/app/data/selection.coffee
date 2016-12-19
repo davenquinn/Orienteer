@@ -1,11 +1,101 @@
 Spine = require "spine"
-API = require "../api"
 GroupedFeature = require "./group"
-BaseSelection = require "../../shared/data/selection"
+path = require 'path'
+tags = require "../../shared/data/tags"
+{storedProcedure, db} = require '../database'
+update = require 'immutability-helper'
+addTag = storedProcedure 'add-tag'
+removeTag = storedProcedure 'remove-tag'
+
+{getIndexById, _not} = require './util'
 
 visible = (d)->not d.hidden
 
 respectGroups = true
+
+class BaseSelection extends Spine.Module
+  @include Spine.Events
+  constructor: ->
+    super
+    @records = []
+
+  getTags: =>
+    records = @records
+    arr = tags.get records
+    func = (d, name)->
+      d[name] = 0 unless name of d
+      d[name] += 1
+      return d
+    data = arr.reduce func, {}
+    arr = []
+    for tag, num of data
+      arr.push
+        name: tag
+        all: num >= records.length
+    return arr
+
+  empty: =>not @records.length
+
+  __notify: =>
+    @trigger "selection:updated", @records
+
+  __index: (d)=>
+    getIndexById @records, d
+
+  __isMember: (d)=>
+    ix = @__index d
+    ix != -1
+
+  add: (records...)=>
+    u = {}
+    newRecords = records.filter _not(@__isMember)
+    @records = update(@records,'$push': newRecords)
+    @__notify()
+
+  remove: (records...)=>
+    @records = @records.filter (d)->
+      ix = getIndexById(records,d)
+      # Get all records not in the
+      # original set
+      ix == -1
+    @__notify()
+
+  # Composite addition methods
+  update: (d)=>
+    # Either adds or removes depending on presence
+    if @__isMember d
+      @remove d
+    else
+      @add d
+
+  fromRecords: (records)=>
+    @records = records
+    @__notify()
+
+  contains: (d)=>
+    @records.indexOf(d) >= 0
+
+  clear: =>
+    @records = []
+    @__notify()
+
+  _tagRemoved: (name, opts={})=>
+    records = opts.records or @records
+    records.forEach (d)->
+      i = d.tags.indexOf name
+      if i >= 0
+        d.tags.splice(i,1)
+    @trigger "tags-updated", @getTags()
+
+  _tagAdded: (name, opts={})=>
+    # Adds tag to each record and
+    # signals application that it is done
+    records = opts.records or @records
+    records.forEach (d)->
+      i = d.tags.indexOf name
+      if i == -1
+        d.tags.push name
+    @trigger "tags-updated", @getTags()
 
 class Selection extends BaseSelection
   _add: (d)=>
@@ -31,22 +121,18 @@ class Selection extends BaseSelection
         .map (d)->d.id
     }
 
-  _recordsToTag: =>
-    @records.filter (d)->not d.hidden
-
   addTag: (name)=>
     data = @_tagData name
-    app.API "/attitude/tag"
-      .send "POST", JSON.stringify(data), (e,r) =>
-        console.log r.response
-        @_tagAdded name, records: @_recordsToTag()
+    addTag [data.tag, data.features], (e,r)=>
+      throw e if e
+      # We just assume that the right records are tagged
+      @_tagAdded name
 
   removeTag: (name)=>
     data = @_tagData name
-    app.API "/attitude/tag"
-      .send "DELETE", JSON.stringify(data), (e,r)=>
-        console.log r.data
-        @_tagRemoved name, records: @_recordsToTag()
+    removeTag [data.tag, data.features], (e,r)=>
+      throw e if e
+      @_tagRemoved name
 
   createGroup: =>
     console.log "Creating group"

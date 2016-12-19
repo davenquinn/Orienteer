@@ -1,8 +1,11 @@
 from ..database import db
 from sqlalchemy.orm import object_session
+from sqlalchemy.ext.declarative import declarative_base
 from click import echo
 
-class BaseModel(db.Model):
+Base = declarative_base()
+
+class BaseModel(Base):
     __abstract__ = True
     @classmethod
     def get_or_create(cls, **kwargs):
