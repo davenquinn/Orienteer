@@ -32,7 +32,7 @@ setupApp = (cb)->
 startApp = (url)->
   # Create the browser window.
   mainWindow = new BrowserWindow
-    title: app.config.title or 'Attitudes'
+    title: app.config.title or 'Orienteer'
     width: 800
     height: 600
   # and load the index.html of the app.
