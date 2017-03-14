@@ -64,7 +64,6 @@
     "leaflet-draw": "github:leaflet/Leaflet.draw#leaflet-master",
     "less": "^2.6.1",
     "linklocal": "^2.6.1",
-    "mapnik": "file:deps/node-mapnik",
     "material-ui": "^0.13.1",
     "node-cjsx": "^1.0.0",
     "pg": "^4.5.3",
@@ -89,5 +88,6 @@
     "velocity-animate": "^1.2.2",
     "wkx": "^0.4.1",
     "xml2json": "^0.9.0"
-  }
+  },
+  "repository": "/Users/Daven/Development/Repositories/Elevation.git"
 }
