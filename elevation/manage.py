@@ -35,17 +35,30 @@ def extract():
     stored_procedure('init-attitudes')
 
 
-    q = (db.session.query(Attitude)
-        .join(DatasetFeature)
+    q = (db.session.query(DatasetFeature)
         .filter(DatasetFeature.extracted == None)
         .filter(DatasetFeature.dataset != None))
 
     for d in q.all():
-        message("Extracting attitude "+str(d.id))
+        message("Extracting feature "+str(d.id))
         d.extract()
+        try:
+            d.calculate()
+        except AttributeError:
+            message("Not an attitude")
+        db.session.add(d)
+    db.session.commit()
+
+    q = (db.session.query(Attitude)
+        .join(DatasetFeature)
+        .filter(DatasetFeature.extracted != None)
+        .filter(Attitude.strike == None))
+    for d in q.all():
+        message("Computing attitude data for "+str(d.id))
         d.calculate()
         db.session.add(d)
     db.session.commit()
+
 
 @ElevationCommand.command(name='compute-footprints')
 @click.option("--regenerate", is_flag=True, default=False)
