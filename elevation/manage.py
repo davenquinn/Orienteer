@@ -18,7 +18,9 @@ def stored_procedure(fn):
     n = path.join(here,'sql',fn+'.sql')
     with open(n) as f:
         q = f.read()
-    execute_sql(q)
+    res = execute_sql(q)
+    echo(res)
+    return res
 
 @ElevationCommand.command()
 def extract():

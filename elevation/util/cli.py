@@ -39,7 +39,7 @@ def quote(arg):
 
 def execute_sql(statement,*params, **multiparams):
     echo(u"➔ "+style(statement, "yellow"))
-    return db.engine.execute(statement,*params, **multiparams)
+    return db.session.execute(statement,*params, **multiparams)
 
 def mkdirs(path):
     try:

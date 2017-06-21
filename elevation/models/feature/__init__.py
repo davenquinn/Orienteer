@@ -57,3 +57,10 @@ class DatasetFeature(BaseModel):
     def array(self):
         return N.array(self.extracted)
 
+    @property
+    def length(self):
+        return db.session.scalar(
+            func.ST_Length(func.ST_Transform(
+                self.geometry, srid.local
+                )))
+

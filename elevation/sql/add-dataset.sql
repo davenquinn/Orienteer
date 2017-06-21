@@ -22,4 +22,4 @@ SET
   dataset_id=fd.dataset_id,
   dataset_id_autoset=true
 FROM fd
-WHERE id=fd.feature_id
+WHERE id=fd.feature_id;
