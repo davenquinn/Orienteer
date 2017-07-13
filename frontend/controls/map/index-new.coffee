@@ -12,7 +12,7 @@ class MapnikLayer extends GridLayer
   constructor: (props, context)->
     super props, context
     console.log @props, @context
- 
+
   createLeafletElement: (props)->
     {name, xml} = props
     lyr = new MapnikLayer_ name, xml, props
