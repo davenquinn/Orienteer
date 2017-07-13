@@ -24,8 +24,8 @@ class SelectionControl extends React.Component
 
 class CloseButton extends React.Component
   render: ->
-    <button className="clear btn btn-danger btn-tiny" onClick={@props.action}>
-      <i className={"fa fa-#{@props.icon}"}></i>{@props.text}
+    <button className={"pt-button pt-intent-danger pt-icon-#{@props.icon}"} onClick={@props.action}>
+      {@props.children}
     </button>
 
 class Sidebar extends React.Component
@@ -46,9 +46,9 @@ class Sidebar extends React.Component
     # A selection management class
     s = @props.data.selection
 
-    closeButton = <CloseButton action={s.clear} text="Clear selection" icon="remove" />
+    closeButton = <CloseButton action={s.clear} icon="cross">Clear selection</CloseButton>
     if @state.focused?
-      closeButton = <CloseButton action={@clearFocus} text="Back to selection" icon="chevron-left" />
+      closeButton = <CloseButton action={@clearFocus} icon="chevron-left">Back to selection</CloseButton>
       core = <ViewerControl data={@state.focused} hovered={@props.hovered}  />
     else if rec.length == 1
       core = <ViewerControl data={rec[0]} hovered={@props.hovered} />

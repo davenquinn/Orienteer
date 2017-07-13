@@ -25,20 +25,19 @@ class ListItem extends React.Component
       cls += " #{style.hovered}"
 
     # This is crazy-inefficient
-    <li className={cls}
-      onMouseEnter={@mousein}>
+    <tr className={cls}
+      onMouseEnter={@mousein}
+      onClick={@props.focusItem}>
       {@createRemoveButton() if @props.allowRemoval}
-      <span onClick={@props.focusItem}>
-        <span className={style.strike}>{strike}º</span>
-        <span className={style.dip}>{dip}º</span>
-        {@renderGroupData() if grouped}
-      </span>
-    </li>
+        <td className={style.strike}>{strike}</td>
+        <td className={style.dip}>{dip}</td>
+        <td>{@renderGroupData() if grouped}</td>
+    </tr>
 
   createRemoveButton: =>
-    <span className="remove" onClick={@props.removeItem}>
+    <td className="remove" onClick={@props.removeItem}>
       <i className='fa fa-remove'></i>
-    </span>
+    </td>
 
   isHovered: =>
     app.data.isHovered @props.data
@@ -71,9 +70,18 @@ class SelectionList extends React.Component
       focusItem={onFocus}
       removeItem={onRemove}
       allowRemoval={@props.allowRemoval} />
+
   render: ->
-    <ul className={style.list}>
+    <table className={"pt-table pt-striped pt-condensed #{style.list}"}>
+      <thead>
+        <tr>
+          {<td></td> if @props.allowRemoval}
+          <td>Strike</td>
+          <td>Dip</td>
+          <td>Info</td>
+        </tr>
+      </thead>
       {@props.records.map @renderItem}
-    </ul>
+    </table>
 
 module.exports = SelectionList

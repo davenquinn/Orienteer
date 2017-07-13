@@ -2,6 +2,7 @@ hook = require 'css-modules-require-hook'
 stylus = require 'stylus'
 {readFileSync} = require 'fs'
 
+
 appendStyleToPage = (css)->
   style = document.createElement('style')
   style.type = 'text/css'
@@ -21,3 +22,4 @@ hook
       .set('filename', filename)
       .render()
   processCss: appendStyleToPage
+

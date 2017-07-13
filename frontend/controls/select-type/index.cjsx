@@ -9,20 +9,22 @@ class SelectType extends React.Component
     allSame = recs.every (e)->e == recs[0]
     console.log recs
     if allSame
-      rec = recs[0] or 'null'
+      rec = recs[0] or null
     else
       rec = 'multiple'
 
     types = @props.featureTypes
     t = types.map (d)->
       {value: d.id, label: d.id}
-    if @props.records.length > 0
+    if @props.records.length > 1
       t.push {value: 'multiple', label: 'Multiple'}
-    t.push {value: null, label: 'None'}
 
     onChange = (type)=>
-      console.log type
-      app.data.changeClass type.value, @props.records
+      if type?
+        val = type.value
+      else
+        val = null
+      app.data.changeClass val, @props.records
 
     <Select
         name="select-type"
