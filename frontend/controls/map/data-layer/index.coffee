@@ -7,7 +7,7 @@ marker = require './strike-dip'
 
 DataLayerBase = require "gis-core/frontend/helpers/data-layer"
 
-{getIndexById} = require '../../../app/data/util'
+{getIndexById} = require '../../../data/util'
 
 mainCollection = ->
   Data.records.filter (d)->not d.group?

@@ -1,5 +1,5 @@
 Spine = require "spine"
-tags = require "../../shared/data/tags"
+tags = require "../shared/data/tags"
 d3 = require "d3"
 queue = require("d3-queue").queue
 GroupedFeature = require "./group"

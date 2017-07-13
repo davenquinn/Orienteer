@@ -1,11 +1,8 @@
 Spine = require "spine"
 GroupedFeature = require "./group"
 path = require 'path'
-tags = require "../../shared/data/tags"
-{storedProcedure, db} = require '../database'
+tags = require "../shared/data/tags"
 update = require 'immutability-helper'
-addTag = storedProcedure 'add-tag'
-removeTag = storedProcedure 'remove-tag'
 
 {getIndexById, _not} = require './util'
 

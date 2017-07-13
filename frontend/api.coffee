@@ -1,4 +1,4 @@
-api = require '../shared/data/api'
+api = require './shared/data/api'
 
 ## Creates an API function compatible with
 #  Mike Bostock's d3 and queue-async modules

@@ -15,12 +15,17 @@ setupProjection = require "gis-core/frontend/projection"
 style = require './style'
 
 class MapControl extends React.Component
+  @defaultProps:
+    settings:
+      bounds: null
   constructor: ->
-    super()
     window.map = @
 
     @state =
       dataIsConfigured: false
+      currentBounds: null
+    super()
+
   render: ->
     React.createElement 'div'
 
@@ -28,6 +33,8 @@ class MapControl extends React.Component
     @node = ReactDOM.findDOMNode @
     console.log "Component mounted"
 
+    # Map runs its own state machine which is
+    # not necessarily good
     @settings = new CacheDatastore 'map-visible-layers'
 
     cfg = app.config.map
@@ -87,7 +94,9 @@ class MapControl extends React.Component
     if @props.hovered != prevProps.hovered
       @dataLayer.onHoverIn @props.hovered
 
-  addData: (@data)=>
+    #{bounds} = @props.settings
+    #if @_cachedBounds != bounds
+    #  @setBounds bounds
 
   # Done with react lifecycle methods
   invalidateSize: =>
@@ -98,15 +107,17 @@ class MapControl extends React.Component
     $(@node).height window.innerHeight
 
   extentChanged: =>
-    #@trigger "extents", @map.getBounds()
+    console.log "Map extents changed"
+    #app.updateSettings {map: {bounds: {$set: @map.getBounds()}}}
 
   setBounds: (b)=>
     @map.fitBounds(b)
 
   getBounds: =>
     b = @map.getBounds()
-    out = [
+    @_cachedBounds = [
       [b._southWest.lat, b._southWest.lng]
       [b._northEast.lat, b._northEast.lng]]
+    @_cachedBounds
 
 module.exports = MapControl

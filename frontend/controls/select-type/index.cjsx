@@ -1,7 +1,6 @@
-require './style.styl'
 React = require 'react'
 Select = require 'react-select'
-
+require "react-select/dist/react-select.css"
 
 class SelectType extends React.Component
   render: ->
@@ -17,8 +16,9 @@ class SelectType extends React.Component
     types = @props.featureTypes
     t = types.map (d)->
       {value: d.id, label: d.id}
-    t.push {value: 'multiple', label: 'Multiple'}
-    t.push {value: 'null', label: 'None'}
+    if @props.records.length > 0
+      t.push {value: 'multiple', label: 'Multiple'}
+    t.push {value: null, label: 'None'}
 
     onChange = (type)=>
       console.log type

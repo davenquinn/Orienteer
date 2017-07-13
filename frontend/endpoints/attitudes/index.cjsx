@@ -22,6 +22,7 @@ paneStyle =
 class AttitudePage extends React.Component
   constructor: (props)->
     super props
+
     @state =
       selection: []
       hovered: null
@@ -45,7 +46,8 @@ class AttitudePage extends React.Component
       <MapControl
         records={@state.records}
         selection={@state.selection}
-        hovered={@state.hovered} />
+        hovered={@state.hovered}
+        settings={@props.settings.map} />
       <div className={style.sidebar} >
         <div className={style.sidebarComponent}>
           <SelectionControl data={@props.data}
