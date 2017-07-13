@@ -36,7 +36,7 @@ class DataLayer extends DataLayerBase
     @events = d3.dispatch ['selected']
 
   onAdd: =>
-    super
+    super()
     @container = @svg.append 'g'
     @editContainer = @svg.append 'g'
 

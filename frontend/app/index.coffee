@@ -11,6 +11,7 @@ Frontpage = require "./frontpage"
 Data = require "./data"
 AttitudePage = require "../endpoints/attitudes"
 Stereonet = require "../endpoints/stereonet"
+h = require 'react-hyperscript'
 
 styles = require '../styles/layout.styl'
 
@@ -42,17 +43,18 @@ module.exports = ->
   #setupMenu(app)
 
   class DataStereonet extends React.Component
-    render: -> <Stereonet data={app.data} />
+    render: -> h Stereonet, data: app.data
 
   class Attitude extends React.Component
-    render: -> <AttitudePage data={app.data} />
+    render: -> h AttitudePage, data: app.data
 
-  ReactDOM.render(
-    <Router history={hashHistory}>
-      <Route path="/">
-        <IndexRoute component={Frontpage} />
-        <Route path="map" component={Attitude}/>
-        <Route path="stereonet" component={DataStereonet}/>
-      </Route>
-    </Router>, document.getElementById 'wrapper')
+  router = h Router, history: hashHistory, [
+      h Route, path: "/", [
+        h IndexRoute, component: Frontpage
+        h Route, path:"map", component: Attitude
+        h Route, path: "stereonet", component: DataStereonet
+      ]
+    ]
+
+  ReactDOM.render(router, document.getElementById 'wrapper')
 

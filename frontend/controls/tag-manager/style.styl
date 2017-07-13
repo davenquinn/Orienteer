@@ -1,30 +1,29 @@
-.tag-field {
-  min-height: 3em;
-}
-
-.tagList {
-  li {
-    cursor: pointer;
-    padding: 0.1em 0.2em;
-    display: inline-block;
-    margin-right: 0.5em;
-    background: #ddd;
-    margin-bottom: 0.2em;
+:global {
+  .tag-field {
+    min-height: 3em;
   }
-  list-style: none;
-  padding-left: 0;
-}
 
-.tagManager {
-  ul {
-    @extend .tagList;
-  }
-  li {
-    .remove {
-      margin-left: 0.25em;
+  .tagList {
+    li {
+      cursor: pointer;
+      padding: 0.1em 0.2em;
+      display: inline-block;
+      margin-right: 0.5em;
+      background: #ddd;
+      margin-bottom: 0.2em;
     }
-    &.all {
-      background: lighten(dodgerblue, 20%);
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .tagManager {
+    li {
+      .remove {
+        margin-left: 0.25em;
+      }
+      &.all {
+        background: lighten(dodgerblue, 20%);
+      }
     }
   }
 }

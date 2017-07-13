@@ -20,9 +20,9 @@ class EventedShim extends DataLayerBase
 
 class DataLayer extends EventedShim
   constructor: ->
-    super
+    super()
   onAdd: ->
-    super
+    super()
 
     @setupProjection()
     @svg = d3.select @_container

@@ -17,7 +17,7 @@ class DataPane extends React.Component
   render: ->
     <Measure onMeasure={@setSize}>
       <div className={style.sidebarComponent}>
-        <TagManager />
+        <TagManager records={@props.records} hovered={@props.hovered} />
         <SelectType
           records={@props.records}
           featureTypes={@props.featureTypes} />

@@ -14,7 +14,7 @@ oldLoc = null
 
 class EditorPage extends Spine.Controller
   constructor: ->
-    super
+    super()
     @el.addClass styles.page
 
     @state =

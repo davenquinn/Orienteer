@@ -46,7 +46,7 @@ class GroupedFeature extends Spine.Module
   # This class implements an interface similar to the
   # "Selection" object.
   constructor: (obj)->
-    super
+    super()
     @id = obj.id
     @gid = "G#{@id}"
     @updateRecords obj

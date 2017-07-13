@@ -18,7 +18,7 @@ defaults =
   geoJSON: false
 
 # Setup parsers
-# This includes a bit of a race condition that
+# This includes a race condition at app startup that
 # could prove pernicious
 parsers =
   geometry: (val)->

@@ -16,7 +16,7 @@ respectGroups = true
 class BaseSelection extends Spine.Module
   @include Spine.Events
   constructor: ->
-    super
+    super()
     @records = []
 
   getTags: =>
@@ -45,6 +45,14 @@ class BaseSelection extends Spine.Module
   __isMember: (d)=>
     ix = @__index d
     ix != -1
+
+  refresh: (appRecords)->
+    # A temporary method to propagate changes in main data
+    # store
+    ids = @records.map (d)->d.id
+    newRecords = appRecords.filter (d)-> ids.indexOf(d.id) != -1
+    @records = newRecords
+    @__notify()
 
   add: (records...)=>
     u = {}
@@ -120,19 +128,6 @@ class Selection extends BaseSelection
         .filter visible
         .map (d)->d.id
     }
-
-  addTag: (name)=>
-    data = @_tagData name
-    addTag [data.tag, data.features], (e,r)=>
-      throw e if e
-      # We just assume that the right records are tagged
-      @_tagAdded name
-
-  removeTag: (name)=>
-    data = @_tagData name
-    removeTag [data.tag, data.features], (e,r)=>
-      throw e if e
-      @_tagRemoved name
 
   createGroup: =>
     console.log "Creating group"

@@ -7,8 +7,8 @@ Selection = require "./selection"
 L = require 'leaflet'
 _ = require 'underscore'
 update = require 'immutability-helper'
+{storedProcedure, db} = require '../database'
 
-{storedProcedure} = require '../database'
 API = require "../api"
 
 class Data extends Spine.Module
@@ -18,7 +18,7 @@ class Data extends Spine.Module
   _filter: (d)->d
   fetched: false
   constructor: ->
-    super
+    super()
     # Setup requests for updated data
     @__fetchData()
 
@@ -162,20 +162,56 @@ class Data extends Spine.Module
     f = @within(bounds)
     @selection.add f...
 
+  getRecordIndex: (id)=>
+    # Get index of a certain primary key
+    @records.findIndex (rec)->id == rec.id
+
+  updateUsing: (changeset)=>
+    @records = update(@records, changeset)
+    @constructor.trigger "updated",@records
+    @selection.refresh(@records)
+
+  addTag: (tag, records)=>
+    sql = storedProcedure "add-tag"
+    ids = records.map (d)->d.id
+    records = await db.query sql, [tag, ids]
+
+    changeset = {}
+    for rec in records
+      console.log rec
+      ix = @getRecordIndex rec.attitude_id
+      changeset[ix] = {tags: {"$push": [rec.tag_name]}}
+
+    @updateUsing changeset
+
+  removeTag: (tag, records)=>
+    sql = storedProcedure "remove-tag"
+    ids = records.map (d)->d.id
+    records = await db.query sql, [tag, ids]
+
+    changeset = {}
+    for rec in records
+      console.log rec
+      ix = @getRecordIndex rec.attitude_id
+      tagindex = @records[ix].tags.indexOf(tag)
+      continue if tagindex == -1
+      changeset[ix] = {tags: {"$splice": [[tagindex,1]]}}
+
+    @updateUsing changeset
+
   # Change data class
   changeClass: (type, records)=>
-    {storedProcedure, db} = app.require 'database'
+    {storedProcedure, db} = require '../database'
     sql = storedProcedure "update-types"
-    db.query sql, [type,records.map (d)->d.id]
-      .then @onClassChanged
-  onClassChanged: (records)=>
-    toUpdate = {}
+    ids = records.map (d)->d.id
+    records = await db.query sql, [type,ids]
+
+    changeset = {}
     for i in records
       ix = @records.findIndex (a)->i.id == a.id
-      toUpdate[ix]={class:{"$set":i.class}}
+      changeset[ix]={class:{"$set":i.class}}
       six = @selection.records.findIndex (a)->i.id == a.id
 
-    @records = update(@records,toUpdate)
-    @constructor.trigger "updated",@records
+    @updateUsing changeset
 
 module.exports = Data

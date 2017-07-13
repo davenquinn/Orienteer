@@ -16,7 +16,7 @@ style = require './style'
 
 class MapControl extends React.Component
   constructor: ->
-    super
+    super()
     window.map = @
 
     @state =
