@@ -43,13 +43,12 @@ def extract():
 
     for d in q.all():
         message("Extracting feature "+str(d.id))
-        d.extract()
         try:
-            d.calculate()
-        except AttributeError:
-            message("Not an attitude")
-        db.session.add(d)
-    db.session.commit()
+            d.extract()
+            db.session.add(d)
+            db.session.commit()
+        except OSError:
+            message("Couldn't extract feature "+str(d.id))
 
     q = (db.session.query(Attitude)
         .join(DatasetFeature)

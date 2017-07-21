@@ -17,10 +17,13 @@ class SelectionControl extends React.Component
         allowRemoval={true} />
       <p>
         <button
-          className="group btn btn-default btn-sm"
-          onClick={a.createGroup}>Group measurements</button>
+          className="group pt-button pt-intent-primary pt-icon-group-objects"
+          onClick={@createGroup}>Group measurements</button>
       </p>
     </div>
+
+  createGroup: =>
+    app.data.createGroup @props.records
 
 class CloseButton extends React.Component
   render: ->
@@ -49,9 +52,9 @@ class Sidebar extends React.Component
     closeButton = <CloseButton action={s.clear} icon="cross">Clear selection</CloseButton>
     if @state.focused?
       closeButton = <CloseButton action={@clearFocus} icon="chevron-left">Back to selection</CloseButton>
-      core = <ViewerControl data={@state.focused} hovered={@props.hovered}  />
+      core = <ViewerControl data={@state.focused} hovered={@props.hovered} focusItem={@focusItem} />
     else if rec.length == 1
-      core = <ViewerControl data={rec[0]} hovered={@props.hovered} />
+      core = <ViewerControl data={rec[0]} hovered={@props.hovered} focusItem={@focusItem} />
     else
       actions =
         removeItem: s.update

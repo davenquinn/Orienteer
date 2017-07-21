@@ -18,4 +18,5 @@ SELECT
   covariance
 FROM
   attitude_data
-WHERE correlation_coefficient < 1;
+WHERE correlation_coefficient < 1
+  AND id IN (SELECT * FROM unnest($1::integer[]));

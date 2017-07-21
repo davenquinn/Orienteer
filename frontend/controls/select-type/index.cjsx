@@ -7,7 +7,6 @@ class SelectType extends React.Component
     recs = @props.records.map (d)->d.class
 
     allSame = recs.every (e)->e == recs[0]
-    console.log recs
     if allSame
       rec = recs[0] or null
     else
@@ -20,10 +19,11 @@ class SelectType extends React.Component
       t.push {value: 'multiple', label: 'Multiple'}
 
     onChange = (type)=>
+      console.log "Changed select to #{type}"
       if type?
         val = type.value
       else
-        val = null
+        val = 'null'
       app.data.changeClass val, @props.records
 
     <Select

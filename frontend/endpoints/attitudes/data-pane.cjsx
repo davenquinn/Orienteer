@@ -17,10 +17,16 @@ class DataPane extends React.Component
   render: ->
     <Measure onMeasure={@setSize}>
       <div className={style.sidebarComponent}>
-        <TagManager records={@props.records} hovered={@props.hovered} />
-        <SelectType
-          records={@props.records}
-          featureTypes={@props.featureTypes} />
+        <div>
+          <h6>Tags</h6>
+          <TagManager records={@props.records} hovered={@props.hovered} />
+        </div>
+        <div>
+          <h6>Data type</h6>
+          <SelectType
+            records={@props.records}
+            featureTypes={@props.featureTypes} />
+        </div>
         <Stereonet
           data={@props.records}
           hovered={@props.hovered}

@@ -3,6 +3,7 @@ $ = require "jquery"
 d3 = require "d3"
 React = require 'react'
 style = require './style'
+h = require 'react-hyperscript'
 
 sf = d3.format ">8.1f"
 df = d3.format ">6.1f"
@@ -29,9 +30,9 @@ class ListItem extends React.Component
       onMouseEnter={@mousein}
       onClick={@props.focusItem}>
       {@createRemoveButton() if @props.allowRemoval}
-        <td className={style.strike}>{strike}</td>
-        <td className={style.dip}>{dip}</td>
-        <td>{@renderGroupData() if grouped}</td>
+      <td className={style.strike}>{strike}</td>
+      <td className={style.dip}>{dip}</td>
+      <td>{@renderGroupData() if grouped}</td>
     </tr>
 
   createRemoveButton: =>
@@ -81,7 +82,9 @@ class SelectionList extends React.Component
           <td>Info</td>
         </tr>
       </thead>
-      {@props.records.map @renderItem}
+      <tbody>
+        {@props.records.map @renderItem}
+      </tbody>
     </table>
 
 module.exports = SelectionList

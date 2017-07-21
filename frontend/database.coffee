@@ -3,6 +3,7 @@ Promise = require 'bluebird'
 pgp = require('pg-promise')(promiseLib: Promise)
 {Buffer} = require 'buffer'
 {Geometry} = require 'wkx'
+path = require 'path'
 
 debug = true
 Promise.longStackTraces()

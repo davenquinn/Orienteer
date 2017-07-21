@@ -97,6 +97,7 @@ class MapControl extends React.Component
     #{bounds} = @props.settings
     #if @_cachedBounds != bounds
     #  @setBounds bounds
+    @map.invalidateSize()
 
   # Done with react lifecycle methods
   invalidateSize: =>

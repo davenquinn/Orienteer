@@ -183,6 +183,7 @@ class Attitude(BaseModel):
 
 class AttitudeGroup(Attitude):
     __mapper_args__ = dict(
+        polymorphic_on='type',
         polymorphic_identity='group')
 
     same_plane = Column(Boolean,
@@ -191,8 +192,11 @@ class AttitudeGroup(Attitude):
     measurements = relationship(Attitude)
 
     def __init__(self, attitudes, **kwargs):
-        Attitude.__init__(self,**kwargs)
+        self.type = 'group'
+        self.feature_id = None
+        self.member_of = None
         self.measurements = attitudes
+        Attitude.__init__(self,**kwargs)
         self.calculate()
 
     def __str__(self):

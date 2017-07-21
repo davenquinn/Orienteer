@@ -25,14 +25,21 @@ class GroupedAttitudeControl extends React.Component
         hovered={@props.hovered} />
       <p>
         <button
-          className="split btn btn-danger btn-sm"
-          onClick={@props.data.requestDestruction}>
+          className="split pt-button pt-intent-danger pt-icon-heatmap"
+          onClick={@shouldDestroyGroup}>
           Split group
         </button>
       </p>
     </div>
 
+  shouldDestroyGroup: =>
+    app.data.destroyGroup @props.data.id
+
 class DataViewer extends React.Component
+  @defaultProps:
+    hovered: false
+    focusItem: ->
+    data: null
   constructor: (props)->
     super props
     @state =
@@ -56,11 +63,11 @@ class DataViewer extends React.Component
 
   render: ->
     grouped = @props.data.is_group
+    method = if grouped then @props.focusItem else ->
+
     <div>
       <h4>{if grouped then 'Group' else 'Attitude'} {@props.data.id}</h4>
-      <ul>
-        <li>{strikeDip @props.data}</li>
-      </ul>
+      <SelectionList records={[@props.data]} focusItem={method} />
       {@renderGroupData() if grouped}
       <div className="data-container">
         <h6>Axis-aligned residuals</h6>

@@ -4,12 +4,21 @@ d3 = require "d3"
 queue = require("d3-queue").queue
 GroupedFeature = require "./group"
 Selection = require "./selection"
+Promise = require 'bluebird'
 L = require 'leaflet'
 _ = require 'underscore'
 update = require 'immutability-helper'
 {storedProcedure, db} = require '../database'
 
 API = require "../api"
+
+prepareData = (d)->
+  # Transform raw data
+  d = _.clone d
+  d.grouped = d.type == 'group'
+  d.type = 'Feature'
+  d.tags ?= []
+  return d
 
 class Data extends Spine.Module
   @extend Spine.Events
@@ -53,14 +62,7 @@ class Data extends Spine.Module
     # is a factor of at least 100 quicker
     sql = storedProcedure 'get-dataset'
     db.query sql
-      .map (d)->
-        # Transform raw data
-        d = _.clone d
-        d.grouped = d.type == 'group'
-        d.type = 'Feature'
-        d.tags ?= []
-        return d
-      .tap console.log
+      .map prepareData
       .then (records)=>
         @records = records
         @fetched = true
@@ -204,14 +206,62 @@ class Data extends Spine.Module
     {storedProcedure, db} = require '../database'
     sql = storedProcedure "update-types"
     ids = records.map (d)->d.id
-    records = await db.query sql, [type,ids]
+    console.log "Changing class to #{type} for #{ids}"
+    results = await db.query sql, [type,ids]
+    console.log results
+
+    for i in ids
+      # Groups should have IDs set as well
+      if i.records?
+        ids.push.apply i.records.map((a)->a.id)
 
     changeset = {}
-    for i in records
-      ix = @records.findIndex (a)->i.id == a.id
-      changeset[ix]={class:{"$set":i.class}}
-      six = @selection.records.findIndex (a)->i.id == a.id
+    for id in ids
+      ix = @records.findIndex (a)->id == a.id
+      changeset[ix]={class:{"$set":type}}
 
+    @updateUsing changeset
+
+  updateSelectionFromIDs: (ids)->
+    records = @records.filter (d)->
+      ids.indexOf(d.id) != -1
+    @selection.fromRecords records
+
+  destroyGroup: (id)->
+    call = Promise.promisify app.API("/group/#{id}").send
+    console.log "Destroying group #{id}"
+    response = await call("DELETE")
+    if response.status != 200
+      console.log "Could not destroy group #{id}"
+      return
+
+    ix = @records.findIndex (d)->id == d.id
+    changeset = {$splice: [[ix,1]]}
+    @updateUsing changeset
+
+  createGroup: (records)=>
+    call = Promise.promisify app.API("/group").send
+    data =
+      measurements: records.map (d)->d.id
+      same_plane: false
+
+    console.log "Creating group"
+    response = await call "POST", JSON.stringify(data)
+    obj = response.data
+    ids = obj.measurements.concat [obj.id]
+    console.log "Successfully created group #{obj.id}"
+
+    @refreshRecords ids
+    @updateSelectionFromIDs [obj.id]
+
+  refreshRecords: (ids)=>
+    sql = storedProcedure 'get-records-by-ids'
+    console.log "Refreshing records", ids
+    records = await db.query(sql, [ids]).map prepareData
+    changeset = {}
+    for rec in records
+      ix = @records.findIndex (a)->rec.id == a.id
+      changeset[ix]={"$set": rec}
     @updateUsing changeset
 
 module.exports = Data

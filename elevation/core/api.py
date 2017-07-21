@@ -46,23 +46,27 @@ def group():
     if len(features) < 2:
         msg = "Cannot create group from less than two features"
         raise InvalidUsage(msg)
+    log.info("Creating group from {} features".format(len(features)))
     group = AttitudeGroup(features)
     db.session.add(group)
     # Delete unreferenced groups
+    deleted_ids = []
     for g in db.session.query(AttitudeGroup).all():
         if len(g.measurements) == 0:
+            deleted_ids.append(g.id)
             db.session.delete(g)
     db.session.commit()
-    return jsonify(data=group.serialize())
+    return jsonify(data=group.serialize(), deleted_groups=deleted_ids)
 
 @api.route('/group/<id>',
     methods=["DELETE","POST"])
 def update_group(id):
     group = db.session.query(AttitudeGroup).get(id)
     if request.method == "DELETE":
+        log.info("Destroying group from {} features".format(len(features)))
         db.session.delete(group)
         db.session.commit()
-        return jsonify(status="success")
+        return jsonify(status="success", id=id)
     if request.method == "POST":
         data = loads(request.data.decode('utf-8'))
         group.same_plane = data["same_plane"]
