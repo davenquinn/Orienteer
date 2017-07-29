@@ -57,7 +57,7 @@ class MapControl extends Component
     {center, zoom, crs} = @state.options
     h Map, {center, zoom, crs, tileSize: 512}, [
       h LayersControl, position: 'topleft', @state.layers.map (lyr, i)->
-        h BaseLayer, name: lyr.id, checked: i==0, h(MapnikLayer, lyr)
+        h BaseLayer, {name: lyr.name, checked: i==0}, h(MapnikLayer, lyr)
     ]
 
 module.exports = MapControl
