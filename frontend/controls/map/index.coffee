@@ -1,19 +1,19 @@
-{Map, TileLayer, GridLayer, MapLayer} = require 'react-leaflet'
+{Map, MapLayer, LayersControl} = require 'react-leaflet'
 h = require 'react-hyperscript'
 {Component} = require 'react'
 style = require './style'
-GIS = require 'gis-core'
 path = require 'path'
-MapnikLayer_ = require 'gis-core/frontend/mapnik-layer'
+BaseMapnikLayer = require 'gis-core/frontend/mapnik-layer'
 setupProjection = require "gis-core/frontend/projection"
 parseConfig = require "gis-core/frontend/config"
+
+{BaseLayer, Overlay} = LayersControl
 
 class MapnikLayer extends MapLayer
   createLeafletElement: (props)->
     {name, xml} = props
     opts = @getOptions(props)
-    console.log opts
-    lyr = new MapnikLayer_ name, xml, opts
+    lyr = new BaseMapnikLayer name, xml, opts
     return lyr
 
 defaultOptions =
@@ -38,9 +38,10 @@ class MapControl extends Component
 
     if options.projection?
       s = options.projection
+      {min, max} = options.resolution
       projection = setupProjection s,
-        minResolution: options.resolution.min # m/px
-        maxResolution: options.resolution.max # m/px
+        minResolution: min # m/px
+        maxResolution: max # m/px
         bounds: options.bounds
       options.crs = projection
 
@@ -51,20 +52,12 @@ class MapControl extends Component
     @state.options = options
 
     super props
-    console.log @props
-
-  createLeafletElement: (props)->
-    map = super props
-    console.log map
-    map
-
 
   render: ->
     {center, zoom, crs} = @state.options
-    console.log @state
-    lyr = @state.layers[0]
     h Map, {center, zoom, crs, tileSize: 512}, [
-      h MapnikLayer, lyr
+      h LayersControl, position: 'topleft', @state.layers.map (lyr, i)->
+        h BaseLayer, name: lyr.id, checked: i==0, h(MapnikLayer, lyr)
     ]
 
 module.exports = MapControl
