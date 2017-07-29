@@ -3,7 +3,6 @@ h = require 'react-hyperscript'
 {Component} = require 'react'
 style = require './style'
 path = require 'path'
-DataLayer = require './data-layer'
 BaseMapnikLayer = require 'gis-core/frontend/mapnik-layer'
 setupProjection = require "gis-core/frontend/projection"
 parseConfig = require "gis-core/frontend/config"
@@ -55,14 +54,13 @@ class MapControl extends Component
     super props
 
   render: ->
+    # Add base layers
     children = @state.layers.map (lyr, i)->
       h BaseLayer,
         {name: lyr.name, checked: i==0},
         h(MapnikLayer, lyr)
 
-    children.push h(Overlay,
-      {name: 'Attitudes', checked: true},
-      h(DataLayer))
+    children = children.concat @props.children
 
     {center, zoom, crs} = @state.options
     h Map, {center, zoom, crs, tileSize: 512}, [
