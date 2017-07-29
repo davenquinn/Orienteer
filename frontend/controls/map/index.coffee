@@ -1,124 +1,70 @@
-SelectBox = require "./select-box"
-DataLayer = require "./data-layer"
-React = require 'react'
-ReactDOM = require 'react-dom'
-GIS = require 'gis-core'
-$ = require 'jquery'
-path = require 'path'
-React = require 'react'
-BackButton = require './back-button'
-
-CacheDatastore = require "../../shared/data/cache"
-
-MapnikLayer = require 'gis-core/frontend/mapnik-layer'
-setupProjection = require "gis-core/frontend/projection"
+{Map, TileLayer, GridLayer, MapLayer} = require 'react-leaflet'
+h = require 'react-hyperscript'
+{Component} = require 'react'
 style = require './style'
+GIS = require 'gis-core'
+path = require 'path'
+MapnikLayer_ = require 'gis-core/frontend/mapnik-layer'
+setupProjection = require "gis-core/frontend/projection"
+parseConfig = require "gis-core/frontend/config"
 
-class MapControl extends React.Component
-  @defaultProps:
-    settings:
-      bounds: null
-  constructor: ->
-    window.map = @
+class MapnikLayer extends MapLayer
+  createLeafletElement: (props)->
+    {name, xml} = props
+    opts = @getOptions(props)
+    console.log opts
+    lyr = new MapnikLayer_ name, xml, opts
+    return lyr
 
-    @state =
-      dataIsConfigured: false
-      currentBounds: null
-    super()
+defaultOptions =
+  tileSize: 256
+  zoom: 0
+  attributionControl: false
+  continuousWorld: true
+  debounceMoveend: true
 
-  render: ->
-    React.createElement 'div'
-
-  componentDidMount: ->
-    @node = ReactDOM.findDOMNode @
-    console.log "Component mounted"
-
-    # Map runs its own state machine which is
-    # not necessarily good
-    @settings = new CacheDatastore 'map-visible-layers'
-
+class MapControl extends Component
+  constructor: (props)->
     cfg = app.config.map
     cfg.basedir ?= path.dirname app.config.configFile
-    console.log cfg
-    @setHeight()
+    cfg = parseConfig cfg
 
-    layers = @settings.get()
-    cfg.initLayer = layers[0]
+    @state = layers: cfg.layers
 
-    @map = new GIS.Map @node, cfg
-    # Add overlay layer
-    @dataLayer = new DataLayer
-    @dataLayer.addTo @map
-    ovr = {"Bedding attitudes": @dataLayer}
-    @map.addControl new BackButton
-    @map.addLayerControl {}, ovr
-    @map.addScalebar()
+    options = {}
+    for k,v of cfg
+      continue if k == 'layers'
+      options[k] ?= v
 
-    @map.on "viewreset dragend", @extentChanged
-    @map.addHandler "boxSelect", SelectBox
-    @map.boxSelect.enable()
-    @map.on "box-selected", (e)=>
-      app.data.selectByBox(e.bounds)
+    if options.projection?
+      s = options.projection
+      projection = setupProjection s,
+        minResolution: options.resolution.min # m/px
+        maxResolution: options.resolution.max # m/px
+        bounds: options.bounds
+      options.crs = projection
 
-    @map.invalidateSize()
+    for k,v of defaultOptions
+      if not options[k]?
+        options[k] = v
 
-    # Set height in javascript (temporarily
-    # resolves awkward behavior with flexbox)
-    $(window).on 'resize', @setHeight
+    @state.options = options
 
-    setupCache = =>
-      # Update cached layer information when
-      # map is changed
-      @visibleLayers = (v.id for k,v of @map._layers)
-        .filter (d)->d?
-      @settings.set @visibleLayers
+    super props
+    console.log @props
 
-    @map.on 'layeradd layerremove', setupCache
-    setupCache()
+  createLeafletElement: (props)->
+    map = super props
+    console.log map
+    map
 
-  # React lifecycle methods
-  componentWillUnmount: ->
-    @map.remove()
 
-  componentDidUpdate: (prevProps, prevState)->
-
-    # Check if there are changes to records
-    c = @props.records
-    if @props.records.length != prevProps.records.length
-      console.log "Dataset has changed"
-      @dataLayer.updateData @props.records
-
-    if @props.selection.length != prevProps.selection.length
-      @dataLayer.updateSelection @props.selection
-
-    if @props.hovered != prevProps.hovered
-      @dataLayer.onHoverIn @props.hovered
-
-    #{bounds} = @props.settings
-    #if @_cachedBounds != bounds
-    #  @setBounds bounds
-    @map.invalidateSize()
-
-  # Done with react lifecycle methods
-  invalidateSize: =>
-    # Shim for flexbox
-    @map.invalidateSize()
-
-  setHeight: =>
-    $(@node).height window.innerHeight
-
-  extentChanged: =>
-    console.log "Map extents changed"
-    #app.updateSettings {map: {bounds: {$set: @map.getBounds()}}}
-
-  setBounds: (b)=>
-    @map.fitBounds(b)
-
-  getBounds: =>
-    b = @map.getBounds()
-    @_cachedBounds = [
-      [b._southWest.lat, b._southWest.lng]
-      [b._northEast.lat, b._northEast.lng]]
-    @_cachedBounds
+  render: ->
+    {center, zoom, crs} = @state.options
+    console.log @state
+    lyr = @state.layers[0]
+    h Map, {center, zoom, crs, tileSize: 512}, [
+      h MapnikLayer, lyr
+    ]
 
 module.exports = MapControl

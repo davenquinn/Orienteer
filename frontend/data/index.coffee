@@ -231,6 +231,8 @@ class Data extends Spine.Module
     call = Promise.promisify app.API("/group/#{id}").send
     console.log "Destroying group #{id}"
     response = await call("DELETE")
+    console.log response
+    debugger
     if response.status != 200
       console.log "Could not destroy group #{id}"
       return
