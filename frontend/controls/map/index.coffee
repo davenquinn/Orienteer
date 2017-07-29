@@ -1,8 +1,9 @@
-{Map, MapLayer, LayersControl} = require 'react-leaflet'
+{Map, MapLayer, LayersControl, ScaleControl} = require 'react-leaflet'
 h = require 'react-hyperscript'
 {Component} = require 'react'
 style = require './style'
 path = require 'path'
+DataLayer = require './data-layer'
 BaseMapnikLayer = require 'gis-core/frontend/mapnik-layer'
 setupProjection = require "gis-core/frontend/projection"
 parseConfig = require "gis-core/frontend/config"
@@ -54,10 +55,19 @@ class MapControl extends Component
     super props
 
   render: ->
+    children = @state.layers.map (lyr, i)->
+      h BaseLayer,
+        {name: lyr.name, checked: i==0},
+        h(MapnikLayer, lyr)
+
+    children.push h(Overlay,
+      {name: 'Attitudes', checked: true},
+      h(DataLayer))
+
     {center, zoom, crs} = @state.options
     h Map, {center, zoom, crs, tileSize: 512}, [
-      h LayersControl, position: 'topleft', @state.layers.map (lyr, i)->
-        h BaseLayer, {name: lyr.name, checked: i==0}, h(MapnikLayer, lyr)
+      h LayersControl, position: 'topleft', children
+      h ScaleControl, {imperial: false}
     ]
 
 module.exports = MapControl
