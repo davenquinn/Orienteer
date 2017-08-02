@@ -12,11 +12,25 @@ mapType = require 'react-leaflet/lib/propTypes/map'
 
 fmt = d3.format(".0f")
 
-class StrikeDip extends Component
+class EventedComponent extends Component
+  constructor: (props)->
+    super props
+    @props.onMousedown = =>
+      app.data.selection.update @props.key
+    @props.onMouseover = =>
+      app.data.hovered @props.key
+    @props.onMouseout = @props.onMouseover
+
+class StrikeDip extends EventedComponent
   render: ->
-    {transform} = @props
+    {transform, onMouseover, onMousedown, onMouseout} = @props
     scalar =  5+0.2*@props.zoom
-    h 'g.strike-dip.marker', {transform}, [
+    h 'g.strike-dip.marker', {
+        transform
+        onMouseover
+        onMousedown
+        onMouseout
+      }, [
       h 'line', {x2:5, stroke: 'black'}
       h 'line', {y1: -10, y2: 10, stroke: 'black'}
       h 'text.dip-magnitude', {
@@ -28,43 +42,52 @@ class StrikeDip extends Component
       }, fmt(@props.dip)
     ]
 
+class Feature extends EventedComponent
+  render: ->
+    h 'path', @props
+
 class DataLayer extends MapLayer
   @contextTypes: {
     map: mapType
   }
   constructor: (props)->
     @state = {zoom: null}
+    @map = null
     super props
+
+  setupProjection: (map)=>
+    @map = map
+    proj = (x,y)->
+      map.latLngToLayerPoint(new L.LatLng(y,x))
+    projection = d3.geoTransform
+      point: (x,y)->
+        point = proj(x,y)
+        return @stream.point point.x, point.y
+
+    @projFn = proj
+    @pathGenerator = d3.geoPath().projection(projection)
 
   createLeafletElement: ->
     new L.SVG padding: 0.1
 
   render: ->
     {map} = @context
+    if @map != map
+      @setupProjection(map)
 
     data = @props.records.filter (d)->not d.in_group
 
-    projFn = (x,y)->
-      map.latLngToLayerPoint(new L.LatLng(y,x))
-
-    @zoom = map.getZoom()
+    {zoom} = @state
     children = data.map (d)=>
       {id, strike, dip} = d
-      transform = @markerTransform(d, @state.zoom, projFn)
-      h StrikeDip, {key: id, strike, dip, transform, zoom: @zoom}
+      transform = @markerTransform(d, zoom)
+      h StrikeDip, {key: id, strike, dip, transform, zoom}
 
-    projection = d3.geoTransform
-      point: (x,y)->
-        point = projFn(x,y)
-        return @stream.point point.x, point.y
-
-    pathGenerator = d3.geoPath().projection(projection)
-
-    childFeatures = data.map (d)->
-      h 'path', {
+    childFeatures = data.map (d)=>
+      h Feature, {
         key: d.id
         className: d.geometry.type
-        d: pathGenerator(d)
+        d: @pathGenerator(d)
       }
 
     h 'svg.data-layer.leaflet-zoom-hide', {}, [
@@ -79,10 +102,10 @@ class DataLayer extends MapLayer
       @setState zoom: @context.map.getZoom()
     super
 
-  markerTransform: (d, zoom, projFn)->
+  markerTransform: (d, zoom)=>
     s = d.strike
     c = d.center.coordinates
-    c = projFn(c[0],c[1])
+    c = @projFn(c[0],c[1])
     "translate(#{c.x} #{c.y}) rotate(#{s} 0 0) scale(#{1+0.2*zoom})"
 
 module.exports = DataLayer
