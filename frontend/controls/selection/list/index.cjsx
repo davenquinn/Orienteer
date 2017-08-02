@@ -52,8 +52,6 @@ class SelectionList extends React.Component
     focusItem: ->
     removeItem: ->
     allowRemoval: false
-  constructor: (@props)->
-    super @props
 
   renderItem: (d)=>
     onRemove = =>@props.removeItem d

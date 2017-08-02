@@ -39,7 +39,7 @@ class BaseSelection extends Spine.Module
     getIndexById @records, d
 
   __isMember: (d)->
-    ix = @__index d
+    ix = getIndexById @records, d
     ix != -1
 
   refresh: (appRecords)->
@@ -52,7 +52,9 @@ class BaseSelection extends Spine.Module
 
   add: (records...)->
     u = {}
-    newRecords = records.filter _not(@__isMember)
+    newRecords = records.filter (d)=>
+      ix = getIndexById(@records, d)
+      ix == -1
     @records = update(@records,'$push': newRecords)
     @__notify()
 
@@ -67,11 +69,12 @@ class BaseSelection extends Spine.Module
   # Composite addition methods
   update: (d)->
     # Either adds or removes depending on presence
-    if @__isMember d
-      @remove d
-    else
+    ix = @records.findIndex (v)->v.id == d.id
+    if ix == -1
       @add d
-
+    else
+      @remove d
+ 
   fromRecords: (records)->
     @records = records
     @__notify()

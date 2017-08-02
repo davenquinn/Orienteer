@@ -26,7 +26,7 @@ selected = darken(lightgreen,10%);
       fill: transparent;
       stroke: transparentify(strike_dip_feature, 0.5);
       stroke-width: 2;
-      &.Polygon {
+      &.Polygon, &.MultiPolygon {
         fill: transparentify(strike_dip_feature, 0.7);
         &.selected {
           fill: transparentify(selected_feature, 0.3);
