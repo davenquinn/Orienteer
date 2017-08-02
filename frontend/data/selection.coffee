@@ -1,5 +1,4 @@
 Spine = require "spine"
-GroupedFeature = require "./group"
 path = require 'path'
 tags = require "../shared/data/tags"
 update = require 'immutability-helper'
@@ -16,7 +15,7 @@ class BaseSelection extends Spine.Module
     super()
     @records = []
 
-  getTags: =>
+  getTags: ->
     records = @records
     arr = tags.get records
     func = (d, name)->
@@ -31,15 +30,15 @@ class BaseSelection extends Spine.Module
         all: num >= records.length
     return arr
 
-  empty: =>not @records.length
+  empty: ->not @records.length
 
-  __notify: =>
+  __notify: ->
     @trigger "selection:updated", @records
 
-  __index: (d)=>
+  __index: (d)->
     getIndexById @records, d
 
-  __isMember: (d)=>
+  __isMember: (d)->
     ix = @__index d
     ix != -1
 
@@ -51,13 +50,13 @@ class BaseSelection extends Spine.Module
     @records = newRecords
     @__notify()
 
-  add: (records...)=>
+  add: (records...)->
     u = {}
     newRecords = records.filter _not(@__isMember)
     @records = update(@records,'$push': newRecords)
     @__notify()
 
-  remove: (records...)=>
+  remove: (records...)->
     @records = @records.filter (d)->
       ix = getIndexById(records,d)
       # Get all records not in the
@@ -66,25 +65,25 @@ class BaseSelection extends Spine.Module
     @__notify()
 
   # Composite addition methods
-  update: (d)=>
+  update: (d)->
     # Either adds or removes depending on presence
     if @__isMember d
       @remove d
     else
       @add d
 
-  fromRecords: (records)=>
+  fromRecords: (records)->
     @records = records
     @__notify()
 
-  contains: (d)=>
+  contains: (d)->
     @records.indexOf(d) >= 0
 
-  clear: =>
+  clear: ->
     @records = []
     @__notify()
 
-  _tagRemoved: (name, opts={})=>
+  _tagRemoved: (name, opts={})->
     records = opts.records or @records
     records.forEach (d)->
       i = d.tags.indexOf name
@@ -92,7 +91,7 @@ class BaseSelection extends Spine.Module
         d.tags.splice(i,1)
     @trigger "tags-updated", @getTags()
 
-  _tagAdded: (name, opts={})=>
+  _tagAdded: (name, opts={})->
     # Adds tag to each record and
     # signals application that it is done
     records = opts.records or @records
@@ -103,32 +102,27 @@ class BaseSelection extends Spine.Module
     @trigger "tags-updated", @getTags()
 
 class Selection extends BaseSelection
-  _add: (d)=>
+  _add: (d)->
     if respectGroups and d.group?
       d = d.group
     super(d)
 
-  update: (d)=>
+  update: (d)->
     d = d.group if d.group?
     super(d)
   # `@visible` is a drop-in replacement for `@records`
   # that only returns the part of the selection that isn't
   # hidden at any given time. This may be swapped for something
   # else if it makes sense to do so.
-  visible: => @records
-  updateVisibility: =>
+  visible: -> @records
+  updateVisibility: ->
     @notify()
 
-  _tagData: (name)=> {
+  _tagData: (name)-> {
       tag: name
       features: @records
         .filter visible
         .map (d)->d.id
     }
-
-  createGroup: =>
-    console.log "Creating group"
-    return if @records.length < 2
-    GroupedFeature.create @records
 
 module.exports = new Selection

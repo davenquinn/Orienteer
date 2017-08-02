@@ -13,8 +13,6 @@ mapType = require 'react-leaflet/lib/propTypes/map'
 fmt = d3.format(".0f")
 
 class StrikeDip extends Component
-  constructor: (props)->
-    super props
   render: ->
     {transform, record} = @props
     onMouseDown = ->

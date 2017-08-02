@@ -30,6 +30,7 @@ erf = (request, textStatus, errorThrown)->
 
 class App extends React.Component
   constructor: ->
+    super()
     window.app = @
     @API = require "./api"
     @opts = require "./options"
@@ -47,24 +48,22 @@ class App extends React.Component
 
     @state.settings.map ?= {bounds: null}
 
-    super()
-
   require: (m)->
     ## App-scoped require to preclude nesting
     require "./#{m}"
 
-  updateSettings: (spec)=>
+  updateSettings: (spec)->
     newState = update(@state.settings, spec)
     @setState settings: newState
 
-  render: =>
+  render: ->
     {settings, data} = @state
 
     class DataStereonet extends React.Component
       render: -> h Stereonet, {settings, data}
 
     class Attitude extends React.Component
-      render: => h AttitudePage, {settings, data}
+      render: -> h AttitudePage, {settings, data}
 
     h "div#root", [
       h Route, path: "/", component: Frontpage, exact: true

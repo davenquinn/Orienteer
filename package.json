@@ -45,6 +45,9 @@
   "dependencies": {
     "@blueprintjs/core": "^1.22.0",
     "attitude": "file:../../deps/Attitude/js-frontend",
+    "babel-core": "^6.25.0",
+    "babel-preset-react": "^6.24.1",
+    "babylon": "^6.17.4",
     "bluebird": "^3.4.6",
     "chroma-js": "^1.1.1",
     "coffeescript": "next",

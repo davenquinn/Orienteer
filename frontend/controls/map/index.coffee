@@ -25,6 +25,8 @@ defaultOptions =
 
 class MapControl extends Component
   constructor: (props)->
+    super props
+
     cfg = app.config.map
     cfg.basedir ?= path.dirname app.config.configFile
     cfg = parseConfig cfg
@@ -50,8 +52,6 @@ class MapControl extends Component
         options[k] = v
 
     @state.options = options
-
-    super props
 
   render: ->
     # Add base layers

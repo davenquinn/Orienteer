@@ -6,6 +6,7 @@ require 'd3-selection-multi'
 {functions,math} = require 'attitude'
 {planes,ellipses} = require './types'
 style = require './main.styl'
+h = require 'react-hyperscript'
 
 proj = d3.geoOrthographic()
   .clipAngle 90
@@ -19,7 +20,7 @@ class StereonetView extends React.Component
   @defaultProps:
     width: 500
   render: ->
-    <svg className={style.container} />
+    h 'svg', className: style.container
   componentDidMount: ->
 
     el = ReactDOM.findDOMNode @
@@ -82,24 +83,24 @@ class StereonetView extends React.Component
 
     @updatePaths()
 
-  updateHovered: =>
+  updateHovered: ->
     v = app.data.get @props.hovered
     hovered = if v? then [v] else []
 
     @hoverOverlay.call planes, hovered
     @hoverOverlay.call ellipses, hovered
 
-  dataChanged: =>
+  dataChanged: ->
     @main.call planes, @props.data
     @main.call ellipses, @props.data
 
-  updateSize: =>
+  updateSize: ->
     @svg.attrs height: @props.width, width: @props.width
     proj
       .scale @props.width/2-20
       .translate [@props.width/2, @props.width/2]
 
-  updatePaths: =>
+  updatePaths: ->
     @container.selectAll 'path'
       .attrs d: path
 

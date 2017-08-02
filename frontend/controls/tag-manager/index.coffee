@@ -44,7 +44,7 @@ class TagForm extends React.Component
       onSubmit: @submitForm
     h 'form.form-inline', vals, [
       h 'input.form-control.input-small', {
-        autocomplete: "off"
+        autoComplete: "off"
         type: "text"
         name: "tag"
         value: @state.value

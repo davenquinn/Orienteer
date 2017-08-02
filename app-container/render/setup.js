@@ -1,5 +1,5 @@
-require("coffeescript/register")
 require("node-cjsx/register")
+require("coffeescript/register")
 require("electron-browser-sync/inject");
 require('./style-hooks')
 require('./setup-styles')

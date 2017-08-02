@@ -2,7 +2,6 @@ Spine = require "spine"
 tags = require "../shared/data/tags"
 d3 = require "d3"
 queue = require("d3-queue").queue
-GroupedFeature = require "./group"
 Selection = require "./selection"
 Promise = require 'bluebird'
 L = require 'leaflet'
@@ -33,20 +32,8 @@ class Data extends Spine.Module
 
     @selection = Selection
     @selection.bind "tags-updated", @filter
-    Data.listenTo GroupedFeature, "deleted", (d)=>
-      @onUpdated()
-      i = @selection.records.indexOf(d)
-      return if i == -1
-      console.log "Removing group from selection"
-      @selection.records.splice i,1
-      @selection.addSeveral d.records
-    Data.listenTo GroupedFeature, "created", (d)=>
-      @onUpdated()
-      @selection.fromRecords [d]
 
-    Data.listenTo GroupedFeature, "updated", @onUpdated
-
-  __fetchData: =>
+  __fetchData: ->
     {storedProcedure, db} = app.require 'database'
 
     @featureTypes = []
@@ -64,16 +51,17 @@ class Data extends Spine.Module
     db.query sql
       .map prepareData
       .then (records)=>
+        console.log "Getting records"
         @records = records
         @fetched = true
         @constructor.trigger 'updated'
       .catch (e)->
         throw e
 
-  onUpdated: =>
+  onUpdated: ->
     @constructor.trigger "updated"
 
-  get: (ids...)=>
+  get: (ids...)->
     if ids.length == 1
       rec = @records.find (d)->d.id==ids[0]
     else
@@ -92,7 +80,7 @@ class Data extends Spine.Module
   reset: ->
     @records = []
 
-  hovered: (d)=>
+  hovered: (d)->
     # Do for an id or actual data object
     if d?
       if not d.id?
@@ -103,26 +91,26 @@ class Data extends Spine.Module
     # Checks if item is hovered
     @hoveredItem == d.id
 
-  within: (bounds)=>
+  within: (bounds)->
     @records.filter (d)->
       a = d.center.coordinates
       l = new L.LatLng a[1],a[0]
       bounds.contains l
 
-  selectByBox: (bounds)=>
+  selectByBox: (bounds)->
     f = @within(bounds)
     @selection.add f...
 
-  getRecordIndex: (id)=>
+  getRecordIndex: (id)->
     # Get index of a certain primary key
     @records.findIndex (rec)->id == rec.id
 
-  updateUsing: (changeset)=>
+  updateUsing: (changeset)->
     @records = update(@records, changeset)
     @constructor.trigger "updated",@records
     @selection.refresh(@records)
 
-  addTag: (tag, records)=>
+  addTag: (tag, records)->
     sql = storedProcedure "add-tag"
     ids = records.map (d)->d.id
     records = await db.query sql, [tag, ids]
@@ -135,7 +123,7 @@ class Data extends Spine.Module
 
     @updateUsing changeset
 
-  removeTag: (tag, records)=>
+  removeTag: (tag, records)->
     sql = storedProcedure "remove-tag"
     ids = records.map (d)->d.id
     records = await db.query sql, [tag, ids]
@@ -151,7 +139,7 @@ class Data extends Spine.Module
     @updateUsing changeset
 
   # Change data class
-  changeClass: (type, records)=>
+  changeClass: (type, records)->
     {storedProcedure, db} = require '../database'
     sql = storedProcedure "update-types"
     ids = records.map (d)->d.id
@@ -190,7 +178,7 @@ class Data extends Spine.Module
     changeset = {$splice: [[ix,1]]}
     @updateUsing changeset
 
-  createGroup: (records)=>
+  createGroup: (records)->
     call = Promise.promisify app.API("/group").send
     data =
       measurements: records.map (d)->d.id
@@ -205,7 +193,7 @@ class Data extends Spine.Module
     @refreshRecords ids
     @updateSelectionFromIDs [obj.id]
 
-  refreshRecords: (ids)=>
+  refreshRecords: (ids)->
     sql = storedProcedure 'get-records-by-ids'
     console.log "Refreshing records", ids
     records = await db.query(sql, [ids]).map prepareData
