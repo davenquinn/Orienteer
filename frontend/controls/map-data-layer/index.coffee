@@ -15,12 +15,15 @@ fmt = d3.format(".0f")
 class StrikeDip extends Component
   render: ->
     {transform} = @props
+    scalar =  5+0.2*@props.zoom
     h 'g.strike-dip.marker', {transform}, [
       h 'line', {x2:5, stroke: 'black'}
       h 'line', {y1: -10, y2: 10, stroke: 'black'}
       h 'text.dip-magnitude', {
         x: 10
-        'text-anchor': 'middle'
+        textAnchor: 'middle'
+        dy: scalar/2
+        fontSize: scalar
         transform: "rotate(#{-@props.strike} 10 0)"
       }, fmt(@props.dip)
     ]
@@ -39,15 +42,35 @@ class DataLayer extends MapLayer
   render: ->
     {map} = @context
 
+    data = @props.records.filter (d)->not d.in_group
+
     projFn = (x,y)->
       map.latLngToLayerPoint(new L.LatLng(y,x))
 
     @zoom = map.getZoom()
-    children = @props.records.map (d)=>
+    children = data.map (d)=>
       {id, strike, dip} = d
       transform = @markerTransform(d, @state.zoom, projFn)
-      h StrikeDip, {key: id, strike, dip, transform}
-    h 'svg.leaflet-zoom-hide', {}, h('g',children)
+      h StrikeDip, {key: id, strike, dip, transform, zoom: @zoom}
+
+    projection = d3.geoTransform
+      point: (x,y)->
+        point = projFn(x,y)
+        return @stream.point point.x, point.y
+
+    pathGenerator = d3.geoPath().projection(projection)
+
+    childFeatures = data.map (d)->
+      h 'path', {
+        key: d.id
+        className: d.geometry.type
+        d: pathGenerator(d)
+      }
+
+    h 'svg.data-layer.leaflet-zoom-hide', {}, [
+      h('g.features',childFeatures)
+      h('g.markers',children)
+    ]
 
   componentDidMount: ->
     # Bind renderer to SVG
