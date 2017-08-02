@@ -84,8 +84,10 @@ class StereonetView extends React.Component
 
   updateHovered: =>
     v = app.data.get @props.hovered
-    @hoverOverlay.call planes, [v]
-    @hoverOverlay.call ellipses, [v]
+    hovered = if v? then [v] else []
+
+    @hoverOverlay.call planes, hovered
+    @hoverOverlay.call ellipses, hovered
 
   dataChanged: =>
     @main.call planes, @props.data

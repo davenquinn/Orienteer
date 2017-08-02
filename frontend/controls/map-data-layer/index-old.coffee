@@ -173,7 +173,7 @@ class DataLayer extends EventedShim
       c = d.center.coordinates
       c = proj(c[0],c[1])
       "translate(#{c.x} #{c.y}) rotate(#{s} 0 0) scale(#{1+0.2*z})"
-    z = 5+0.2*z
+    z =
     sel.select "text"
       .attrs
         dy: z/2

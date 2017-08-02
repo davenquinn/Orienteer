@@ -12,24 +12,25 @@ mapType = require 'react-leaflet/lib/propTypes/map'
 
 fmt = d3.format(".0f")
 
-class EventedComponent extends Component
+class StrikeDip extends Component
   constructor: (props)->
     super props
-    @props.onMousedown = =>
-      app.data.selection.update @props.key
-    @props.onMouseover = =>
-      app.data.hovered @props.key
-    @props.onMouseout = @props.onMouseover
-
-class StrikeDip extends EventedComponent
   render: ->
-    {transform, onMouseover, onMousedown, onMouseout} = @props
+    {transform, record} = @props
+    onMouseDown = ->
+      app.data.selection.update record
+    onMouseOver = ->
+      app.data.hovered record
+    onMouseOut = ->
+      app.data.hovered null
+
+    {strike, dip} = record
     scalar =  5+0.2*@props.zoom
     h 'g.strike-dip.marker', {
         transform
-        onMouseover
-        onMousedown
-        onMouseout
+        onMouseDown
+        onMouseOver
+        onMouseOut
       }, [
       h 'line', {x2:5, stroke: 'black'}
       h 'line', {y1: -10, y2: 10, stroke: 'black'}
@@ -38,11 +39,13 @@ class StrikeDip extends EventedComponent
         textAnchor: 'middle'
         dy: scalar/2
         fontSize: scalar
-        transform: "rotate(#{-@props.strike} 10 0)"
-      }, fmt(@props.dip)
+        transform: "rotate(#{-strike} 10 0)"
+      }, fmt(dip)
     ]
 
-class Feature extends EventedComponent
+class Feature extends Component
+  constructor: (props)->
+    super props
   render: ->
     h 'path', @props
 
@@ -79,9 +82,9 @@ class DataLayer extends MapLayer
 
     {zoom} = @state
     children = data.map (d)=>
-      {id, strike, dip} = d
+      {id} = d
       transform = @markerTransform(d, zoom)
-      h StrikeDip, {key: id, strike, dip, transform, zoom}
+      h StrikeDip, {key: id, record: d, transform, zoom}
 
     childFeatures = data.map (d)=>
       h Feature, {

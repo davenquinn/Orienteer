@@ -73,11 +73,6 @@ class Data extends Spine.Module
   onUpdated: =>
     @constructor.trigger "updated"
 
-  updateCache: (d)->
-    console.log "Updating cache"
-    _ = JSON.stringify d
-    window.localStorage.setItem "attitudes", _
-
   get: (ids...)=>
     if ids.length == 1
       rec = @records.find (d)->d.id==ids[0]
@@ -98,61 +93,15 @@ class Data extends Spine.Module
     @records = []
 
   hovered: (d)=>
-
-    # Unset current hovered item
-    ix = @records.findIndex (a)->a.hovered
-    dix = @records.findIndex (a)->d.id == a.id
-    console.log ix, dix
-
-    u = {}
-    if dix != ix and ix >= 0
-      u["#{ix}"] = {hovered: {'$set':false}}
-
-    v = not d.hovered
-    if v
-      u["#{dix}"] = {hovered: {'$set':v}}
-
-    @records = update(@records,u)
-
-    d = @records[dix]
-    if d.hovered
-      @hoveredItem = d.id
-    else
-      @hoveredItem = null
-    @constructor.trigger "hovered", @hoveredItem
+    # Do for an id or actual data object
+    if d?
+      if not d.id?
+        d = @records.find (a)->d == a.id
+    @constructor.trigger "hovered", d
 
   isHovered: (d)->
     # Checks if item is hovered
     @hoveredItem == d.id
-
-  getFilter: (tags)=>
-    tags = [{name: "bad",status: "none"}] unless tags
-    tagged = (d, t)->
-      d.tags.indexOf(t.name) != -1
-    enabled = tags.filter (t)-> t.status == "all"
-    disabled = tags.filter (t)-> t.status == "none"
-
-    return (d)->
-      # Transfer selection to group
-      d = d.group if d.group?
-      # filter tags
-      if enabled.length > 0
-        rfunc = (a,t)-> a + tagged d,t
-        f = enabled.reduce rfunc, 0
-        return f != 0
-      if disabled.length > 0
-        for t in disabled
-          if tagged d,t
-            return false
-      return true
-
-  updateFilter: (tags)=>
-    func = @getFilter tags
-    @filter = func
-    @constructor.trigger "filtered", func
-
-  filter: =>
-    @constructor.trigger "filtered", @getFilter()
 
   within: (bounds)=>
     @records.filter (d)->

@@ -92,10 +92,14 @@ class AttitudePage extends React.Component
     @setState selection: records
 
     # This is quite a hack
-    window.map.invalidateSize()
+    #window.map.invalidateSize()
 
   updateHovered: (d)=>
-    @setState hovered: d, records: @props.data.records
+    if d?
+      console.log "Hovering over item #{d.id}"
+    else
+      console.log "Hovering out"
+    @setState hovered: d
 
   onResizePane: (size)->
     console.log size
