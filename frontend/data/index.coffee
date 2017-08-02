@@ -30,8 +30,11 @@ class Data extends Spine.Module
     # Setup requests for updated data
     @__fetchData()
 
-    @selection = Selection
-    @selection.bind "tags-updated", @filter
+    #@selection = Selection
+    #@selection.bind "tags-updated", @filter
+    #
+    Object.defineProperty @, 'selection',
+      get: -> @records.filter (d)->d.selected
 
   __fetchData: ->
     {storedProcedure, db} = app.require 'database'
@@ -101,14 +104,44 @@ class Data extends Spine.Module
     f = @within(bounds)
     @selection.add f...
 
+  addToSelection: (records...)->
+    u = {}
+    newRecords = records.filter (d)=>
+      ix = getIndexById(@records, d)
+      ix == -1
+    @records = update(@records,'$push': newRecords)
+    @__notify()
+
+  removeFromSelection: (records...)->
+    changeset = {}
+    console.log records
+    for record in records
+      ix = @getRecordIndex record.id
+      changeset[ix] = {selected: {"$set": false}}
+    @updateUsing changeset
+
+  updateSelection: (record)->
+    # Add or remove record from selection depending on membership
+    ix = @getRecordIndex record.id
+    changeset = {}
+    changeset[ix] = {selected: {"$set": not record.selected}}
+    @updateUsing changeset
+
+  clearSelection: =>
+    rec = @records.filter (d)->d.selected
+    console.log rec
+    @removeFromSelection rec...
+
+  createGroupFromSelection: ->
+
   getRecordIndex: (id)->
     # Get index of a certain primary key
     @records.findIndex (rec)->id == rec.id
 
   updateUsing: (changeset)->
+    console.log "Updating using", changeset
     @records = update(@records, changeset)
     @constructor.trigger "updated",@records
-    @selection.refresh(@records)
 
   addTag: (tag, records)->
     sql = storedProcedure "add-tag"

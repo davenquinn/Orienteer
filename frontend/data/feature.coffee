@@ -10,6 +10,7 @@ module.exports = (o)->
     in_group: o.in_group
     measurements: o.measurements
     tags: o.tags or []
+    selected: false
     properties:
       strike: o.strike
       dip: o.dip

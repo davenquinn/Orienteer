@@ -690,7 +690,7 @@ chroma-js@^1.1.1:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/chroma-js/-/chroma-js-1.2.2.tgz#4171ae7c468dae7380853239fa109cbbe266d5ee"
 
-classnames@^2.2, classnames@^2.2.3, classnames@^2.2.4:
+classnames@^2.2, classnames@^2.2.3, classnames@^2.2.4, classnames@^2.2.5:
   version "2.2.5"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.2.5.tgz#fb3801d453467649ef3603c7d61a02bd129bde6d"
 

@@ -9,12 +9,13 @@ marker = require './strike-dip'
 {findDOMNode} = require 'react-dom'
 h = require 'react-hyperscript'
 mapType = require 'react-leaflet/lib/propTypes/map'
+classNames = require 'classnames'
 
 fmt = d3.format(".0f")
 
 eventHandlers = (record)->
   onMouseDown = ->
-    app.data.selection.update record
+    app.data.updateSelection record
   onMouseOver = ->
     app.data.hovered record
   onMouseOut = ->
@@ -24,15 +25,17 @@ eventHandlers = (record)->
 
 class StrikeDip extends Component
   render: ->
-    {transform, record} = @props
-    {strike, dip} = record
+    {transform, record, hovered} = @props
+    {strike, dip, selected} = record
     scalar =  5+0.2*@props.zoom
-    cls = ".strike-dip.marker"
-    if @props.hovered
-      cls += '.hovered'
+
+    className = classNames 'strike_dip', 'marker', {
+      hovered,
+      selected
+    }
 
     handlers = eventHandlers(record)
-    h "g#{cls}", {transform, handlers...}, [
+    h "g", {transform, className, handlers...}, [
       h 'line', {x2:5, stroke: 'black'}
       h 'line', {y1: -10, y2: 10, stroke: 'black'}
       h 'text.dip-magnitude', {
@@ -48,16 +51,12 @@ class Feature extends Component
   render: ->
     {record, d, hovered} = @props
     handlers = eventHandlers(record)
-    opts = {
-      className: record.geometry.type
-      d,
-      handlers...
-    }
+    {selected} = record
 
-    if hovered
-      opts.className += " hovered"
+    className = classNames record.geometry.type,
+      {hovered, selected}
 
-    h "path", opts
+    h "path", {className, d, handlers...}
 
 class DataLayer extends MapLayer
   @contextTypes: {

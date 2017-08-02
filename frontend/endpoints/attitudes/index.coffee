@@ -74,25 +74,17 @@ class AttitudePage extends React.Component
 
   # The below is a shim but it'll work for now
   componentDidMount: ->
-    @props.data.selection.bind "selection:updated", @updateSelection.bind(this)
     @props.data.constructor.bind "hovered", @updateHovered.bind(this)
     @props.data.constructor.bind "updated", @updateData.bind(this)
     @props.data.constructor.bind "feature-types", (types)=>
       @setState featureTypes: types
 
   updateData: ->
-    @setState records: @props.data.records
+    { records, selection } = @props.data
+    @setState {records, selection}
 
   componentWillUnmount: ->
-    @props.data.selection.unbind "selection:updated", @updateSelection
     @props.data.constructor.unbind "hovered", @updateHovered
-
-  updateSelection: (records)->
-    console.log "Selection updated",records
-    @setState selection: records
-
-    # This is quite a hack
-    #window.map.invalidateSize()
 
   updateHovered: (d)->
     if d?

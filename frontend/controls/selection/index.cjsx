@@ -46,10 +46,7 @@ class Sidebar extends React.Component
     if rec.length == 0
       return <div />
 
-    # A selection management class
-    s = @props.data.selection
-
-    closeButton = <CloseButton action={s.clear} icon="cross">Clear selection</CloseButton>
+    closeButton = <CloseButton action={app.data.clearSelection} icon="cross">Clear selection</CloseButton>
     if @state.focused?
       closeButton = <CloseButton action={@clearFocus} icon="chevron-left">Back to selection</CloseButton>
       core = <ViewerControl data={@state.focused} hovered={@props.hovered} focusItem={@focusItem} />
@@ -57,9 +54,9 @@ class Sidebar extends React.Component
       core = <ViewerControl data={rec[0]} hovered={@props.hovered} focusItem={@focusItem} />
     else
       actions =
-        removeItem: s.update
+        removeItem: app.data.updateSelection
         focusItem: @focusItem
-        createGroup: s.createGroup
+        createGroup: app.data.createGroupFromSelection
       core = <SelectionControl
                 records={rec}
                 hovered={@props.hovered}
