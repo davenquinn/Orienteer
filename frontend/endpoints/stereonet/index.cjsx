@@ -36,7 +36,8 @@ class AttitudeList extends React.Component
     </div>
 
 class StereonetPage extends React.Component
-  constructor: (@props)->
+  constructor: (props)->
+    super props
     recs = @props.data.records()
       .filter (d)->not d.group?
     @state =

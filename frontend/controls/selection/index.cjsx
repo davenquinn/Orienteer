@@ -35,8 +35,8 @@ class Sidebar extends React.Component
   defaultProps:
     records: []
     hovered: null
-  constructor: (@props)->
-    super @props
+  constructor: (props)->
+    super props
     @state =
       focused: null
   render: ->

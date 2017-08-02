@@ -12,24 +12,27 @@ mapType = require 'react-leaflet/lib/propTypes/map'
 
 fmt = d3.format(".0f")
 
+eventHandlers = (record)->
+  onMouseDown = ->
+    app.data.selection.update record
+  onMouseOver = ->
+    app.data.hovered record
+  onMouseOut = ->
+    app.data.hovered null
+  {onMouseOver, onMouseDown}
+
+
 class StrikeDip extends Component
   render: ->
     {transform, record} = @props
-    onMouseDown = ->
-      app.data.selection.update record
-    onMouseOver = ->
-      app.data.hovered record
-    onMouseOut = ->
-      app.data.hovered null
-
     {strike, dip} = record
     scalar =  5+0.2*@props.zoom
-    h 'g.strike-dip.marker', {
-        transform
-        onMouseDown
-        onMouseOver
-        onMouseOut
-      }, [
+    cls = ".strike-dip.marker"
+    if @props.hovered
+      cls += '.hovered'
+
+    handlers = eventHandlers(record)
+    h "g#{cls}", {transform, handlers...}, [
       h 'line', {x2:5, stroke: 'black'}
       h 'line', {y1: -10, y2: 10, stroke: 'black'}
       h 'text.dip-magnitude', {
@@ -42,19 +45,28 @@ class StrikeDip extends Component
     ]
 
 class Feature extends Component
-  constructor: (props)->
-    super props
   render: ->
-    h 'path', @props
+    {record, d, hovered} = @props
+    handlers = eventHandlers(record)
+    opts = {
+      className: record.geometry.type
+      d,
+      handlers...
+    }
+
+    if hovered
+      opts.className += " hovered"
+
+    h "path", opts
 
 class DataLayer extends MapLayer
   @contextTypes: {
     map: mapType
   }
   constructor: (props)->
+    super props
     @state = {zoom: null}
     @map = null
-    super props
 
   setupProjection: (map)=>
     @map = map
@@ -79,16 +91,24 @@ class DataLayer extends MapLayer
     data = @props.records.filter (d)->not d.in_group
 
     {zoom} = @state
+
+    getHoverState = (d)=>
+      return false unless @props.hovered?
+      return @props.hovered.id == d.id
+
     children = data.map (d)=>
       {id} = d
       transform = @markerTransform(d, zoom)
-      h StrikeDip, {key: id, record: d, transform, zoom}
+      hovered = getHoverState(d)
+
+      h StrikeDip, {key: id, record: d, transform, zoom, hovered}
 
     childFeatures = data.map (d)=>
       h Feature, {
         key: d.id
-        className: d.geometry.type
+        record: d
         d: @pathGenerator(d)
+        hovered: getHoverState(d)
       }
 
     h 'svg.data-layer.leaflet-zoom-hide', {}, [
@@ -101,7 +121,7 @@ class DataLayer extends MapLayer
     @leafletElement._container = findDOMNode @
     @context.map.on 'zoomend', =>
       @setState zoom: @context.map.getZoom()
-    super
+    super()
 
   markerTransform: (d, zoom)=>
     s = d.strike

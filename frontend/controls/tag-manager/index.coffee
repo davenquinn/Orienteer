@@ -36,8 +36,8 @@ class TagItem extends React.Component
 
 class TagForm extends React.Component
   constructor: (props)->
-    @state = {value: ''}
     super props
+    @state = {value: ''}
 
   render: ->
     vals =
@@ -63,8 +63,6 @@ class TagForm extends React.Component
     @setState value: ''
 
 class TagManager extends React.Component
-  constructor: (props)->
-    super props
   render: ->
     tags = buildTagData(@props.records)
 

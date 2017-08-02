@@ -26,11 +26,7 @@ class SelectType extends React.Component
         val = 'null'
       app.data.changeClass val, @props.records
 
-    <Select
-        name="select-type"
-        value={rec}
-        options={t}
-        onChange={onChange} />
+    <Select name="select-type" value={rec} options={t} onChange={onChange} />
 
 module.exports = SelectType
 

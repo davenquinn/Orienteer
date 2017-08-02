@@ -26,9 +26,7 @@ class ListItem extends React.Component
       cls += " #{style.hovered}"
 
     # This is crazy-inefficient
-    <tr className={cls}
-      onMouseEnter={@mousein}
-      onClick={@props.focusItem}>
+    <tr className={cls} onClick={@props.focusItem} onMouseEnter={@mousein}>
       {@createRemoveButton() if @props.allowRemoval}
       <td className={style.strike}>{strike}</td>
       <td className={style.dip}>{dip}</td>

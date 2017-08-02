@@ -9,8 +9,7 @@ function transform() {
     return;
   }
 
-  require.extensions['.coffee'] = function(module, filename) {
-    console.log("Compiling "+filename);
+  require.extensions['.coffee'] = require.extensions['.cjsx'] = function(module, filename) {
     var src = fs.readFileSync(filename, {encoding: 'utf8'});
     try {
       src = coffee.compile(src, { 'bare': true });
