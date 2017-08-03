@@ -63,10 +63,13 @@ def group():
 def update_group(id):
     group = db.session.query(AttitudeGroup).get(id)
     if request.method == "DELETE":
+        features = group.measurements
+        # Save IDs for reconstructing groups
+        ids = [m.id for m in features]
         log.info("Destroying group from {} features".format(len(features)))
         db.session.delete(group)
         db.session.commit()
-        return jsonify(status="success", id=id)
+        return jsonify(status="success", id=id, measurements=ids)
     if request.method == "POST":
         data = loads(request.data.decode('utf-8'))
         group.same_plane = data["same_plane"]

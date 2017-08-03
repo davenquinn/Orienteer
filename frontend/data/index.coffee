@@ -114,7 +114,6 @@ class Data extends Spine.Module
 
   removeFromSelection: (records...)->
     changeset = {}
-    console.log records
     for record in records
       ix = @getRecordIndex record.id
       changeset[ix] = {selected: {"$set": false}}
@@ -129,7 +128,6 @@ class Data extends Spine.Module
 
   clearSelection: =>
     rec = @records.filter (d)->d.selected
-    console.log rec
     @removeFromSelection rec...
 
   createGroupFromSelection: ->
@@ -137,6 +135,9 @@ class Data extends Spine.Module
   getRecordIndex: (id)->
     # Get index of a certain primary key
     @records.findIndex (rec)->id == rec.id
+
+  getRecordById: (id)->
+    @records.find (rec)-> id == rec.id
 
   updateUsing: (changeset)->
     console.log "Updating using", changeset
@@ -192,24 +193,21 @@ class Data extends Spine.Module
 
     @updateUsing changeset
 
-  updateSelectionFromIDs: (ids)->
-    records = @records.filter (d)->
-      ids.indexOf(d.id) != -1
-    @selection.fromRecords records
-
   destroyGroup: (id)->
     call = Promise.promisify app.API("/group/#{id}").send
     console.log "Destroying group #{id}"
     response = await call("DELETE")
-    console.log response
-    debugger
-    if response.status != 200
+
+    # Currently, we know that all groups that are deleted were selected
+    groupWasSelected = true
+
+    if response.status != 'success'
       console.log "Could not destroy group #{id}"
       return
 
     ix = @records.findIndex (d)->id == d.id
     changeset = {$splice: [[ix,1]]}
-    @updateUsing changeset
+    @refreshRecords response.measurements, {changeset, selected: true}
 
   createGroup: (records)->
     call = Promise.promisify app.API("/group").send
@@ -222,18 +220,26 @@ class Data extends Spine.Module
     obj = response.data
     ids = obj.measurements.concat [obj.id]
     console.log "Successfully created group #{obj.id}"
+    @refreshRecords ids, selected: true
 
-    @refreshRecords ids
-    @updateSelectionFromIDs [obj.id]
+  refreshRecords: (ids, opts={})->
+    # Options:
+    #   selected: boolean (should set data to be selected)
+    #   changeset: an input changeset to use
+    changeset = opts.changeset or {}
 
-  refreshRecords: (ids)->
     sql = storedProcedure 'get-records-by-ids'
     console.log "Refreshing records", ids
     records = await db.query(sql, [ids]).map prepareData
-    changeset = {}
     for rec in records
       ix = @records.findIndex (a)->rec.id == a.id
+      if opts.selected? and not rec.in_group
+        rec.selected = opts.selected
+      if ix == -1
+        changeset['$push'] ?= []
+        changeset['$push'].push rec
       changeset[ix]={"$set": rec}
+
     @updateUsing changeset
 
 module.exports = Data
