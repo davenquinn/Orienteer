@@ -1,22 +1,8 @@
 React = require 'react'
 ReactDOM = require 'react-dom'
-{Link, hashHistory} = require 'react-router'
+{Link, browserHistory} = require 'react-router'
 L = require 'leaflet'
-
-
-class HomeButton extends React.Component
-  render: ->
-    <div className='leaflet-control leaflet-home-btn leaflet-bar'>
-      <i onclick={@goHome} className='fa fa-home' />
-    </div>
-  componentDidMount: ->
-    L.DomEvent
-      .addListener(@, 'click', L.DomEvent.stopPropagation)
-      .addListener(@, 'click', L.DomEvent.preventDefault)
-
-  goHome: ->
-    console.log "Going home"
-    hashHistory.push '/'
+{MapControl} = require 'react-leaflet'
 
 Control = L.Control.extend
   options:
@@ -26,11 +12,15 @@ Control = L.Control.extend
     L.DomEvent
       .addListener(controlDiv, 'click', L.DomEvent.stopPropagation)
       .addListener(controlDiv, 'click', L.DomEvent.preventDefault)
-      .addListener(controlDiv, 'click', -> hashHistory.push '/')
+      .addListener(controlDiv, 'click', -> location.hash = '')
     controlUI = L.DomUtil.create('a', 'leaflet-draw-edit-remove', controlDiv)
     controlUI.title = 'Go home'
     controlUI.href = '#'
     L.DomUtil.create('i', 'fa fa-home',controlUI)
     controlDiv
 
-module.exports = Control
+class HomeButton extends MapControl
+  createLeafletElement: ->
+    return new Control
+
+module.exports = HomeButton

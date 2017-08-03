@@ -8,7 +8,7 @@ setupProjection = require "gis-core/frontend/projection"
 parseConfig = require "gis-core/frontend/config"
 MapDataLayer = require '../map-data-layer'
 SelectBox = require './select-box'
-
+BackButton = require './back-button'
 {BaseLayer, Overlay} = LayersControl
 
 class MapnikLayer extends MapLayer
@@ -73,14 +73,16 @@ class MapControl extends Component
         h(MapnikLayer, lyr)
 
     overlays = [
-      h Overlay, name: 'Attitudes', checked: true, key: 'Attitudes',
-        h MapDataLayer, records: @props.records
+      h(MapDataLayer, records: @props.records)
     ]
 
     {center, zoom, crs} = @state.options
     h BoxSelectMap, {center, zoom, crs, tileSize: 512, boxZoom: false}, [
-      h LayersControl, position: 'topleft', children.concat(overlays)
+      h LayersControl, position: 'topleft', children
+      #h LayersControl, position: 'topleft', overlays
       h ScaleControl, {imperial: false}
+      #h BackButton # We cause major problems with back-navigation for now
+      overlays...
     ]
 
 module.exports = MapControl

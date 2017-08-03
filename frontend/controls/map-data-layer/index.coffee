@@ -6,6 +6,7 @@ L = require "leaflet"
 h = require 'react-hyperscript'
 mapType = require 'react-leaflet/lib/propTypes/map'
 classNames = require 'classnames'
+{instanceOf} = require 'prop-types'
 
 fmt = d3.format(".0f")
 
@@ -55,10 +56,8 @@ class Feature extends Component
     h "path", {className, d, handlers...}
 
 class DataLayer extends MapLayer
-  @contextTypes: {
-    map: mapType
-  }
   constructor: (props)->
+    console.log "Created data layer"
     super props
     @state = {zoom: null}
     @map = null
@@ -106,11 +105,16 @@ class DataLayer extends MapLayer
     ]
 
   componentDidMount: ->
+    console.log "Mounted data layer"
     # Bind renderer to SVG
     @leafletElement._container = findDOMNode @
     @context.map.on 'zoomend', =>
       @setState zoom: @context.map.getZoom()
-    super()
+    super arguments...
+
+  componentWillUnmount: ->
+    console.log "Unmounted data layer"
+    super arguments...
 
   markerTransform: (d, zoom)=>
     s = d.strike
