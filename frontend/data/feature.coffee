@@ -11,6 +11,7 @@ module.exports = (o)->
     measurements: o.measurements
     tags: o.tags or []
     selected: false
+    hovered: false
     properties:
       strike: o.strike
       dip: o.dip

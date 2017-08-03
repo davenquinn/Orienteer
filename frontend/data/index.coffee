@@ -84,15 +84,17 @@ class Data extends Spine.Module
     @records = []
 
   hovered: (d)->
-    # Do for an id or actual data object
-    if d?
-      if not d.id?
-        d = @records.find (a)->d == a.id
-    @constructor.trigger "hovered", d
+    hoveredItem = @records.find (rec)->rec.hovered
+    return if d == hoveredItem
 
-  isHovered: (d)->
-    # Checks if item is hovered
-    @hoveredItem == d.id
+    changeset = {}
+    if hoveredItem?
+      ix = @getRecordIndex hoveredItem.id
+      changeset[ix] = {hovered: {$set: false}}
+    if d?
+      ix = @getRecordIndex d.id
+      changeset[ix] = {hovered: {$set: true}}
+    @updateUsing changeset
 
   within: (bounds)->
     @records.filter (d)->

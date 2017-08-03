@@ -25,8 +25,8 @@ eventHandlers = (record)->
 
 class StrikeDip extends Component
   render: ->
-    {transform, record, hovered} = @props
-    {strike, dip, selected} = record
+    {transform, record} = @props
+    {strike, dip, selected, hovered} = record
     scalar =  5+0.2*@props.zoom
 
     className = classNames 'strike_dip', 'marker', {
@@ -49,9 +49,9 @@ class StrikeDip extends Component
 
 class Feature extends Component
   render: ->
-    {record, d, hovered} = @props
+    {record, d} = @props
     handlers = eventHandlers(record)
-    {selected} = record
+    {selected, hovered} = record
 
     className = classNames record.geometry.type,
       {hovered, selected}
@@ -91,23 +91,17 @@ class DataLayer extends MapLayer
 
     {zoom} = @state
 
-    getHoverState = (d)=>
-      return false unless @props.hovered?
-      return @props.hovered.id == d.id
-
     children = data.map (d)=>
       {id} = d
       transform = @markerTransform(d, zoom)
-      hovered = getHoverState(d)
 
-      h StrikeDip, {key: id, record: d, transform, zoom, hovered}
+      h StrikeDip, {key: id, record: d, transform, zoom}
 
     childFeatures = data.map (d)=>
       h Feature, {
         key: d.id
         record: d
         d: @pathGenerator(d)
-        hovered: getHoverState(d)
       }
 
     h 'svg.data-layer.leaflet-zoom-hide', {}, [

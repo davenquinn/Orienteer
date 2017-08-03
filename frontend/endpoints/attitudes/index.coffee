@@ -52,7 +52,6 @@ class AttitudePage extends React.Component
         h Overlay, name: 'Attitudes', checked: true, [
           h MapDataLayer, {
             records: @state.records
-            hovered: @state.hovered
           }
         ]
       ]
