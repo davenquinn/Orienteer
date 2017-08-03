@@ -6,6 +6,8 @@ path = require 'path'
 BaseMapnikLayer = require 'gis-core/frontend/mapnik-layer'
 setupProjection = require "gis-core/frontend/projection"
 parseConfig = require "gis-core/frontend/config"
+MapDataLayer = require '../map-data-layer'
+SelectBox = require './select-box'
 
 {BaseLayer, Overlay} = LayersControl
 
@@ -22,6 +24,16 @@ defaultOptions =
   attributionControl: false
   continuousWorld: true
   debounceMoveend: true
+
+class BoxSelectMap extends Map
+  createLeafletElement: (props)->
+    map = super props
+    map.addHandler "boxSelect", SelectBox
+    map.boxSelect.enable()
+    map.on "boxSelected", (e)=>
+      console.log "Box selected"
+      app.data.selectByBox(e.bounds)
+    return map
 
 class MapControl extends Component
   constructor: (props)->
@@ -57,14 +69,17 @@ class MapControl extends Component
     # Add base layers
     children = @state.layers.map (lyr, i)->
       h BaseLayer,
-        {name: lyr.name, checked: i==0},
+        {name: lyr.name, checked: i==0, key: lyr.name},
         h(MapnikLayer, lyr)
 
-    children = children.concat @props.children
+    overlays = [
+      h Overlay, name: 'Attitudes', checked: true, key: 'Attitudes',
+        h MapDataLayer, records: @props.records
+    ]
 
     {center, zoom, crs} = @state.options
-    h Map, {center, zoom, crs, tileSize: 512}, [
-      h LayersControl, position: 'topleft', children
+    h BoxSelectMap, {center, zoom, crs, tileSize: 512, boxZoom: false}, [
+      h LayersControl, position: 'topleft', children.concat(overlays)
       h ScaleControl, {imperial: false}
     ]
 

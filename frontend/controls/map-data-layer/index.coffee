@@ -1,9 +1,5 @@
 d3 = require "d3"
-require 'd3-selection-multi'
-require 'd3-jetpack'
 L = require "leaflet"
-setupMarkers = require "./markers"
-marker = require './strike-dip'
 {MapLayer} = require 'react-leaflet'
 {Component} = require 'react'
 {findDOMNode} = require 'react-dom'

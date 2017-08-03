@@ -4,12 +4,8 @@ ReactDOM = require 'react-dom'
 MapControl = require "../../controls/map"
 SelectionControl = require "../../controls/selection"
 DataPane = require "./data-pane"
-MapDataLayer = require '../../controls/map-data-layer'
-{LayersControl} = require 'react-leaflet'
 h = require 'react-hyperscript'
 SplitPane = require 'react-split-pane'
-
-{Overlay} = LayersControl
 
 d3 = require "d3"
 $ = require "jquery"
@@ -40,6 +36,10 @@ class AttitudePage extends React.Component
     else
       s = overflowY: 'scroll'
 
+    {records} = @props.data
+    if not records?
+      records = []
+
     h SplitPane, {
       split: "vertical"
       minSize: 300
@@ -48,13 +48,7 @@ class AttitudePage extends React.Component
       pane2Style: s
       onChange: @onResizePane
     },[
-      h MapControl, {settings: @props.settings.map},[
-        h Overlay, name: 'Attitudes', checked: true, [
-          h MapDataLayer, {
-            records: @state.records
-          }
-        ]
-      ]
+      h MapControl, {settings: @props.settings.map, records}
       h 'div', className: style.sidebar, [
         h 'div', className: style.sidebarComponent, [
           h SelectionControl, {
@@ -73,7 +67,6 @@ class AttitudePage extends React.Component
 
   # The below is a shim but it'll work for now
   componentDidMount: ->
-    @props.data.constructor.bind "hovered", @updateHovered.bind(this)
     @props.data.constructor.bind "updated", @updateData.bind(this)
     @props.data.constructor.bind "feature-types", (types)=>
       @setState featureTypes: types
@@ -84,13 +77,6 @@ class AttitudePage extends React.Component
 
   componentWillUnmount: ->
     @props.data.constructor.unbind "hovered", @updateHovered
-
-  updateHovered: (d)->
-    if d?
-      console.log "Hovering over item #{d.id}"
-    else
-      console.log "Hovering out"
-    @setState hovered: d
 
   onResizePane: (size)->
     console.log size

@@ -2,7 +2,6 @@ Spine = require "spine"
 tags = require "../shared/data/tags"
 d3 = require "d3"
 queue = require("d3-queue").queue
-Selection = require "./selection"
 Promise = require 'bluebird'
 L = require 'leaflet'
 _ = require 'underscore'
@@ -103,22 +102,21 @@ class Data extends Spine.Module
       bounds.contains l
 
   selectByBox: (bounds)->
-    f = @within(bounds)
-    @selection.add f...
+    f = @within(bounds).filter (d)->not d.in_group
+    @addToSelection f...
 
   addToSelection: (records...)->
-    u = {}
-    newRecords = records.filter (d)=>
-      ix = getIndexById(@records, d)
-      ix == -1
-    @records = update(@records,'$push': newRecords)
-    @__notify()
+    changeset = {}
+    for record in records
+      ix = @getRecordIndex record.id
+      changeset[ix] = {selected: {$set: true}}
+    @updateUsing changeset
 
   removeFromSelection: (records...)->
     changeset = {}
     for record in records
       ix = @getRecordIndex record.id
-      changeset[ix] = {selected: {"$set": false}}
+      changeset[ix] = {selected: {$set: false}}
     @updateUsing changeset
 
   updateSelection: (record)->
