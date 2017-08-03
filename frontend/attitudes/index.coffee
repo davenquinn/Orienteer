@@ -1,8 +1,8 @@
 Spine = require "spine"
 React = require 'react'
 ReactDOM = require 'react-dom'
-MapControl = require "../../controls/map"
-SelectionControl = require "../../controls/selection"
+MapControl = require "../controls/map"
+SelectionControl = require "../controls/selection"
 DataPane = require "./data-pane"
 h = require 'react-hyperscript'
 SplitPane = require 'react-split-pane'
@@ -10,7 +10,6 @@ SplitPane = require 'react-split-pane'
 d3 = require "d3"
 $ = require "jquery"
 
-style2 = require '../styles.styl'
 style = require './style.styl'
 
 f = d3.format "> 6.1f"

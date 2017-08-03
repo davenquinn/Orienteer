@@ -1,8 +1,8 @@
 React = require 'react'
 Measure = require 'react-measure'
-Stereonet = require "../../controls/stereonet"
-TagManager = require "../../controls/tag-manager"
-SelectType = require "../../controls/select-type"
+Stereonet = require "../controls/stereonet"
+TagManager = require "../controls/tag-manager"
+SelectType = require "../controls/select-type"
 {debounce} = require "underscore"
 style = require './style'
 

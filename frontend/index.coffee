@@ -19,7 +19,7 @@ setupMenu = require './menu'
 Map = require "./controls/map"
 Frontpage = require "./frontpage"
 Data = require "./data"
-AttitudePage = require "./endpoints/attitudes"
+AttitudePage = require "./attitudes"
 Stereonet = require "./endpoints/stereonet"
 update = require 'immutability-helper'
 
