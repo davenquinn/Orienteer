@@ -8,3 +8,4 @@
     WHERE
       NOT ARRAY['bad','poor']
           && tags::text[]
+      OR tags IS null

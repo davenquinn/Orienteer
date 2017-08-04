@@ -24,6 +24,7 @@ class Data
   _filter: (d)->d
   fetched: false
   records: []
+  subquery: null
   constructor: (opts={})->
     @log = opts.logger or console
     @onUpdated = opts.onUpdated
@@ -45,7 +46,7 @@ class Data
         @featureTypes = records
         @onUpdated featureTypes: records
 
-  getData: (subquery)->
+  getData: (@subquery, complete=false)->
     # Grab data directly from postgresql dataset
     # We used to use a Python API here but this
     # is a factor of at least 100 quicker
@@ -55,22 +56,34 @@ class Data
       .map (d)->d.id
 
     sql = readFileSync "#{__dirname}/sql/get-dataset.sql", 'utf8'
-    if subquery?
+    if @subquery?
       v = sql.replace("attitude_data", "subquery")
-      sql = "WITH subquery AS (#{subquery}) #{v}"
+      sql = "WITH subquery AS (#{@subquery}) #{v}"
 
-    console.log sql
     db.query sql
       .map prepareData
       .then (records)=>
         console.log "Getting records"
 
-        # Transfer selection
-        for record in records
-          if selectedIDs.indexOf(record.id) != -1
-            record.selected = true
+        # Only integrate changed records
+        # We could have a separate thing to completely refresh data
+        if complete
+          changeset = {$set: records}
+        else
+          changeset = {}
+          # Set all to null by default
+          @records.forEach (d,i)->
+            changeset[i] = {$set: null}
 
-        changeset = {$set: records}
+          changeset['$push'] = []
+          # Add back records that are changed
+          for record in records
+            ix = @getRecordIndex record.id
+            if ix == -1
+              changeset['$push'].push record
+            else
+              delete changeset[ix]
+
         @updateUsing changeset
         @log.success "Loaded #{records.length} features"
       .catch (e)->
@@ -169,6 +182,8 @@ class Data
       changeset[ix] = {tags: {"$push": [rec.tag_name]}}
 
     @updateUsing changeset
+    if @subquery.includes "tags"
+      @refreshAllData()
 
   removeTag: (tag, records)->
     sql = storedProcedure "remove-tag"
@@ -184,25 +199,29 @@ class Data
       changeset[ix] = {tags: {"$splice": [[tagindex,1]]}}
 
     @updateUsing changeset
+    if @subquery.includes "tags"
+      @refreshAllData()
+
+  refreshAllData: ->
+    @getData @subquery
 
   # Change data class
   changeClass: (type, records)->
     sql = storedProcedure "update-types"
     ids = records.map (d)->d.id
-    console.log "Changing class to #{type} for #{ids}"
+    console.log "Changing type to #{type} for #{ids}"
+
     results = await db.query sql, [type,ids]
 
-    for i in ids
-      # Groups should have IDs set as well
-      if i.records?
-        ids.push.apply i.records.map((a)->a.id)
-
     changeset = {}
-    for id in ids
-      ix = @records.findIndex (a)->id == a.id
+    for rec in results
+      ix = @records.findIndex (a)->rec.id == a.id
       changeset[ix]={class:{"$set":type}}
 
     @updateUsing changeset
+    @log.success "Changed class to #{type} for #{results.length} records"
+    if @subquery.includes "class"
+      @refreshAllData()
 
   destroyGroup: (id)->
     call = Promise.promisify app.API("/group/#{id}").send

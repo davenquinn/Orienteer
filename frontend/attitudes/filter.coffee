@@ -53,7 +53,7 @@ class FilterPanel extends Component
         onConfirm: @onConfirm
         onChange: @onChange
       }
-      h Popover, content: @menu(), position: Position.LEFT, [
+      h Popover, content: @menu(), position: Position.RIGHT, [
         h Button, text: "Stored query", iconName: 'database'
       ]
       @columnDefs()
