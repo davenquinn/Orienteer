@@ -19,17 +19,28 @@ eventHandlers = (record)->
     app.data.hovered null
   {onMouseOver, onMouseOut, onMouseDown}
 
-
 class StrikeDip extends Component
+  shouldComponentUpdate: (nextProps)->
+    {record, zoom} = @props
+    return true if zoom != nextProps.zoom
+    return true if record != nextProps.record
+    return false
+
   render: ->
-    {transform, record} = @props
-    {strike, dip, selected, hovered} = record
-    scalar =  5+0.2*@props.zoom
+    {record, projection, zoom} = @props
+    {strike, dip, selected, hovered, center} = record
+    scalar =  5+0.2*zoom
 
     className = classNames 'strike_dip', 'marker', {
       hovered,
       selected
     }
+
+    c = center.coordinates
+    c = projection(c[0],c[1])
+    transform = "translate(#{c.x} #{c.y})
+                 rotate(#{strike} 0 0)
+                 scale(#{1+0.2*zoom})"
 
     handlers = eventHandlers(record)
     h "g", {transform, className, handlers...}, [
@@ -45,14 +56,21 @@ class StrikeDip extends Component
     ]
 
 class Feature extends Component
+  shouldComponentUpdate: (nextProps)->
+    {record, pathGenerator} = @props
+    return true if pathGenerator != nextProps.pathGenerator
+    return true if record != nextProps.record
+    return false
+
   render: ->
-    {record, d} = @props
+    {record, pathGenerator} = @props
     handlers = eventHandlers(record)
     {selected, hovered} = record
 
     className = classNames record.geometry.type,
       {hovered, selected}
 
+    d = pathGenerator(record)
     h "path", {className, d, handlers...}
 
 class DataLayer extends MapLayer
@@ -60,43 +78,38 @@ class DataLayer extends MapLayer
     console.log "Created data layer"
     super props
     @state = {zoom: null}
-    @map = null
 
-  setupProjection: (map)=>
-    @map = map
+  buildProjection: =>
+    console.log "Building projection"
+    {map} = @context
+    zoom = map.getZoom()
     proj = (x,y)->
       map.latLngToLayerPoint(new L.LatLng(y,x))
     projection = d3.geoTransform
       point: (x,y)->
         point = proj(x,y)
         return @stream.point point.x, point.y
-
-    @projFn = proj
-    @pathGenerator = d3.geoPath().projection(projection)
+    pathGenerator = d3.geoPath().projection(projection)
+    @setState {projection: proj, pathGenerator, zoom}
 
   createLeafletElement: ->
     new L.SVG padding: 0.1
 
   render: ->
-    {map} = @context
-    if @map != map
-      @setupProjection(map)
+    console.log "Rendering data layer"
+    {records} = @props
+    {projection, pathGenerator, zoom} = @state
 
-    data = @props.records.filter (d)->not d.in_group
+    data = records.filter (d)->not d.in_group
 
-    {zoom} = @state
+    children = data.map (record)=>
+      h StrikeDip, {key: record.id, record, projection, zoom}
 
-    children = data.map (d)=>
-      {id} = d
-      transform = @markerTransform(d, zoom)
-
-      h StrikeDip, {key: id, record: d, transform, zoom}
-
-    childFeatures = data.map (d)=>
+    childFeatures = data.map (record)=>
       h Feature, {
-        key: d.id
-        record: d
-        d: @pathGenerator(d)
+        key: record.id
+        record
+        pathGenerator
       }
 
     h 'svg.data-layer.leaflet-zoom-hide', {}, [
@@ -108,18 +121,12 @@ class DataLayer extends MapLayer
     console.log "Mounted data layer"
     # Bind renderer to SVG
     @leafletElement._container = findDOMNode @
-    @context.map.on 'zoomend', =>
-      @setState zoom: @context.map.getZoom()
+    @buildProjection()
+    @context.map.on 'zoomend', @buildProjection
     super arguments...
 
   componentWillUnmount: ->
     console.log "Unmounted data layer"
     super arguments...
-
-  markerTransform: (d, zoom)=>
-    s = d.strike
-    c = d.center.coordinates
-    c = @projFn(c[0],c[1])
-    "translate(#{c.x} #{c.y}) rotate(#{s} 0 0) scale(#{1+0.2*zoom})"
 
 module.exports = DataLayer

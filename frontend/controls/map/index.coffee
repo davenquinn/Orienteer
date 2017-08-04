@@ -76,8 +76,6 @@ class MapControl extends Component
     if not Array.isArray overlays
       overlays = [overlays]
 
-    console.log center, zoom, crs
-
     h BoxSelectMap, {center, zoom, crs, tileSize: 512, boxZoom: false}, [
       h LayersControl, position: 'topleft', children
       #h LayersControl, position: 'topleft', overlays
