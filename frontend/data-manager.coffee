@@ -1,12 +1,12 @@
-tags = require "../shared/data/tags"
+tags = require "./shared/data/tags"
 Promise = require 'bluebird'
 {LatLng} = require 'leaflet'
 _ = require 'underscore'
 update = require 'immutability-helper'
 {readFileSync} = require 'fs'
-{storedProcedure, db} = require '../database'
+{storedProcedure, db} = require './database'
 
-API = require "../api"
+API = require "./api"
 
 prepareData = (d)->
   # Transform raw data
@@ -55,7 +55,7 @@ class Data
       .filter (d)->d.selected
       .map (d)->d.id
 
-    sql = readFileSync "#{__dirname}/../sql/get-dataset.sql", 'utf8'
+    sql = readFileSync "#{__dirname}/sql/get-dataset.sql", 'utf8'
     if subquery?
       v = sql.replace("attitude_data", "subquery")
       sql = "WITH subquery AS (#{subquery}) #{v}"
