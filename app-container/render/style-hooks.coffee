@@ -16,6 +16,7 @@ require.extensions['.css'] = (module, filename)->
 
 # Create hook for stylus files
 hook
+  mode: 'global' # global by default
   extensions: ['.styl'],
   preprocessCss: (css, filename)->
     stylus(css)

@@ -6,7 +6,6 @@ path = require 'path'
 BaseMapnikLayer = require 'gis-core/frontend/mapnik-layer'
 setupProjection = require "gis-core/frontend/projection"
 parseConfig = require "gis-core/frontend/config"
-MapDataLayer = require '../map-data-layer'
 SelectBox = require './select-box'
 BackButton = require './back-button'
 {BaseLayer, Overlay} = LayersControl
@@ -71,12 +70,14 @@ class MapControl extends Component
       h BaseLayer,
         {name: lyr.name, checked: i==0, key: lyr.name},
         h(MapnikLayer, lyr)
-
-    overlays = [
-      h(MapDataLayer, records: @props.records)
-    ]
-
     {center, zoom, crs} = @state.options
+
+    overlays = @props.children
+    if not Array.isArray overlays
+      overlays = [overlays]
+
+    console.log center, zoom, crs
+
     h BoxSelectMap, {center, zoom, crs, tileSize: 512, boxZoom: false}, [
       h LayersControl, position: 'topleft', children
       #h LayersControl, position: 'topleft', overlays

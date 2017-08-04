@@ -1,12 +1,6 @@
 $ = require "jquery"
-window.jQuery = $
-window.$ = $
-require "velocity-animate"
 
 window.server_url = "http://0.0.0.0:8000"
-
-Spine = require "spine"
-Spine.jQuery = $
 
 React = require 'react'
 ReactDOM = require 'react-dom'
@@ -14,13 +8,13 @@ ReactDOM = require 'react-dom'
 h = require 'react-hyperscript'
 {remote} = require 'electron'
 
-{reactifySpine} = require './util'
 setupMenu = require './menu'
 Map = require "./controls/map"
 Frontpage = require "./frontpage"
 Data = require "./data"
 AttitudePage = require "./attitudes"
 Stereonet = require "./endpoints/stereonet"
+LogHandler = require "./log-handler"
 update = require 'immutability-helper'
 
 styles = require './styles/layout.styl'
@@ -28,46 +22,74 @@ styles = require './styles/layout.styl'
 erf = (request, textStatus, errorThrown)->
   console.log request, textStatus, errorThrown
 
+
+
 class App extends React.Component
   constructor: ->
     super()
     window.app = @
     @API = require "./api"
     @opts = require "./options"
-    @state = remote.app.state
+
+    @defaultSubquery = """
+                          SELECT *
+                          FROM attitude_data
+                          WHERE true
+                       """
+    query = @defaultSubquery
+
+    {state} = remote.app
+    @state = {
+      query
+      featureTypes: []
+      records: []
+      state...}
+
+    @log = new LogHandler
 
     # Share config from main process
     # Config can't be edited at runtime
     c = remote.app.config
     @config = JSON.parse(JSON.stringify(c))
-    @state.data = new Data
+    @data = new Data logger: @log
+    @data.getData()
 
-    @data = @state.data
+    @data.constructor.bind "updated", @updateData.bind(this)
+    @data.constructor.bind "feature-types", (types)=>
+      @setState featureTypes: types
 
     @state.settings ?= {}
 
     @state.settings.map ?= {bounds: null}
 
+  runQuery: (query)->
+    @setState query: query
+    @data.getData query
+
   require: (m)->
     ## App-scoped require to preclude nesting
     require "./#{m}"
+
+  updateData: ->
+    { records } = @data
+    @setState {records}
 
   updateSettings: (spec)->
     newState = update(@state.settings, spec)
     @setState settings: newState
 
   render: ->
-    {settings, data} = @state
+    {settings, records, query, featureTypes} = @state
+    console.log "Re-rendering app with state", @state
 
     class DataStereonet extends React.Component
-      render: -> h Stereonet, {settings, data}
+      render: -> h Stereonet, {settings, records}
 
-    class Attitude extends React.Component
-      render: -> h AttitudePage, {settings, data}
+    attitude = -> h AttitudePage, {settings, records, query, featureTypes}
 
     h "div#root", [
       h Route, path: "/", component: Frontpage, exact: true
-      h Route, path:"/map", component: Attitude
+      h Route, path:"/map", render: attitude
       h Route, path: "/stereonet", component: DataStereonet
     ]
 

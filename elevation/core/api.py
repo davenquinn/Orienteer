@@ -3,12 +3,25 @@ from click import echo
 from flask import Blueprint, request, make_response, jsonify
 from json import dumps, loads
 import logging
+from functools import wraps
 
 from ..database import db
 from ..models import Attitude, AttitudeGroup, DatasetFeature, Tag
 
 log = logging.getLogger(__name__)
 api = Blueprint('api', __name__)
+
+def handle_errors(f):
+    @wraps(f)
+    def wrapped(*args, **kwargs):
+        try:
+            response = f(*args, **kwargs)
+            response['status'] = 'success'
+        except Exception as err:
+            db.session.rollback()
+            response = dict(status='failure', message=str(err))
+        return jsonify(**response)
+    return wrapped
 
 class InvalidUsage(Exception):
     status_code = 400
@@ -37,6 +50,7 @@ def not_found(error):
             message='Not found'), 404)
 
 @api.route('/group', methods=["POST"])
+@handle_errors
 def group():
     # We're going to create a group
     # Need to decode bytes; might break py2 compatibility
@@ -56,10 +70,11 @@ def group():
             deleted_ids.append(g.id)
             db.session.delete(g)
     db.session.commit()
-    return jsonify(data=group.serialize(), deleted_groups=deleted_ids)
+    return dict(data=group.serialize(), deleted_groups=deleted_ids)
 
 @api.route('/group/<id>',
     methods=["DELETE","POST"])
+@handle_errors
 def update_group(id):
     group = db.session.query(AttitudeGroup).get(id)
     if request.method == "DELETE":
@@ -69,14 +84,14 @@ def update_group(id):
         log.info("Destroying group from {} features".format(len(features)))
         db.session.delete(group)
         db.session.commit()
-        return jsonify(status="success", id=id, measurements=ids)
+        return dict(id=id, measurements=ids)
     if request.method == "POST":
         data = loads(request.data.decode('utf-8'))
         group.same_plane = data["same_plane"]
         group.calculate()
         db.session.add(group)
         db.session.commit()
-        return jsonify(data=group.serialize())
+        return dict(data=group.serialize())
 
 @api.route("/attitude", methods=["GET"])
 def data():

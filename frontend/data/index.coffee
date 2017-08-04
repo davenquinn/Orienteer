@@ -6,6 +6,7 @@ Promise = require 'bluebird'
 L = require 'leaflet'
 _ = require 'underscore'
 update = require 'immutability-helper'
+{readFileSync} = require 'fs'
 {storedProcedure, db} = require '../database'
 
 API = require "../api"
@@ -14,6 +15,8 @@ prepareData = (d)->
   # Transform raw data
   d = _.clone d
   d.grouped = d.type == 'group'
+  d.selected = false
+  d.hovered = false
   d.type = 'Feature'
   d.tags ?= []
   return d
@@ -24,10 +27,13 @@ class Data extends Spine.Module
   hoveredItem: null
   _filter: (d)->d
   fetched: false
-  constructor: ->
+  records: []
+  constructor: (opts={})->
+
     super()
+
     # Setup requests for updated data
-    @__fetchData()
+    @fetchInitialData()
 
     #@selection = Selection
     #@selection.bind "tags-updated", @filter
@@ -35,9 +41,7 @@ class Data extends Spine.Module
     Object.defineProperty @, 'selection',
       get: -> @records.filter (d)->d.selected
 
-  __fetchData: ->
-    {storedProcedure, db} = app.require 'database'
-
+  fetchInitialData: ->
     @featureTypes = []
     sql = storedProcedure 'get-types'
     db.query sql
@@ -46,17 +50,33 @@ class Data extends Spine.Module
         @featureTypes = records
         @constructor.trigger 'feature-types', records
 
+  getData: (subquery)->
     # Grab data directly from postgresql dataset
     # We used to use a Python API here but this
     # is a factor of at least 100 quicker
-    sql = storedProcedure 'get-dataset'
+    # Transfer selection
+    selectedIDs = @records
+      .filter (d)->d.selected
+      .map (d)->d.id
+
+    sql = readFileSync "#{__dirname}/../sql/get-dataset.sql", 'utf8'
+    if subquery?
+      v = sql.replace("attitude_data", "subquery")
+      sql = "WITH subquery AS (#{subquery}) #{v}"
+
+    console.log sql
     db.query sql
       .map prepareData
       .then (records)=>
         console.log "Getting records"
-        @records = records
-        @fetched = true
-        @constructor.trigger 'updated'
+
+        # Transfer selection
+        for record in records
+          if selectedIDs.indexOf(record.id) != -1
+            record.selected = true
+
+        changeset = {$set: records}
+        @updateUsing changeset
       .catch (e)->
         throw e
 
@@ -202,12 +222,13 @@ class Data extends Spine.Module
     groupWasSelected = true
 
     if response.status != 'success'
-      console.log "Could not destroy group #{id}"
+      app.log.error "Could not destroy group #{id}"
       return
 
     ix = @records.findIndex (d)->id == d.id
     changeset = {$splice: [[ix,1]]}
     @refreshRecords response.measurements, {changeset, selected: true}
+    app.log.success "Destroyed group #{id}"
 
   createGroup: (records)->
     call = Promise.promisify app.API("/group").send
@@ -217,9 +238,12 @@ class Data extends Spine.Module
 
     console.log "Creating group"
     response = await call "POST", JSON.stringify(data)
+    if response.status != 'success'
+      app.log.error console.log "Could not create group"
+      return
     obj = response.data
     ids = obj.measurements.concat [obj.id]
-    console.log "Successfully created group #{obj.id}"
+    app.log.success "Successfully created group #{obj.id}"
     @refreshRecords ids, selected: true
 
   refreshRecords: (ids, opts={})->

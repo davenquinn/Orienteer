@@ -1,24 +1,27 @@
-.sidebar {
-  display: flex;
-  flex-grow: 1;
-  &>div {
-    overflow-y: scroll;
-  }
-  img {
-    max-width: 100%;
-  }
-  padding: 1rem;
-  div.controls {
-    ul {
-      list-style: none;
-      padding-left: 0;
+:local {
+  .sidebar {
+    display: flex;
+    flex-grow: 1;
+    &>div {
+      overflow-y: scroll;
     }
-    .more {
-      margin-top: 0.2em;
-      color: #888888;
+    img {
+      max-width: 100%;
     }
+    padding: 1rem;
+    div.controls {
+      ul {
+        list-style: none;
+        padding-left: 0;
+      }
+      .more {
+        margin-top: 0.2em;
+        color: #888888;
+      }
+    }
+  }
+
+  .dataViewer {
+    overflow-y: scroll
   }
 }
-
-.dataViewer
-  overflow-y: scroll

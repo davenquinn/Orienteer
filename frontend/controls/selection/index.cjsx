@@ -54,7 +54,7 @@ class Sidebar extends React.Component
       core = <ViewerControl data={rec[0]} hovered={@props.hovered} focusItem={@focusItem} />
     else
       actions =
-        removeItem: app.data.updateSelection
+        removeItem: app.data.updateSelection.bind app.data
         focusItem: @focusItem
         createGroup: app.data.createGroupFromSelection
       core = <SelectionControl

@@ -1,27 +1,26 @@
-:global {
-  .Resizer {
-    background: #000;
-    opacity: .2;
-    z-index: 500;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    -moz-background-clip: padding;
-    -webkit-background-clip: padding;
-    background-clip: padding-box;
-    pointer-events: all;
+.Resizer {
+  background: #000;
+  opacity: .2;
+  z-index: 500;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  -moz-background-clip: padding;
+  -webkit-background-clip: padding;
+  background-clip: padding-box;
+  pointer-events: all;
   &:hover {
       -webkit-transition: all 2s ease;
       transition: all 2s ease;
   }
 
-   &.horizontal {
-      height: 11px;
-      margin: -5px 0;
-      border-top: 5px solid rgba(255, 255, 255, 0);
-      border-bottom: 5px solid rgba(255, 255, 255, 0);
-      cursor: row-resize;
-      width: 100%;
+ &.horizontal {
+    height: 11px;
+    margin: -5px 0;
+    border-top: 5px solid rgba(255, 255, 255, 0);
+    border-bottom: 5px solid rgba(255, 255, 255, 0);
+    cursor: row-resize;
+    width: 100%;
   }
 
   &.horizontal:hover {
@@ -46,19 +45,32 @@
   }
   &.disabled:hover {
     border-color: transparent;
-    }
   }
 }
+
+.sidebar-outer
+  padding: 1rem
 
 .disabled
   width: 0
 
-.sidebar
-  display: flex
-  flex-flow: row wrap
-  overflow-y: scroll
-  table
-    width: 100%
+:local
+  .sidebar
+    display: flex
+    flex-flow: row wrap
+    overflow-y: scroll
+    position: relative
+    table
+      width: 100%
+
+  .sidebarComponent
+    flex: 1
+    width: 50%
+    min-width: 300px
+    overflow-y: scroll
+    &>div
+      padding-top: 1rem
+      padding-bottom: 1rem
 
 .sidebar-disabled
   margin: 1em
@@ -95,10 +107,9 @@
     display: flex
     flex-direction: column
 
-.sidebarComponent
-  flex: 1
-  width: 50%
-  min-width: 300px
-  overflow-y: scroll
-  &>div
-    padding: 1rem
+
+.code-window
+  font-family: "Droid Sans Mono", "Consolas", monospace
+
+.filter-window
+  min-height: 10em

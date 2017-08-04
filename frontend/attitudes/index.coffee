@@ -6,6 +6,9 @@ SelectionControl = require "../controls/selection"
 DataPane = require "./data-pane"
 h = require 'react-hyperscript'
 SplitPane = require 'react-split-pane'
+{Tab2, Tabs2} = require '@blueprintjs/core'
+FilterPanel = require './filter'
+MapDataLayer = require '../controls/map-data-layer'
 
 d3 = require "d3"
 $ = require "jquery"
@@ -22,22 +25,34 @@ class AttitudePage extends React.Component
   constructor: (props)->
     super props
 
-    @state =
-      selection: []
-      hovered: null
-      records: []
-      featureTypes: []
-
   render: ->
+    {records, featureTypes, query} = @props
+    selection = records.filter (d)->d.selected
+    hovered = records.find (d)->d.hovered
+
     s = null
-    if @state.selection.length == 0
+    if selection.length == 0
       s = display: 'none'
     else
       s = overflowY: 'scroll'
 
-    {records} = @props.data
-    if not records?
-      records = []
+    tab1Panel = h 'div', className: style.sidebar, [
+      h 'div', className: style.sidebarComponent, [
+        h SelectionControl, {
+          records: selection
+          hovered
+        }
+      ]
+      h DataPane, {
+        records: selection
+        hovered
+        featureTypes
+      }
+    ]
+
+    tab2Panel = h FilterPanel, {query}
+
+    console.log @props.settings.map
 
     h SplitPane, {
       split: "vertical"
@@ -47,35 +62,18 @@ class AttitudePage extends React.Component
       pane2Style: s
       onChange: @onResizePane
     },[
-      h MapControl, {settings: @props.settings.map, records}
-      h 'div', className: style.sidebar, [
-        h 'div', className: style.sidebarComponent, [
-          h SelectionControl, {
-            data: @props.data
-            records: @state.selection
-            hovered: @state.hovered
-          }
+      h MapControl, {settings: @props.settings.map}, [
+        h MapDataLayer, {records}
+      ]
+      h 'div.sidebar-outer', [
+        h Tabs2, [
+          h Tab2, id: 'selection-panel', title: 'Selection', panel: tab1Panel
+          h Tab2, id: 'sql-panel', title: 'Filter', panel: tab2Panel
+          h Tab2, id: 'options', title: 'Options', panel: h('div')
         ]
-        h DataPane, {
-          records: @state.selection
-          hovered: @state.hovered
-          featureTypes: @state.featureTypes
-        }
       ]
     ]
 
-  # The below is a shim but it'll work for now
-  componentDidMount: ->
-    @props.data.constructor.bind "updated", @updateData.bind(this)
-    @props.data.constructor.bind "feature-types", (types)=>
-      @setState featureTypes: types
-
-  updateData: ->
-    { records, selection } = @props.data
-    @setState {records, selection}
-
-  componentWillUnmount: ->
-    @props.data.constructor.unbind "hovered", @updateHovered
 
   onResizePane: (size)->
     console.log size

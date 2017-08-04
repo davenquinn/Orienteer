@@ -76,6 +76,7 @@ class StereonetView extends React.Component
     if prevProps.width != @props.width
       console.log "Scale was changed"
       @updateSize()
+
     else if prevProps.hovered != @props.hovered
       @updateHovered()
     else
@@ -84,7 +85,7 @@ class StereonetView extends React.Component
     @updatePaths()
 
   updateHovered: ->
-    v = app.data.get @props.hovered
+    v = @props.hovered
     hovered = if v? then [v] else []
 
     @hoverOverlay.call planes, hovered
