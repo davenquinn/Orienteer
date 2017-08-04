@@ -51,12 +51,8 @@ class App extends React.Component
     # Config can't be edited at runtime
     c = remote.app.config
     @config = JSON.parse(JSON.stringify(c))
-    @data = new Data logger: @log
+    @data = new Data logger: @log, onUpdated: @updateData.bind(@)
     @data.getData()
-
-    @data.constructor.bind "updated", @updateData.bind(this)
-    @data.constructor.bind "feature-types", (types)=>
-      @setState featureTypes: types
 
     @state.settings ?= {}
 
@@ -70,9 +66,8 @@ class App extends React.Component
     ## App-scoped require to preclude nesting
     require "./#{m}"
 
-  updateData: ->
-    { records } = @data
-    @setState {records}
+  updateData: (changes)->
+    @setState changes
 
   updateSettings: (spec)->
     newState = update(@state.settings, spec)

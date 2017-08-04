@@ -1,9 +1,6 @@
-Spine = require "spine"
 tags = require "../shared/data/tags"
-d3 = require "d3"
-queue = require("d3-queue").queue
 Promise = require 'bluebird'
-L = require 'leaflet'
+{LatLng} = require 'leaflet'
 _ = require 'underscore'
 update = require 'immutability-helper'
 {readFileSync} = require 'fs'
@@ -21,16 +18,15 @@ prepareData = (d)->
   d.tags ?= []
   return d
 
-class Data extends Spine.Module
-  @extend Spine.Events
+class Data
 
   hoveredItem: null
   _filter: (d)->d
   fetched: false
   records: []
   constructor: (opts={})->
-
-    super()
+    @log = opts.logger or console
+    @onUpdated = opts.onUpdated
 
     # Setup requests for updated data
     @fetchInitialData()
@@ -48,7 +44,7 @@ class Data extends Spine.Module
       .tap console.log
       .then (records)=>
         @featureTypes = records
-        @constructor.trigger 'feature-types', records
+        @onUpdated featureTypes: records
 
   getData: (subquery)->
     # Grab data directly from postgresql dataset
@@ -79,9 +75,6 @@ class Data extends Spine.Module
         @updateUsing changeset
       .catch (e)->
         throw e
-
-  onUpdated: ->
-    @constructor.trigger "updated"
 
   get: (ids...)->
     if ids.length == 1
@@ -118,7 +111,7 @@ class Data extends Spine.Module
   within: (bounds)->
     @records.filter (d)->
       a = d.center.coordinates
-      l = new L.LatLng a[1],a[0]
+      l = new LatLng a[1],a[0]
       bounds.contains l
 
   selectByBox: (bounds)->
@@ -162,7 +155,7 @@ class Data extends Spine.Module
   updateUsing: (changeset)->
     console.log "Updating using", changeset
     @records = update(@records, changeset)
-    @constructor.trigger "updated",@records
+    @onUpdated records: @records
 
   addTag: (tag, records)->
     sql = storedProcedure "add-tag"
@@ -222,7 +215,7 @@ class Data extends Spine.Module
     groupWasSelected = true
 
     if response.status != 'success'
-      app.log.error "Could not destroy group #{id}"
+      @log.error "Could not destroy group #{id}"
       return
 
     ix = @records.findIndex (d)->id == d.id
@@ -239,11 +232,11 @@ class Data extends Spine.Module
     console.log "Creating group"
     response = await call "POST", JSON.stringify(data)
     if response.status != 'success'
-      app.log.error console.log "Could not create group"
+      @log.error "Could not create group"
       return
     obj = response.data
     ids = obj.measurements.concat [obj.id]
-    app.log.success "Successfully created group #{obj.id}"
+    @log.success "Successfully created group #{obj.id}"
     @refreshRecords ids, selected: true
 
   refreshRecords: (ids, opts={})->

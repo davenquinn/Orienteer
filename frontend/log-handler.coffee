@@ -1,21 +1,21 @@
-{Position, Toaster} = require '@blueprintjs/core'
+{Position, Toaster, Intent} = require '@blueprintjs/core'
 
 
 class LogHandler
   constructor: ->
-    @toaster = Toaster.create { className: 'error-handler', position: Position.Top }
+    @toaster = Toaster.create { className: 'log-overlay', position: Position.Top }
   error: (msg)->
     console.error msg
     @toaster.show {
       message: msg
-      intent: 'danger'
+      intent: Intent.DANGER
       iconName: 'error'
     }
   success: (msg)->
     console.log msg
     @toaster.show {
       message: msg
-      intent: 'success'
+      intent: Intent.SUCCESS
       iconName: 'tick-circle'
       timeout: 2000
     }
