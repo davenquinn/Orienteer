@@ -48,8 +48,23 @@
   }
 }
 
+body
+  user-select: none
+
 .sidebar-outer
-  padding: 1rem
+  &>div
+    padding: 0 1rem
+  user-select: none
+  height: 100vh
+  display: flex
+  flex-direction: column
+  .pt-tabs
+    flex-grow: 1
+    display: flex
+    flex-direction: column
+  .pt-tab-panel
+    padding: 1rem
+    overflow-y: scroll
 
 .disabled
   width: 0
@@ -66,48 +81,10 @@
   .sidebarComponent
     flex: 1
     width: 50%
-    min-width: 300px
-    overflow-y: scroll
+    min-width: 280px
     &>div
       padding-top: 1rem
       padding-bottom: 1rem
-
-.sidebar-disabled
-  margin: 1em
-  width: 25%
-  min-width: 30rem
-  max-width: 50rem
-  cursor: pointer
-  position: absolute
-  top: 0
-  right: 0
-  max-height: 100%
-  justify-content: space-between
-  &>div
-    margin-top: 1em
-    padding: 1em
-    background-color: white
-    &:first-child
-      margin-top: 0
-  img
-    max-width: 100%
-  min-width: 30rem
-  margin: 1rem
-  div.controls
-    ul
-      list-style: none
-      padding-left: 0
-    .more
-      margin-top: 0.2em
-      color: #888888
-
-  li.hovered
-    background-color: #dddddd
-  &>div
-    display: flex
-    flex-direction: column
-
-
 
 .filter-window
   min-height: 10em

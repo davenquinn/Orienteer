@@ -6,8 +6,9 @@
 stylePath = remote.getGlobal("STYLE_PATH")
 
 styles = [
-  resolve stylePath,styleName+'.css'
-  resolve __dirname, '../../node_modules/@blueprintjs/core/dist/blueprint.css'
+  require.resolve 'leaflet/dist/leaflet.css'
+  require.resolve 'font-awesome/css/font-awesome.css'
+  require.resolve '@blueprintjs/core/dist/blueprint.css'
 ]
 
 for style in styles

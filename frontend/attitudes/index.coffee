@@ -27,7 +27,7 @@ class AttitudePage extends React.Component
     selection = records.filter (d)->d.selected
     hovered = records.find (d)->d.hovered
 
-    s = if showSidebar then {overflowY: 'scroll'} else {display: 'none'}
+    s = if showSidebar then {} else {display: 'none'}
 
     tab1Panel = h 'div', className: style.sidebar, [
       h 'div', className: style.sidebarComponent, [
@@ -56,12 +56,10 @@ class AttitudePage extends React.Component
       h MapControl, {settings: @props.settings.map}, [
         h MapDataLayer, {records}
       ]
-      h 'div.sidebar-outer', [
-        h Tabs2, [
-          h Tab2, id: 'selection-panel', title: 'Selection', panel: tab1Panel
-          h Tab2, id: 'sql-panel', title: 'Filter', panel: tab2Panel
-          h Tab2, id: 'options', title: 'Options', panel: h('div')
-        ]
+      h Tabs2, className: 'sidebar-outer', [
+        h Tab2, id: 'selection-panel', title: 'Selection', panel: tab1Panel
+        h Tab2, id: 'sql-panel', title: 'Filter', panel: tab2Panel
+        h Tab2, id: 'options', title: 'Options', panel: h('div')
       ]
     ]
 

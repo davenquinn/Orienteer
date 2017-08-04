@@ -68,7 +68,7 @@ class TagManager extends React.Component
     tags = buildTagData(@props.records)
 
     h 'div.tagManager', [
-      h "p", tags.map ({all,name})=>
+      h "p.tag-list", tags.map ({all,name})=>
         intent = if all then Intent.SUCCESS else null
         h Tag, {onRemove: @removeTag, intent, name: name, className: 'pt-minimal'}, name
       h TagForm, onUpdate: @addTag
