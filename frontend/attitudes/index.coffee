@@ -39,7 +39,7 @@ class AttitudePage extends React.Component
 
     h SplitPane, {
       split: "vertical"
-      minSize: 300
+      minSize: 350
       primary: "second"
       paneStyle
       pane2Style: s

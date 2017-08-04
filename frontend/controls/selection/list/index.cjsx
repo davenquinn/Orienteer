@@ -15,7 +15,7 @@ class ListItem extends React.Component
     {strike, dip, grouped,max_angular_error,
      min_angular_error, hovered, measurements} = @props.data
 
-    cls = style.item
+    cls = 'list-item'
     if hovered
       cls += " #{style.hovered}"
 
@@ -67,7 +67,7 @@ class SelectionList extends React.Component
       allowRemoval={@props.allowRemoval} />
 
   render: ->
-    <table className={"pt-table pt-striped pt-condensed #{style.list}"}>
+    <table className={"pt-table pt-striped pt-condensed selection-list-table"}>
       <thead>
         <tr>
           <td>Str</td>

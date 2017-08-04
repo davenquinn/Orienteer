@@ -41,7 +41,6 @@ class Data
     @featureTypes = []
     sql = storedProcedure 'get-types'
     db.query sql
-      .tap console.log
       .then (records)=>
         @featureTypes = records
         @onUpdated featureTypes: records
