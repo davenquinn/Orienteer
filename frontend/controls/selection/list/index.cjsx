@@ -4,33 +4,29 @@ d3 = require "d3"
 React = require 'react'
 style = require './style'
 h = require 'react-hyperscript'
+{Tag} = require '@blueprintjs/core'
 
-sf = d3.format ">8.1f"
-df = d3.format ">6.1f"
+f = d3.format ">.1f"
 
 class ListItem extends React.Component
   defaultProps:
     allowRemoval: false
-  renderGroupData: ->
-    d = @props.data
-    n = if d.records? then d.records.length else 1
-    <span className={style.group}>{n} attitudes</span>
   render: ->
-    d = @props.data
-    strike = sf(d.strike)
-    dip = df(d.dip)
-    grouped = d.records?
+    {strike, dip, grouped,max_angular_error,
+     min_angular_error, hovered, measurements} = @props.data
 
     cls = style.item
-    if d.hovered
+    if hovered
       cls += " #{style.hovered}"
 
     # This is crazy-inefficient
     <tr className={cls} onClick={@props.focusItem} onMouseEnter={@mousein}>
+      <td>{f(strike)}</td>
+      <td>{f(dip)}</td>
+      <td>{f(max_angular_error)}</td>
+      <td>{f(min_angular_error)}</td>
+      <td>{<Tag>{measurements.length} attitudes</Tag> if grouped}</td>
       {@createRemoveButton() if @props.allowRemoval}
-      <td className={style.strike}>{strike}</td>
-      <td className={style.dip}>{dip}</td>
-      <td>{@renderGroupData() if grouped}</td>
     </tr>
 
   createRemoveButton: =>
@@ -74,10 +70,11 @@ class SelectionList extends React.Component
     <table className={"pt-table pt-striped pt-condensed #{style.list}"}>
       <thead>
         <tr>
-          {<td></td> if @props.allowRemoval}
-          <td>Strike</td>
+          <td>Str</td>
           <td>Dip</td>
+          <td colSpan="2">Errors (º)</td>
           <td>Info</td>
+          {<td></td> if @props.allowRemoval}
         </tr>
       </thead>
       <tbody>
