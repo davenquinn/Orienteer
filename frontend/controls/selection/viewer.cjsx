@@ -3,6 +3,7 @@ $ = require 'jquery'
 d3 = require "d3"
 style = require './style'
 SelectionList = require './list'
+{Button, Intent} = require '@blueprintjs/core'
 
 sf = d3.format ">8.1f"
 df = d3.format ">6.1f"
@@ -13,22 +14,16 @@ strikeDip = (d)->
   <span><span className="strike">{strike}º</span> <span className="dip">{dip}º</span></span>
 
 class GroupedAttitudeControl extends React.Component
-  renderListItem: (d)->
-    <ListItem data={d} key={d.id} />
   render: ->
     # Group type selector should go here...
     rec = app.data.get(@props.data.measurements...)
     <div>
-      <h4>Component planes ({rec.length})</h4>
+      <h6>Component planes</h6>
       <SelectionList
         records={rec}
         hovered={@props.hovered} />
       <p>
-        <button
-          className="split pt-button pt-intent-danger pt-icon-heatmap"
-          onClick={@shouldDestroyGroup}>
-          Split group
-        </button>
+        <Button intent={Intent.DANGER} iconName='ungroup' onClick={@shouldDestroyGroup}>Ungroup</Button>
       </p>
     </div>
 

@@ -70,17 +70,14 @@ class StereonetView extends React.Component
 
   componentDidUpdate: (prevProps,prevState)->
     console.log prevProps, @props
-    if prevProps.data.length != @props.data.length
+    if prevProps.data != @props.data
       # This is currently broken
-      console.log "Data was changed"
+      @dataChanged()
     if prevProps.width != @props.width
       console.log "Scale was changed"
       @updateSize()
-
     else if prevProps.hovered != @props.hovered
       @updateHovered()
-    else
-      @dataChanged()
 
     @updatePaths()
 

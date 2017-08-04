@@ -70,10 +70,10 @@ class Sidebar extends React.Component
                 actions={actions} />
 
     <div className={"#{style.sidebar} flex flex-container"} >
+      {core}
       <div className="modal-controls">
         {closeButton}
       </div>
-      {core}
     </div>
 
   focusItem: (d)=>
