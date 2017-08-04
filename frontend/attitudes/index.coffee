@@ -29,21 +29,13 @@ class AttitudePage extends React.Component
 
     s = if showSidebar then {} else {display: 'none'}
 
-    tab1Panel = h 'div', className: style.sidebar, [
-      h 'div', className: style.sidebarComponent, [
-        h SelectionControl, {
-          records: selection
-          hovered
-        }
-      ]
-      h DataPane, {
-        records: selection
-        hovered
-        featureTypes
-      }
-    ]
+    selectionPanel = h SelectionControl, records: selection, hovered
 
-    tab2Panel = h FilterPanel, {query}
+    dataManagementPanel = h DataPane, {
+      records: selection
+      hovered
+      featureTypes
+    }
 
     h SplitPane, {
       split: "vertical"
@@ -57,12 +49,12 @@ class AttitudePage extends React.Component
         h MapDataLayer, {records}
       ]
       h Tabs2, className: 'sidebar-outer', [
-        h Tab2, id: 'selection-panel', title: 'Selection', panel: tab1Panel
-        h Tab2, id: 'sql-panel', title: 'Filter', panel: tab2Panel
+        h Tab2, id: 'selection-panel', title: 'Selection', panel: selectionPanel
+        h Tab2, id: 'data-panel', title: 'Data', panel: dataManagementPanel
+        h Tab2, id: 'sql-panel', title: 'Filter', panel: h(FilterPanel, {query})
         h Tab2, id: 'options', title: 'Options', panel: h('div')
       ]
     ]
-
 
   onResizePane: (size)->
     console.log size
