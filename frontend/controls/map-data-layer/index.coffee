@@ -20,14 +20,30 @@ eventHandlers = (record)->
   {onMouseOver, onMouseOut, onMouseDown}
 
 class StrikeDip extends Component
+  constructor: (props)->
+    super props
+    @state = @buildState()
+
   shouldComponentUpdate: (nextProps)->
     {record, zoom} = @props
     return true if zoom != nextProps.zoom
     return true if record != nextProps.record
     return false
 
+  buildState: (props)->
+    props ?= @props
+    {record, projection} = props
+    c = record.center.coordinates
+    location = projection(c[0],c[1])
+    {location}
+
+  componentWillReceiveProps: (nextProps)->
+    if nextProps.zoom != @props.zoom
+      @setState @buildState(nextProps)
+
   render: ->
     {record, projection, zoom} = @props
+    {location} = @state
     {strike, dip, selected, hovered, center} = record
     scalar =  5+0.2*zoom
 
@@ -36,9 +52,7 @@ class StrikeDip extends Component
       selected
     }
 
-    c = center.coordinates
-    c = projection(c[0],c[1])
-    transform = "translate(#{c.x} #{c.y})
+    transform = "translate(#{location.x} #{location.y})
                  rotate(#{strike} 0 0)
                  scale(#{1+0.2*zoom})"
 
@@ -56,11 +70,25 @@ class StrikeDip extends Component
     ]
 
 class Feature extends Component
+  constructor: (props)->
+    super props
+    @state = @buildState()
+
   shouldComponentUpdate: (nextProps)->
     {record, pathGenerator} = @props
     return true if pathGenerator != nextProps.pathGenerator
     return true if record != nextProps.record
     return false
+
+  buildState: (props)->
+    props ?= @props
+    {record, pathGenerator} = props
+    d = pathGenerator(record)
+    {d}
+
+  componentWillReceiveProps: (nextProps)->
+    if nextProps.pathGenerator != @props.pathGenerator
+      @setState @buildState(nextProps)
 
   render: ->
     {record, pathGenerator} = @props
@@ -70,7 +98,7 @@ class Feature extends Component
     className = classNames record.geometry.type,
       {hovered, selected}
 
-    d = pathGenerator(record)
+    {d} = @state
     h "path", {className, d, handlers...}
 
 class DataLayer extends MapLayer
