@@ -132,7 +132,6 @@ def check_integrity():
             pca = a.pca()
             equal(a,"principal axes",pca.axes, a.principal_axes)
             equal(a,"singular values",pca.singular_values, a.singular_values)
-            equal(a,"covariance",N.diagonal(pca.covariance_matrix), a.covariance)
             equal(a,"number of samples",pca.n, a.n_samples)
             equal(a,"strike and dip",pca.strike_dip(),(a.strike,a.dip))
 

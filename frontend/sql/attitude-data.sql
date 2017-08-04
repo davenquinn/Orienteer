@@ -61,7 +61,7 @@ CREATE OR REPLACE VIEW attitude_data AS
     tagged.tags,
     ST_Centroid(b.geometry) AS location,
     a.principal_axes,
-    a.covariance,
+    a.hyperbolic_axes,
     (b.feature_id IS null) AS is_group,
     (a.member_of IS NOT null) AS in_group
   FROM attitude a

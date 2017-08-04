@@ -155,7 +155,7 @@ class Data
 
   updateUsing: (changeset)->
     console.log "Updating using", changeset
-    @records = update(@records, changeset)
+    @records = update(@records, changeset).filter (d)->d?
     @onUpdated records: @records
 
   addTag: (tag, records)->
@@ -236,7 +236,13 @@ class Data
     obj = response.data
     ids = obj.measurements.concat [obj.id]
     @log.success "Successfully created group #{obj.id}"
-    @refreshRecords ids, selected: true
+    # Splice empty groups
+    changeset = {}
+    for record in records
+      continue unless record.is_group
+      ix = @getRecordIndex record.id
+      changeset[ix] = {$set: null}
+    @refreshRecords ids, {selected: true, changeset }
 
   refreshRecords: (ids, opts={})->
     # Options:

@@ -48,7 +48,7 @@ class Attitude(BaseModel):
     principal_axes = Column(ARRAY(Float,
         dimensions=2,zero_indexes=True))
     singular_values = Column(ARRAY(Float,zero_indexes=True))
-    covariance = Column(ARRAY(Float,zero_indexes=True))
+    hyperbolic_axes = Column(ARRAY(Float,zero_indexes=True))
     n_samples = Column(Integer)
     max_angular_error = Column(Float)
     min_angular_error = Column(Float)
@@ -145,7 +145,7 @@ class Attitude(BaseModel):
                 strike=self.strike,
                 dip=self.dip,
                 n_samples=self.n_samples,
-                covariance=self.covariance,
+                hyperbolic_axes=self.hyperbolic_axes,
                 axes=self.principal_axes))
 
     def calculate(self):
@@ -161,13 +161,13 @@ class Attitude(BaseModel):
 
         # Really this is hyperbolic axis lengths
         # should change API to reflect this distinction
-        self.covariance = noise_axes(pca).tolist()
+        self.hyperbolic_axes = sampling_axes(pca).tolist()
         self.n_samples = pca.n
         self.strike, self.dip = pca.strike_dip()
         if self.dip == 90:
             self.valid = False
 
-        a = angular_errors(self.covariance)
+        a = angular_errors(self.hyperbolic_axes)
         self.min_angular_error = 2*N.degrees(a[0])
         self.max_angular_error = 2*N.degrees(a[1])
 
@@ -256,7 +256,7 @@ class AttitudeGroup(Attitude):
             same_plane=self.same_plane,
             r=self.correlation_coefficient,
             n_samples=self.n_samples,
-            covariance=self.covariance,
+            hyperbolic_axes=self.hyperbolic_axes,
             axes=self.principal_axes,
             measurements=[m.id
                 for m in self.measurements])

@@ -55,8 +55,13 @@ def group():
     # We're going to create a group
     # Need to decode bytes; might break py2 compatibility
     data = loads(request.data.decode('utf-8'))
-    features = [db.session.query(Attitude).get(i)
-        for i in data["measurements"]]
+    features = []
+    for id in data['measurements']:
+        obj = db.session.query(Attitude).get(id)
+        if hasattr(obj,'measurements'):
+            features += obj.measurements
+        else:
+            features.append(obj)
     if len(features) < 2:
         msg = "Cannot create group from less than two features"
         raise InvalidUsage(msg)

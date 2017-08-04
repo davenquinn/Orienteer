@@ -15,7 +15,7 @@ SELECT
   location center,
   principal_axes AS axes,
   tags,
-  covariance
+  hyperbolic_axes
 FROM
   attitude_data
 WHERE correlation_coefficient < 1;

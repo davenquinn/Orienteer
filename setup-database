@@ -1,0 +1,4 @@
+#!/bin/bash
+
+psql $1 -c "DROP VIEW attitude_data;"
+psql $1 -f frontend/sql/attitude-data.sql
