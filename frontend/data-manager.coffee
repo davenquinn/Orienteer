@@ -70,12 +70,11 @@ class Data
         if complete
           changeset = {$set: records}
         else
-          changeset = {}
+          changeset = {$push: []}
           # Set all to null by default
           @records.forEach (d,i)->
             changeset[i] = {$set: null}
 
-          changeset['$push'] = []
           # Add back records that are changed
           for record in records
             ix = @getRecordIndex record.id
