@@ -3,6 +3,8 @@ SelectionList = require "./list"
 ViewerControl = require './viewer'
 React = require 'react'
 style = require './style'
+h = require 'react-hyperscript'
+{NonIdealState} = require '@blueprintjs/core'
 
 class SelectionControl extends React.Component
   render: ->
@@ -44,7 +46,12 @@ class Sidebar extends React.Component
 
     # Render nothing for empty selection
     if rec.length == 0
-      return <div />
+      return h NonIdealState, {
+        title: 'No items selected'
+        description: "Select some items on the map"
+        visual: 'send-to-map'
+      }
+
 
     closeButton = <CloseButton action={app.data.clearSelection} icon="cross">Clear selection</CloseButton>
     if @state.focused?

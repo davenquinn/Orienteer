@@ -42,8 +42,11 @@ class App extends React.Component
     @state = {
       query
       featureTypes: []
+      showSidebar: false
       records: []
       state...}
+
+    setupMenu(@)
 
     @log = new LogHandler
 
@@ -73,14 +76,17 @@ class App extends React.Component
     newState = update(@state.settings, spec)
     @setState settings: newState
 
+  toggleSidebar: ->
+    @setState showSidebar: not @state.showSidebar
+
   render: ->
-    {settings, records, query, featureTypes} = @state
+    {settings, records, query, featureTypes, showSidebar} = @state
     console.log "Re-rendering app with state", @state
 
     class DataStereonet extends React.Component
       render: -> h Stereonet, {settings, records}
 
-    attitude = -> h AttitudePage, {settings, records, query, featureTypes}
+    attitude = -> h AttitudePage, {settings, records, query, featureTypes, showSidebar}
 
     h "div#root", [
       h Route, path: "/", component: Frontpage, exact: true

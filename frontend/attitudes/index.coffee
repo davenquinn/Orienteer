@@ -22,19 +22,12 @@ paneStyle =
   flexDirection: 'column'
 
 class AttitudePage extends React.Component
-  constructor: (props)->
-    super props
-
   render: ->
-    {records, featureTypes, query} = @props
+    {records, featureTypes, query, showSidebar} = @props
     selection = records.filter (d)->d.selected
     hovered = records.find (d)->d.hovered
 
-    s = null
-    if selection.length == 0
-      s = display: 'none'
-    else
-      s = overflowY: 'scroll'
+    s = if showSidebar then {overflowY: 'scroll'} else {display: 'none'}
 
     tab1Panel = h 'div', className: style.sidebar, [
       h 'div', className: style.sidebarComponent, [
@@ -51,8 +44,6 @@ class AttitudePage extends React.Component
     ]
 
     tab2Panel = h FilterPanel, {query}
-
-    console.log @props.settings.map
 
     h SplitPane, {
       split: "vertical"

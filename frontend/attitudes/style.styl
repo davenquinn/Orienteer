@@ -108,8 +108,19 @@
     flex-direction: column
 
 
-.code-window
-  font-family: "Droid Sans Mono", "Consolas", monospace
 
 .filter-window
   min-height: 10em
+
+.data-filter
+  .code-window, table td
+    font-family: "Droid Sans Mono", "Consolas", monospace
+
+  table
+    width: 100%
+    font-size: 0.8em
+    td, th
+      padding: 5px
+  .pt-editable-content
+    height: inherit !important
+

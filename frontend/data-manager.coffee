@@ -73,6 +73,7 @@ class Data
 
         changeset = {$set: records}
         @updateUsing changeset
+        @log.success "Loaded #{records.length} features"
       .catch (e)->
         throw e
 
