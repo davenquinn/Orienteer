@@ -1,8 +1,10 @@
 - name: "All data"
-  sql: >
+  sql: |
     SELECT *
     FROM attitude_data
 - name: "Exclude bad"
-  sql: >
+  sql: |
     SELECT * FROM attitude_data
-    WHERE NOT ARRAY['bad','poor'] && tags::text[]
+    WHERE
+      NOT ARRAY['bad','poor']
+          && tags::text[]

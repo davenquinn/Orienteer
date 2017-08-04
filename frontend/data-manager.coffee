@@ -188,12 +188,10 @@ class Data
 
   # Change data class
   changeClass: (type, records)->
-    {storedProcedure, db} = require '../database'
     sql = storedProcedure "update-types"
     ids = records.map (d)->d.id
     console.log "Changing class to #{type} for #{ids}"
     results = await db.query sql, [type,ids]
-    console.log results
 
     for i in ids
       # Groups should have IDs set as well

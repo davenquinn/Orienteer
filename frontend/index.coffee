@@ -7,7 +7,7 @@ ReactDOM = require 'react-dom'
 {HashRouter,Route,Link} = require 'react-router-dom'
 h = require 'react-hyperscript'
 {remote} = require 'electron'
-
+{FocusStyleManager} = require '@blueprintjs/core'
 setupMenu = require './menu'
 Map = require "./controls/map"
 Frontpage = require "./frontpage"
@@ -16,13 +16,11 @@ AttitudePage = require "./attitudes"
 Stereonet = require "./endpoints/stereonet"
 LogHandler = require "./log-handler"
 update = require 'immutability-helper'
-
+yaml = require 'js-yaml'
+{readFileSync} = require 'fs'
 styles = require './styles/layout.styl'
 
-erf = (request, textStatus, errorThrown)->
-  console.log request, textStatus, errorThrown
-
-
+FocusStyleManager.onlyShowFocusOnTabs()
 
 class App extends React.Component
   constructor: ->
@@ -31,12 +29,10 @@ class App extends React.Component
     @API = require "./api"
     @opts = require "./options"
 
-    @defaultSubquery = """
-                          SELECT *
-                          FROM attitude_data
-                          WHERE true
-                       """
-    query = @defaultSubquery
+    _ = readFileSync "#{__dirname}/sql/stored-filters.yaml", 'utf8'
+    @subqueryIndex = yaml.load _
+
+    query = @subqueryIndex[0].sql
 
     {state} = remote.app
     @state = {
@@ -62,6 +58,7 @@ class App extends React.Component
     @state.settings.map ?= {bounds: null}
 
   runQuery: (query)->
+    return if query == @state.query
     @setState query: query
     @data.getData query
 

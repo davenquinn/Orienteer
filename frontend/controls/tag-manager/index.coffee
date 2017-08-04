@@ -2,6 +2,7 @@ React = require 'react'
 ReactDOM = require 'react-dom'
 style = require './style'
 h = require 'react-hyperscript'
+{Tag, Intent} = require '@blueprintjs/core'
 
 buildTagData = (records)->
   func = (a, d)->
@@ -67,22 +68,17 @@ class TagManager extends React.Component
     tags = buildTagData(@props.records)
 
     h 'div.tagManager', [
-      h "ul.tagList", tags.map (t)=>
-        h TagItem, {
-          name: t.name
-          all: t.all
-          removeFunction: @removeTag
-        }
+      h "p", tags.map ({all,name})=>
+        intent = if all then Intent.SUCCESS else null
+        h Tag, {onRemove: @removeTag, intent, name: name, className: 'pt-minimal'}, name
       h TagForm, onUpdate: @addTag
     ]
-  componentDidMount: ->
-    el = ReactDOM.findDOMNode @
 
   addTag: (name)=>
     console.log "Adding tag #{name}"
     app.data.addTag name, @props.records
 
-  removeTag: (name)=>
+  removeTag: (evt, {name})=>
     app.data.removeTag name, @props.records
 
 module.exports = TagManager

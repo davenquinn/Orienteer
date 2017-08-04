@@ -17,7 +17,7 @@ eventHandlers = (record)->
     app.data.hovered record
   onMouseOut = ->
     app.data.hovered null
-  {onMouseOver, onMouseDown}
+  {onMouseOver, onMouseOut, onMouseDown}
 
 
 class StrikeDip extends Component

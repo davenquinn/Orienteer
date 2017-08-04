@@ -1,5 +1,5 @@
 {Component} = require 'react'
-{EditableText} = require '@blueprintjs/core'
+{EditableText, Menu, MenuItem, Popover, Button, Position} = require '@blueprintjs/core'
 h = require 'react-hyperscript'
 {db, storedProcedure} = require '../database'
 
@@ -25,7 +25,10 @@ formatType = (row)->
 class FilterPanel extends Component
   constructor: (props)->
     super props
-    @state = {dataTypes: []}
+    @state = {
+      dataTypes: []
+      value: @props.query
+    }
 
     db.query storedProcedure('column-types')
       .map formatType
@@ -35,18 +38,30 @@ class FilterPanel extends Component
     console.log dataTypes
     @setState {dataTypes}
 
+  componentWillReceiveProps: (nextProps)->
+    {query} = nextProps
+    if query != @state.value
+      @setState value: query
+
   render: ->
 
     h 'div.data-filter', [
       h 'h4', 'Filter data'
       h EditableText, {
-        multiline: true, minLines: 5, defaultValue: @props.query
+        multiline: true, value: @state.value
         className: 'code-window filter-window'
         onConfirm: @onConfirm
+        onChange: @onChange
       }
-      h 'button.pt-button.pt-icon-undo', onClick: @reset, "Reset query"
+      h Popover, content: @menu(), position: Position.LEFT, [
+        h Button, text: "Stored query", iconName: 'database'
+      ]
       @columnDefs()
     ]
+
+  menu: ->
+    h Menu, app.subqueryIndex.map (d)->
+      h MenuItem, text: d.name, onClick: ->app.runQuery(d.sql)
 
   columnDefs: ->
     createRow = (args, el='td')->
@@ -65,7 +80,11 @@ class FilterPanel extends Component
       ]
     ]
 
-  onConfirm: (value)->
+  onChange: (value)=>
+    @setState {value}
+
+  onConfirm: (value)=>
+    return if value == @props.value
     app.runQuery value
 
   reset: ->
