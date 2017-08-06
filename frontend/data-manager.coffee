@@ -181,6 +181,7 @@ class Data
       changeset[ix] = {tags: {"$push": [rec.tag_name]}}
 
     @updateUsing changeset
+    return unless @subquery?
     if @subquery.includes "tags"
       @refreshAllData()
 
@@ -198,6 +199,7 @@ class Data
       changeset[ix] = {tags: {"$splice": [[tagindex,1]]}}
 
     @updateUsing changeset
+    return unless @subquery?
     if @subquery.includes "tags"
       @refreshAllData()
 
@@ -215,10 +217,12 @@ class Data
     changeset = {}
     for rec in results
       ix = @records.findIndex (a)->rec.id == a.id
+      continue if ix == -1
       changeset[ix]={class:{"$set":type}}
 
     @updateUsing changeset
     @log.success "Changed class to #{type} for #{results.length} records"
+    return unless @subquery?
     if @subquery.includes "class"
       @refreshAllData()
 

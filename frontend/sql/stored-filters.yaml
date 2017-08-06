@@ -9,3 +9,23 @@
       NOT ARRAY['bad','poor']
           && tags::text[]
       OR tags IS null
+- name: "Good data"
+  sql: |
+    SELECT * FROM attitude_data
+    WHERE
+      ARRAY['good']
+          && tags::text[]
+- name: "Representative"
+  sql: |
+    SELECT * FROM attitude_data
+    WHERE
+      ARRAY['representative']
+          && tags::text[]
+- name: "Sulfates"
+  sql: |
+    SELECT * FROM attitude_data
+    WHERE
+      NOT ARRAY['bad','poor']
+          && tags::text[]
+      OR tags IS null
+      AND class = 'sulfate'
