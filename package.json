@@ -58,7 +58,7 @@
     "d3-selection-multi": "^1.0.0",
     "d3-tip": "^0.6.7",
     "dragdealer": "^0.9.8",
-    "electron": "beta",
+    "electron": "1.7.4",
     "electron-browser-sync": "file:../../deps/node-packages/electron-browser-sync",
     "electron-log": "^1.2.2",
     "elemental": "^0.5.14",

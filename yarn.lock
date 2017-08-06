@@ -1396,7 +1396,7 @@ electron-reload@^1.2.1:
   dependencies:
     chokidar "^1.5.1"
 
-electron@beta:
+electron@1.7.4:
   version "1.7.4"
   resolved "https://registry.yarnpkg.com/electron/-/electron-1.7.4.tgz#db8b85ae98dffb7a82938e5ea6eed3cb66f62a65"
   dependencies:
