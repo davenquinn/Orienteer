@@ -21,20 +21,6 @@ buildTagData = (records)->
       all: num >= records.length
   return arr
 
-class TagItem extends React.Component
-  render: ->
-    cls = if @props.all then "all" else "some"
-    h "li", className: cls, [
-      @props.name
-      h 'span.remove', onClick: @onRemove, [
-        h 'i.fa.fa-remove'
-      ]
-    ]
-
-  onRemove: =>
-    console.log "Removing item"
-    @props.removeFunction @props.name
-
 class TagForm extends React.Component
   constructor: (props)->
     super props
@@ -70,7 +56,7 @@ class TagManager extends React.Component
     rec = if hovered? then [hovered] else records
     tags = buildTagData(rec)
     val = if hovered? then 'Hovered item' else 'Selection'
-    
+
     h 'div.tag-manager', [
       h 'h6', 'Tags'
       h 'h6.info', val
