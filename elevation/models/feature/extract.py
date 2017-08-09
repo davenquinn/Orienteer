@@ -60,7 +60,7 @@ def extract_line(geom, dem, **kwargs):
     """
     coords_in = N.array(geom.coords)
     # Transform geometry into pixels
-    f = lambda *x: ~dem.affine * x
+    f = lambda *x: ~dem.transform * x
     px = transform(f,geom)
 
     # Subdivide geometry segments
@@ -69,7 +69,7 @@ def extract_line(geom, dem, **kwargs):
 
     # Transform pixels back to geometry
     # to capture subdivisions
-    f = lambda *x: dem.affine * (x[0],x[1])
+    f = lambda *x: dem.transform * (x[0],x[1])
     geom = transform(f,px)
 
     # Get min and max coords for windowing
@@ -100,7 +100,7 @@ def extract_area(geom, dem, **kwargs):
     msk = geometry_mask(
         (mapping(geom),),
         dem.shape,
-        dem.affine,
+        dem.transform,
         invert=True)
 
     # shrink mask to the minimal area for efficient extraction
@@ -133,7 +133,7 @@ def extract_area(geom, dem, **kwargs):
     coords = N.vstack((x,y,N.ones(z.shape)))
 
     # Get affine transform for pixel centers
-    affine = dem.affine * Affine.translation(0.5, 0.5)
+    affine = dem.transform * Affine.translation(0.5, 0.5)
     # Transform coordinates to DEM's reference
     _ = N.array(affine).reshape((3,3))
     coords = N.dot(_,coords)
