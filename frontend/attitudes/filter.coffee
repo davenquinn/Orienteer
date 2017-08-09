@@ -41,7 +41,7 @@ class FilterPanel extends Component
   componentWillReceiveProps: (nextProps)->
     {query} = nextProps
     if query != @state.value
-      @setState value: query
+      @setState value: query.trim()
 
   render: ->
 
