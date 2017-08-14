@@ -2,10 +2,10 @@ $ = require "jquery"
 
 window.server_url = "http://0.0.0.0:8000"
 
+h = require 'react-hyperscript'
 React = require 'react'
 ReactDOM = require 'react-dom'
 {HashRouter,Route,Link} = require 'react-router-dom'
-h = require 'react-hyperscript'
 {remote} = require 'electron'
 {FocusStyleManager} = require '@blueprintjs/core'
 setupMenu = require './menu'
