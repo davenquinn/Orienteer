@@ -31,5 +31,13 @@ class Dataset(BaseModel):
             "rio","shapes","--mask",self.dem_path])
         data = loads(output.decode('utf-8'))
 
-        geom = asShape(data['features'][0]['geometry'])
-        self.footprint = from_shape(geom, srid.world)
+        # Takes the largest contiguous geometry
+        accepted_geom = None
+        area = 0
+        for feature in data['features']:
+            geom = asShape(feature['geometry'])
+            if geom.area > area:
+                area = geom.area
+                accepted_geom = geom
+
+        self.footprint = from_shape(accepted_geom, srid.world)

@@ -58,8 +58,10 @@ class TagManager extends React.Component
     val = if hovered? then 'Hovered item' else 'Selection'
 
     h 'div.tag-manager', [
-      h 'h6', 'Tags'
-      h 'h6.info', val
+      h 'div.header', [
+        h 'h6', 'Tags'
+        h 'h6.info', val
+      ]
       h "p.tag-list", tags.map ({all,name})=>
         intent = if all then Intent.SUCCESS else null
         h Tag, {onRemove: @removeTag, intent, name: name, className: 'pt-minimal'}, name
