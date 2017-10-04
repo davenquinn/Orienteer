@@ -251,6 +251,7 @@ class Data
 
     console.log "Creating group"
     response = await call "POST", JSON.stringify(data)
+    console.log "Got response from server"
     if response.status != 'success'
       @log.error "Could not create group"
       return

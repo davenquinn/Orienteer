@@ -56,8 +56,10 @@ def offset_mask(mask):
 
 def extract_line(geom, dem, **kwargs):
     """
-    Extract a linear feature from a geospatial dataset.
+    Extract a linear feature from a `rasterio` geospatial dataset.
     """
+    kwargs.setdefault('masked', True)
+
     coords_in = N.array(geom.coords)
     # Transform geometry into pixels
     f = lambda *x: ~dem.transform * x

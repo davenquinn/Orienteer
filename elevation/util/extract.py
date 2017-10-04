@@ -17,6 +17,9 @@ def __factory__(order):
         from scipy.ndimage import map_coordinates
         from shapely.geometry import shape, mapping, asLineString
 
+        if hasattr(array, 'mask'):
+            array = array.astype(float).filled(N.nan)
+
         def point_handler(coords):
             return line_handler([coords])[0]
 
