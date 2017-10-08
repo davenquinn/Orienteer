@@ -53,10 +53,10 @@ CREATE OR REPLACE VIEW attitude_data AS
   ia AS (
     SELECT
       a.id,
-      dataset_id dataset,
       a.member_of,
+      dataset_id dataset,
       instrument
-    FROM attitude_data a
+    FROM attitude a
     LEFT JOIN dataset_feature f ON a.feature_id = f.id
     LEFT JOIN dataset d ON f.dataset_id = d.id
   ),
