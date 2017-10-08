@@ -43,7 +43,50 @@ CREATE OR REPLACE VIEW attitude_data AS
       geometry,
       null as measurements
     FROM a
-    WHERE feature_id IS NOT null)
+    WHERE feature_id IS NOT null
+  ),
+  /* Get dataset and instrument for each measurement
+     on the assumption that all grouped measurements are
+     from the same dataset and instrument (null is returned
+     otherwise).
+  */
+  ia AS (
+    SELECT
+      a.id,
+      dataset_id dataset,
+      a.member_of,
+      instrument
+    FROM attitude_data a
+    LEFT JOIN dataset_feature f ON a.feature_id = f.id
+    LEFT JOIN dataset d ON f.dataset_id = d.id
+  ),
+  paired_instruments AS (
+    SELECT
+      a1.member_of id,
+      array_agg(a1.dataset) dataset,
+      array_agg(a1.instrument) inst
+    FROM ia a1
+    LEFT JOIN ia a2
+      ON a1.member_of = a2.id
+    WHERE a1.member_of IS NOT null
+    GROUP BY a1.member_of
+  ),
+  instrument_attitude AS (
+    SELECT
+      id,
+      CASE WHEN dataset[1] = ALL(dataset)
+      THEN dataset[1]
+      ELSE NULL
+      END AS dataset,
+      CASE WHEN inst[1] = ALL(inst)
+      THEN inst[1]
+      ELSE NULL
+      END AS instrument
+    FROM paired_instruments
+    UNION ALL
+    SELECT id,dataset,instrument FROM ia
+    WHERE dataset IS NOT null
+  )
   SELECT
     a.id,
     b.feature_id,
@@ -63,9 +106,12 @@ CREATE OR REPLACE VIEW attitude_data AS
     a.principal_axes,
     a.hyperbolic_axes,
     (b.feature_id IS null) AS is_group,
-    (a.member_of IS NOT null) AS in_group
+    (a.member_of IS NOT null) AS in_group,
+    dataset,
+    instrument
   FROM attitude a
-    RIGHT JOIN b ON a.id = b.id
-    LEFT JOIN tagged ON a.id = tagged.fid
-
+  RIGHT JOIN b ON a.id = b.id
+  LEFT JOIN tagged ON a.id = tagged.fid
+  LEFT JOIN instrument_attitude ia
+         ON a.id = ia.id
 
