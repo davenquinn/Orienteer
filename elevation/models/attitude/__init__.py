@@ -156,6 +156,8 @@ class Attitude(BaseModel):
         except IndexError:
             # If there aren't enough coordinates
             return
+        except ValueError:
+            return
         self.principal_axes = pca.axes.tolist()
         self.singular_values = pca.singular_values.tolist()
 
