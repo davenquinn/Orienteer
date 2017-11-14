@@ -67,7 +67,7 @@ class Data
 
         # Only integrate changed records
         # We could have a separate thing to completely refresh data
-        if complete
+        if complete or @records.length == 0
           changeset = {$set: records}
         else
           changeset = {$push: []}
