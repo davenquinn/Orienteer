@@ -1,5 +1,6 @@
 React = require 'react'
 Select = require 'react-select'
+h = require 'react-hyperscript'
 require "react-select/dist/react-select.css"
 
 class SelectType extends React.Component
@@ -33,7 +34,7 @@ class SelectType extends React.Component
       v.charAt(0).toUpperCase()+v.slice(1)
       return v
 
-    <Select name="select-type" value={rec} options={t} onChange={onChange} optionRenderer={renderOption} />
+    h Select, {name: "select-type", value: rec, options:t, onChange, optionRenderer:renderOption}
 
 module.exports = SelectType
 
