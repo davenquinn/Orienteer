@@ -10,15 +10,14 @@ from sqlalchemy import (
     Column, String, Text, Integer,
     DateTime, ForeignKey, Boolean, Float)
 
+from ...core import SRID
 from ..base import db, BaseModel
-
-from ...core.proj import srid
 
 def wkb(shape):
     """Creates a WKB representation of the
     shape for inclusion in the database
     """
-    return from_shape(shape, srid=srid.world)
+    return from_shape(shape, srid=SRID)
 
 class DatasetFeature(BaseModel):
     """A feature tied to a specific dataset. Has a pixel geometry
@@ -28,7 +27,7 @@ class DatasetFeature(BaseModel):
 
     id = Column(Integer, primary_key=True)
     type = Column(String(64)) # Polymorphic discriminator column
-    geometry = Column(Geometry(srid=srid.world))
+    geometry = Column(Geometry(srid=SRID))
     date_created = Column(DateTime,server_default=text("now()"), nullable=False)
 
     mapping = property(lambda self: self.__geo_interface__)
@@ -60,7 +59,5 @@ class DatasetFeature(BaseModel):
     @property
     def length(self):
         return db.session.scalar(
-            func.ST_Length(func.ST_Transform(
-                self.geometry, srid.local
-                )))
+            func.ST_Length(self.geometry))
 

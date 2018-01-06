@@ -23,7 +23,7 @@ from sqlalchemy import (
     ForeignKey, Boolean, Float)
 
 from .tag import Tag, attitude_tag
-from ..feature import DatasetFeature, srid
+from ..feature import DatasetFeature, SRID
 from ...database import db
 from ..base import BaseModel
 
@@ -54,7 +54,7 @@ class Attitude(BaseModel):
     min_angular_error = Column(Float)
 
     geometry = association_proxy('feature','geometry')
-    location = Column(Geometry("POINT", srid=srid.world))
+    location = Column(Geometry("POINT", srid=SRID))
 
     valid = Column(Boolean)
     member_of = Column(

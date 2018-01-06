@@ -74,10 +74,14 @@ def __setup_endpoints(app, db):
     app.register_blueprint(elevation,url_prefix="/elevation")
     app.register_blueprint(api,url_prefix="/api")
 
+SRID = None
+
 def setup_app():
     app = Flask(__name__)
     app.config.from_object('elevation.config')
     app.config.from_envvar('ELEVATION_CONFIG',silent=True)
+    global SRID
+    SRID = app.config.get("SRID")
     db.init_app(app)
     __setup_endpoints(app,db)
     log.info("App setup complete")

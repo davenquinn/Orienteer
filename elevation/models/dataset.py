@@ -2,10 +2,11 @@ from geoalchemy2 import Geometry
 from geoalchemy2.shape import from_shape, to_shape
 from flask import current_app as app
 from .base import db, BaseModel
-from ..core.proj import srid
 from json import loads
 from subprocess import check_output
 from sqlalchemy import Column, String, Text
+
+from ..core import SRID
 
 class Dataset(BaseModel):
     __tablename__ = "dataset"
@@ -13,7 +14,7 @@ class Dataset(BaseModel):
     instrument = Column(String(64))
     dem_path = Column(Text)
 
-    footprint = Column(Geometry("POLYGON", srid=srid.world))
+    footprint = Column(Geometry("POLYGON", srid=SRID))
 
     @property
     def bounds(self):
@@ -40,4 +41,4 @@ class Dataset(BaseModel):
                 area = geom.area
                 accepted_geom = geom
 
-        self.footprint = from_shape(accepted_geom, srid.world)
+        self.footprint = from_shape(accepted_geom, SRID)

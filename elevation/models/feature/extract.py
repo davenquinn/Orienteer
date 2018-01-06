@@ -150,8 +150,12 @@ def extract(self):
 
         # Transform the shape to the DEM's projection
         projection = transformation(source_crs, dem.crs)
-        geom = transform(projection,
-                to_shape(self.geometry))
+
+        # Add some asserts here maybe since we don't do any cleaning
+
+        import IPython; IPython.embed()
+
+        geom = to_shape(self.geometry)
 
         if geom.area == 0:
             coords = extract_line(geom,dem)
