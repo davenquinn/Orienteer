@@ -54,7 +54,7 @@ class Attitude(BaseModel):
     min_angular_error = Column(Float)
 
     geometry = association_proxy('feature','geometry')
-    location = Column(Geometry("POINT", srid=SRID))
+    center = Column(Geometry("POINTZ", srid=SRID))
 
     valid = Column(Boolean)
     member_of = Column(
@@ -141,7 +141,7 @@ class Attitude(BaseModel):
             geometry=mapping(to_shape(self.feature.geometry)),
             properties=dict(
                 r=self.correlation_coefficient,
-                center=mapping(to_shape(self.location)),
+                center=mapping(to_shape(self.center)),
                 strike=self.strike,
                 dip=self.dip,
                 n_samples=self.n_samples,
@@ -149,7 +149,9 @@ class Attitude(BaseModel):
                 axes=self.principal_axes))
 
     def calculate(self):
-        self.location = func.ST_Centroid(self.geometry)
+
+        self.center = func.ST_SetSRID(
+            func.ST_MakePoint(*self.array.mean(axis=0)), SRID)
 
         try:
             pca = Orientation(self.centered_array)
