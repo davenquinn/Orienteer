@@ -142,6 +142,9 @@ def extract_area(geom, dem, **kwargs):
     coords[2] = z
     return coords.transpose()
 
+class ProjectionDifferenceError(Exception):
+    pass
+
 def extract(self):
     source_crs = db.session.query(Projection).get(self.geometry.srid).crs
     demfile = self.dataset.dem_path
@@ -153,7 +156,13 @@ def extract(self):
 
         # Add some asserts here maybe since we don't do any cleaning
 
-        import IPython; IPython.embed()
+        for point in ((0,0),(10,10)):
+            try:
+                assert N.allclose(point, projection(*point))
+            except AssertionError:
+                raise ProjectionDifferenceError(
+                    "DEM and geometry projections are different."
+                    "This is not yet allowed.")
 
         geom = to_shape(self.geometry)
 

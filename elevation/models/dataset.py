@@ -41,4 +41,4 @@ class Dataset(BaseModel):
                 area = geom.area
                 accepted_geom = geom
 
-        self.footprint = from_shape(accepted_geom, SRID)
+        self.footprint = from_shape(accepted_geom, srid.world)
