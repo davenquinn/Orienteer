@@ -1,12 +1,18 @@
 {readFileSync} = require 'fs'
 
+loadConfig = (configPath)->
+  JSON.parse(readFileSync(configPath, 'utf-8'))
+
 argv = require 'yargs'
   .env('ORIENTEER')
-  .config 'config', (configPath)->
-    JSON.parse(readFileSync(configPath, 'utf-8'))
+  .config 'config', loadConfig
   .argv
 
 config = argv.config or {}
+if typeof config is 'string'
+  config = loadConfig config
+
+global.config = config
 
 # Assemble a list of files to watch
 list = []

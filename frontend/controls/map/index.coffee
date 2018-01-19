@@ -38,9 +38,7 @@ class MapControl extends Component
   constructor: (props)->
     super props
 
-    cfg = app.config.map
-    cfg.basedir ?= path.dirname app.config.configFile
-    cfg = parseConfig cfg
+    console app.config
 
     @state = layers: cfg.layers
 

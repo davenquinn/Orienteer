@@ -5,11 +5,11 @@ queue = require 'queue-async'
 
 startServer = require './server'
 watchCommand = require './watch'
-setupConfig = require './config'
 
 # Keep a global reference of the window object, if you don't, the window will
 # be closed automatically when the JavaScript object is garbage collected.
 global.mainWindow = null
+global.config = app.config
 
 setupApp = (cb)->
 

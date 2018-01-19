@@ -19,6 +19,7 @@ update = require 'immutability-helper'
 yaml = require 'js-yaml'
 {readFileSync} = require 'fs'
 styles = require './styles/layout.styl'
+{remote} = require 'electron'
 
 FocusStyleManager.onlyShowFocusOnTabs()
 
@@ -28,6 +29,8 @@ class App extends React.Component
     window.app = @
     @API = require "./api"
     @opts = require "./options"
+
+    @config = remote.getGlobal('config')
 
     _ = readFileSync "#{__dirname}/sql/stored-filters.yaml", 'utf8'
     @subqueryIndex = yaml.load _
