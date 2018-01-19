@@ -51,12 +51,6 @@ startApp = (url)->
 module.exports = (url, cfg)->
   console.log "Loading application window"
 
-  # Right now, the environment variable "NODE_MAP_CONFIG"
-  # should point to the config file
-  fn = process.env.ELEVATION_NODE_CONFIG
-  if fn?
-    config = setupConfig fn
-    cfg = _.defaults(cfg or {}, config)
   app.config = cfg
   app.state = {page: 'attitudes'}
 
