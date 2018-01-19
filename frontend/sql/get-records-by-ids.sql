@@ -1,6 +1,6 @@
 SELECT
   id,
-  geometry geometry,
+  ST_Transform(geometry,949900) geometry,
   measurements,
   member_of,
   type,
@@ -12,7 +12,7 @@ SELECT
   max_angular_error,
   min_angular_error,
   n_samples,
-  location center,
+  ST_Transform(center,949900) center,
   principal_axes AS axes,
   tags,
   hyperbolic_axes
