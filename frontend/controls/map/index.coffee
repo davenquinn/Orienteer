@@ -61,8 +61,11 @@ class MapControl extends Component
     {center, zoom, layers} = @state.options
     c = [center[1],center[0]]
 
-    overlays = []
     ix = 0
+    overlays = @props.children
+    if not Array.isArray overlays
+      overlays = [overlays]
+
     for k,uri of app.config.layers
       overlays.push h BaseLayer, {
           name: k, key: k, checked: ix == 0

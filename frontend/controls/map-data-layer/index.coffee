@@ -54,7 +54,7 @@ class StrikeDip extends Component
 
     transform = "translate(#{location.x} #{location.y})
                  rotate(#{strike} 0 0)
-                 scale(#{1+0.2*zoom})"
+                 scale(#{0.5+0.1*zoom})"
 
     handlers = eventHandlers(record)
     h "g", {transform, className, handlers...}, [
