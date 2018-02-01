@@ -87,6 +87,8 @@ class App extends React.Component
       render: -> h Stereonet, {settings, records}
 
     attitude = -> h AttitudePage, {settings, records, query, featureTypes, showSidebar}
+    # The other pages of the app don't work right now
+    return attitude()
 
     h "div#root", [
       h Route, path: "/", component: Frontpage, exact: true

@@ -5,11 +5,11 @@
   "main": "main.js",
   "config": {
     "disturl": "https://atom.io/download/atom-shell",
-    "target": "1.7.4",
+    "target": "1.8.2",
     "arch": "x64",
     "runtime": "electron"
   },
-  "electronVersion": "1.7.4",
+  "electronVersion": "1.8.2",
   "scripts": {
     "preinstall": "linklocal",
     "develop": "coffee compile-styles.coffee & electron main.js",
@@ -45,6 +45,8 @@
   "dependencies": {
     "@blueprintjs/core": "^1.22.0",
     "@blueprintjs/table": "^1.21.0",
+    "@mapbox/mbtiles": "^0.9.0",
+    "@mapbox/tilelive": "^6.0.0",
     "attitude": "file:../../deps/Attitude/js-frontend",
     "babel-core": "^6.26.0",
     "babel-preset-react": "^6.24.1",
@@ -72,6 +74,7 @@
     "leaflet": "^1.1.0",
     "leaflet-draw": "github:leaflet/Leaflet.draw#leaflet-master",
     "linklocal": "^2.6.1",
+    "mbtiles": "^0.9.0",
     "pg-promise": "^5.4.5",
     "proj4": "^2.3.12",
     "prop-types": "^15.5.10",
@@ -90,7 +93,10 @@
     "react-split-pane": "^0.1.51",
     "react-switch-button": "^2.0.1",
     "react-tap-event-plugin": "^0.2.1",
+    "sqlite3": "^3.1.13",
     "stylus": "^0.54.5",
+    "tilelive-modules": "^0.4.0",
+    "tilelive-solid": "^0.1.2",
     "underscore": "^1.8.3",
     "velocity-animate": "^1.2.2",
     "wkx": "^0.4.1",
