@@ -16,7 +16,7 @@ install_requires = [
     ]
 
 setup(
-    name='elevation',
+    name='orienteer',
     version=0.1,
     description="""
         The 'elevation' module provides a frontend for
@@ -24,7 +24,9 @@ setup(
     license='MIT',
     install_requires=install_requires,
     packages=find_packages(),
-    package_dir={'elevation':'elevation'},
+    package_dir={'orienteer':'elevation',
+                 'attitude': 'bundled-deps/Attitude/attitude',
+                 'pg_projector': 'bundled-deps/pg-projector/pg_projector'},
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Science/Research',

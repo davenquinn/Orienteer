@@ -1,3 +1,12 @@
 [submodule "frontend/shared"]
 	path = frontend/shared
 	url = /Users/Daven/Development/Repositories/shared-components.git
+[submodule "bundled-deps/Attitude"]
+	path = bundled-deps/Attitude
+	url = git://github.com/davenquinn/Attitude.git
+[submodule "bundled-deps/gis-core"]
+	path = bundled-deps/gis-core
+	url = git://github.com/davenquinn/gis-core.git
+[submodule "bundled-deps/pg-projector"]
+	path = bundled-deps/pg-projector
+	url = git://github.com/davenquinn/pg-projector.git
