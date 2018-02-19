@@ -25,6 +25,7 @@ setup(
     install_requires=install_requires,
     packages=find_packages(),
     package_dir={'orienteer':'elevation',
+                 'subdivide': 'bundled-deps/subdivide/subdivide',
                  'attitude': 'bundled-deps/Attitude/attitude',
                  'pg_projector': 'bundled-deps/pg-projector/pg_projector'},
     classifiers=[

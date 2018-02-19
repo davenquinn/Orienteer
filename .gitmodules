@@ -10,3 +10,6 @@
 [submodule "bundled-deps/pg-projector"]
 	path = bundled-deps/pg-projector
 	url = git://github.com/davenquinn/pg-projector.git
+[submodule "bundled-deps/subdivide"]
+	path = bundled-deps/subdivide
+	url = git://github.com/davenquinn/subdivide.git

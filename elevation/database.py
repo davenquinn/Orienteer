@@ -14,4 +14,8 @@ class Database(object):
         self.session = Session()
         return self.session
 
+    def create_all(self):
+        from .models import Base
+        Base.metadata.create_all(self.engine)
+
 db=Database()

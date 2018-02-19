@@ -1,10 +1,14 @@
 from geoalchemy2 import Geometry
 from geoalchemy2.shape import from_shape, to_shape
+from shapely.geometry import asShape
 from flask import current_app as app
 from .base import db, BaseModel
 from json import loads
 from subprocess import check_output
 from sqlalchemy import Column, String, Text
+import rasterio
+import rasterio.features
+import rasterio.warp
 
 from ..core import SRID
 
@@ -26,19 +30,24 @@ class Dataset(BaseModel):
         Computes a rough footprint of the polygonal area of the
         dataset (excluding nodata values).
         """
-        from shapely.geometry import asShape
+        with rasterio.open(self.dem_path) as dem:
 
-        output = check_output([
-            "rio","shapes","--mask",self.dem_path])
-        data = loads(output.decode('utf-8'))
+            mask = dem.dataset_mask()
 
-        # Takes the largest contiguous geometry
-        accepted_geom = None
-        area = 0
-        for feature in data['features']:
-            geom = asShape(feature['geometry'])
-            if geom.area > area:
-                area = geom.area
-                accepted_geom = geom
+            # Extract feature shapes and values from the array.
+            # Takes the largest contiguous geometry
+            accepted_geom = None
+            area = 0
+            for geom, val in rasterio.features.shapes(
+                    mask, transform=dem.transform):
+                shape = asShape(geom)
+                if shape.area > area:
+                    area = shape.area
+                    accepted_geom = geom
 
-        self.footprint = from_shape(accepted_geom, srid.world)
+            # Transform shapes from the dataset's own coordinate
+            # reference system to CRS84 (EPSG:4326).
+            geom = rasterio.warp.transform_geom(
+                dem.crs, 'EPSG:'+str(SRID), accepted_geom, precision=6)
+            self.footprint = from_shape(asShape(geom), SRID)
+

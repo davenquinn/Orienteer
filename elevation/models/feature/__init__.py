@@ -19,6 +19,11 @@ def wkb(shape):
     """
     return from_shape(shape, srid=SRID)
 
+class FeatureClass(BaseModel):
+    __tablename__ = "feature_class"
+    id = Column(String, primary_key=True)
+    type = Column(String)
+
 class DatasetFeature(BaseModel):
     """A feature tied to a specific dataset. Has a pixel geometry
     and incorporates elevation data.
@@ -41,6 +46,7 @@ class DatasetFeature(BaseModel):
             type="Feature",
             geometry=mapping(to_shape(self.geometry)))
 
+    _class = Column("class", String, ForeignKey('feature_class.id'))
     dataset_id = Column(String(64), ForeignKey('dataset.id'))
     extracted = Column(ARRAY(Float, dimensions=2,zero_indexes=True))
     # Column to track whether the dataset_id
