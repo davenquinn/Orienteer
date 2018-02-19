@@ -191,7 +191,8 @@ class AttitudeGroup(Attitude):
         polymorphic_identity='group')
 
     same_plane = Column(Boolean,
-            nullable=False, default=False)
+            nullable=False, default=False,
+            server_default="0")
 
     measurements = relationship(Attitude)
 

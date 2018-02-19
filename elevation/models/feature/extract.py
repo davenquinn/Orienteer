@@ -150,7 +150,6 @@ def extract(self):
     demfile = self.dataset.dem_path
 
     with rasterio.open(demfile) as dem:
-
         # Transform the shape to the DEM's projection
         projection = transformation(source_crs, dem.crs)
 

@@ -4,6 +4,7 @@ from functools import wraps
 from flask import Flask, Blueprint, Response, render_template
 from os import environ
 from json import load
+from .proj import init_projection
 
 # Python 2 and 3 compatibility
 try:
@@ -87,6 +88,7 @@ def setup_app():
     app.config.update(cfg)
     global SRID
     SRID = app.config.get("srid")
+    init_projection(app,db)
     try:
         db.init_app(app)
     except AttributeError:

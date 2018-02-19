@@ -51,7 +51,8 @@ class DatasetFeature(BaseModel):
     extracted = Column(ARRAY(Float, dimensions=2,zero_indexes=True))
     # Column to track whether the dataset_id
     # was set using a script or user-specified
-    dataset_id_autoset = Column(Boolean, default=False, nullable=False)
+    dataset_id_autoset = Column(Boolean, default=False, nullable=False,
+                                server_default="0")
 
     from .extract import extract
 
