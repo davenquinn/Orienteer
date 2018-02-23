@@ -6,7 +6,8 @@ SelectionControl = require "../controls/selection"
 DataPane = require "./data-pane"
 h = require 'react-hyperscript'
 SplitPane = require 'react-split-pane'
-{Tab2, Tabs2, Hotkey, Hotkeys, HotkeysTarget } = require '@blueprintjs/core'
+{Tab2, Tabs2, Hotkey, Hotkeys
+ HotkeysTarget, Button, Toolbar } = require '@blueprintjs/core'
 FilterPanel = require './filter'
 MapDataLayer = require '../controls/map-data-layer'
 
@@ -24,16 +25,19 @@ paneStyle =
 class AttitudePage extends React.Component
   constructor: (props)->
     super props
-    @state = {splitPosition: 350, selectedTabId: 1}
+    @state = {splitPosition: 350, selectedTabId: 1, showGroupInfo: false}
 
   render: ->
-    {records, featureTypes, query, showSidebar} = @props
+    {records, featureTypes, query,
+     showSidebar, toggleSidebar} = @props
     selection = records.filter (d)->d.selected
     hovered = records.find (d)->d.hovered
+    openGroupViewer = => @setState {showGroupInfo: true}
 
-    s = if showSidebar then {} else {display: 'none'}
-
-    selectionPanel = h SelectionControl, records: selection, hovered
+    selectionPanel = h SelectionControl, {
+      records: selection
+      openGroupViewer
+    }, hovered
 
     dataManagementPanel = h DataPane, {
       records: selection
@@ -41,7 +45,7 @@ class AttitudePage extends React.Component
       featureTypes
     }
 
-    {selectedTabId} = @state
+    {selectedTabId, showGroupInfo} = @state
 
     if @state.splitPosition < 600
       panels = [
@@ -56,6 +60,16 @@ class AttitudePage extends React.Component
         ]
       ]
 
+    if not showGroupInfo
+      pane1 = h MapControl, {settings: @props.settings.map}, [
+        h MapDataLayer, {records}
+      ]
+    else
+      pane1 = h 'div', [
+        h Toolbar, [
+          h Button, {}, "Close pane"
+        ]
+      ]
 
     h SplitPane, {
       split: "vertical"
@@ -63,12 +77,10 @@ class AttitudePage extends React.Component
       defaultSize: @state.splitPosition
       primary: "second"
       paneStyle
-      pane2Style: s
+      pane2Style: if showSidebar then {} else {display: 'none'}
       onChange: @onResizePane
     },[
-      h MapControl, {settings: @props.settings.map}, [
-        h MapDataLayer, {records}
-      ]
+      pane1
       h Tabs2, {className: 'sidebar-outer', selectedTabId, onChange: @onChangeTab}, [
         panels...
         h Tab2, id: 3, title: 'Filter', panel: h(FilterPanel, {query})
