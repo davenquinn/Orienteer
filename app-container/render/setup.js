@@ -1,5 +1,4 @@
 require("./register").transform();
-require("electron-browser-sync/inject");
 require('./style-hooks')
 require('./setup-styles')
 

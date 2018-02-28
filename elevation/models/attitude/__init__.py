@@ -167,7 +167,10 @@ class Attitude(BaseModel):
         # should change API to reflect this distinction
         self.hyperbolic_axes = sampling_axes(pca).tolist()
         self.n_samples = pca.n
-        self.strike, self.dip = pca.strike_dip()
+        try:
+            self.strike, self.dip = pca.strike_dip()
+        except:
+            import IPython; IPython.embed(); raise
         if self.dip == 90:
             self.valid = False
 

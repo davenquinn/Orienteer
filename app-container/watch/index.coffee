@@ -1,6 +1,8 @@
 {app} = require 'electron'
-{init} = require "electron-browser-sync"
 path = require 'path'
+
+init = (list, cb)->
+  cb()
 
 module.exports = (cb)->
   styleDir = path.join app.config.buildDir, 'styles'

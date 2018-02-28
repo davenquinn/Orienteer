@@ -12,7 +12,7 @@ getOIDs = "SELECT oid, typname AS name
            FROM pg_type
            WHERE typname = ANY($1::text[])"
 
-conString = "postgres://localhost/syrtis"
+conString = "postgres:///san-rafael-swell"
 db = pgp conString
 
 defaults =

@@ -47,8 +47,10 @@ def extract():
             d.extract()
             db.session.add(d)
             db.session.commit()
-        except OSError:
+        except Exception as err:
             message("Couldn't extract feature "+str(d.id))
+            secho(str(err), fg='red')
+            db.session.rollback()
 
     q = (db.session.query(Attitude)
         .join(DatasetFeature)
@@ -56,9 +58,13 @@ def extract():
         .filter(Attitude.strike == None))
     for d in q.all():
         message("Computing attitude data for "+str(d.id))
-        d.calculate()
-        db.session.add(d)
-    db.session.commit()
+        try:
+            d.calculate()
+            db.session.add(d)
+            db.session.commit()
+        except AssertionError as err:
+            secho(str(err), fg='red')
+            db.session.rollback()
 
 
 @ElevationCommand.command(name='compute-footprints')
