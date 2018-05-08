@@ -81,15 +81,12 @@ class App extends React.Component
 
   render: ->
     {settings, records, query, featureTypes, showSidebar} = @state
-    {toggleSidebar} = @
     console.log "Re-rendering app with state", @state
 
     class DataStereonet extends React.Component
       render: -> h Stereonet, {settings, records}
 
-    attitude = -> h AttitudePage, {settings, records,
-                                   query, featureTypes,
-                                   showSidebar, toggleSidebar}
+    attitude = -> h AttitudePage, {settings, records, query, featureTypes, showSidebar}
     # The other pages of the app don't work right now
     return attitude()
 
