@@ -96,6 +96,7 @@ CREATE OR REPLACE VIEW attitude_data AS
     a.type,
     a.strike,
     a.dip,
+    a.rake,
     a.correlation_coefficient,
     a.max_angular_error,
     a.min_angular_error,

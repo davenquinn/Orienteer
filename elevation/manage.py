@@ -93,6 +93,12 @@ def recalculate(extract=False):
     heading = dict(fg="cyan", bold=True)
 
     if extract:
+
+        # Add dataset automatically to features
+        # where it is undefined
+        stored_procedure('add-dataset')
+        stored_procedure('init-attitudes')
+
         secho("Extracting features from DEMs", **heading)
         set = db.session.query(DatasetFeature).all()
         with click.progressbar(set,length=len(set)) as bar:

@@ -67,11 +67,16 @@ class MapControl extends Component
       overlays = [overlays]
 
     for k,uri of app.config.layers
+      if uri == 'google'
+        url = 'http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
+        subdomains = ['mt0','mt1','mt2','mt3']
+        lyr = h TileLayer, {maxZoom: 20, url, subdomains}
+      else
+        lyr = h TileLiveLayer, {id:k,uri, detectRetina: true}
+
       overlays.push h BaseLayer, {
           name: k, key: k, checked: ix == 0
-        }, [
-          h TileLiveLayer, {id:k,uri, detectRetina: true}
-        ]
+        }, [lyr]
       ix += 1
 
     h BoxSelectMap, {center: c, zoom, boxZoom: false}, [

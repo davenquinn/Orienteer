@@ -37,12 +37,16 @@ class Attitude(BaseModel):
     type = Column(String)
     feature_id = Column(
         Integer,
-        ForeignKey('dataset_feature.id'))
+        ForeignKey('dataset_feature.id',
+                   ondelete='CASCADE',
+                   onupdate='CASCADE'))
 
     feature = relationship(DatasetFeature)
 
     strike = Column(Float)
     dip = Column(Float)
+    rake = Column(Float)
+
     correlation_coefficient = Column(Float)
 
     principal_axes = Column(ARRAY(Float,
@@ -90,7 +94,7 @@ class Attitude(BaseModel):
         return error_ellipse(self)
 
     def plot_aligned(self):
-        from attitude.plot import plot_aligned
+        from attitude.display import plot_aligned
         return plot_aligned(self.pca())
 
     @property
@@ -144,6 +148,7 @@ class Attitude(BaseModel):
                 center=mapping(to_shape(self.center)),
                 strike=self.strike,
                 dip=self.dip,
+                rake=self.rake,
                 n_samples=self.n_samples,
                 hyperbolic_axes=self.hyperbolic_axes,
                 axes=self.principal_axes))
@@ -167,10 +172,7 @@ class Attitude(BaseModel):
         # should change API to reflect this distinction
         self.hyperbolic_axes = sampling_axes(pca).tolist()
         self.n_samples = pca.n
-        try:
-            self.strike, self.dip = pca.strike_dip()
-        except:
-            import IPython; IPython.embed(); raise
+        self.strike, self.dip, self.rake = pca.strike_dip_rake()
         if self.dip == 90:
             self.valid = False
 
