@@ -5,6 +5,8 @@ pgp = require('pg-promise')(promiseLib: Promise)
 {Geometry} = require 'wkx'
 path = require 'path'
 
+cfg = require process.env.ORIENTEER_CONFIG
+
 debug = true
 Promise.longStackTraces()
 
@@ -12,7 +14,7 @@ getOIDs = "SELECT oid, typname AS name
            FROM pg_type
            WHERE typname = ANY($1::text[])"
 
-conString = "postgres:///san-rafael-swell"
+conString = cfg.database_uri
 db = pgp conString
 
 defaults =
