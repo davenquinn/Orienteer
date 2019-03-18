@@ -38,23 +38,16 @@ class MapControl extends Component
   constructor: (props)->
     super props
 
-    console app.config
+    cfg = app.config
 
-    @state = layers: cfg.layers
+    @state = {
+      center: app.config.center
+    }
 
     options = {}
     for k,v of cfg
       continue if k == 'layers'
       options[k] ?= v
-
-    if options.projection?
-      s = options.projection
-      {min, max} = options.resolution
-      projection = setupProjection s,
-        minResolution: min # m/px
-        maxResolution: max # m/px
-        bounds: options.bounds
-      options.crs = projection
 
     for k,v of defaultOptions
       if not options[k]?
@@ -68,13 +61,17 @@ class MapControl extends Component
       h BaseLayer,
         {name: lyr.name, checked: i==0, key: lyr.name},
         h(MapnikLayer, lyr)
-    {center, zoom, crs} = @state.options
+    {center, zoom} = @state.options
 
     overlays = @props.children
-    if not Array.isArray overlays
-      overlays = [overlays]
+    overlays = [
+      h TileLayer, {
+        url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution: "&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
+      }
+    ]
 
-    h BoxSelectMap, {center, zoom, crs, tileSize: 512, boxZoom: false}, [
+    h BoxSelectMap, {center, zoom, boxZoom: false}, [
       h LayersControl, position: 'topleft', children
       #h LayersControl, position: 'topleft', overlays
       h ScaleControl, {imperial: false}
