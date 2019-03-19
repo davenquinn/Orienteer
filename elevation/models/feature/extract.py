@@ -75,7 +75,7 @@ def extract_line(geom, dem, **kwargs):
 
     # Subdivide geometry segments
     # at 1-pixel intervals
-    #px = subdivide(px, interval=1)
+    px = subdivide(px, interval=1)
 
     # Transform pixels back to geometry
     # to capture subdivisions
