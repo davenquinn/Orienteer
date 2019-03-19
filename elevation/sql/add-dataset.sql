@@ -13,7 +13,9 @@ SELECT DISTINCT ON (f.id)
   f.id feature_id,
   d.id dataset_id
 FROM dataset_feature f
-JOIN d ON ST_Contains(d.footprint,f.geometry)
+JOIN d ON ST_Contains(
+  ST_Transform(d.footprint, ST_SRID(f.geometry)),
+  f.geometry)
 WHERE f.dataset_id IS null
 ORDER BY f.id, d.area
 )

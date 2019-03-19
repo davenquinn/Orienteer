@@ -2,6 +2,9 @@ import sys
 import logging
 from functools import wraps
 from flask import Flask, Blueprint, Response, render_template
+from os import environ
+from json import load
+from .proj import init_projection
 
 # Python 2 and 3 compatibility
 try:
@@ -10,7 +13,6 @@ except ImportError:
     from cStringIO import StringIO as BytesIO
 
 from ..database import db
-from .proj import init_projection
 
 stdout_logger = logging.StreamHandler(sys.stdout)
 log = logging.getLogger(__name__)
@@ -69,16 +71,29 @@ def error_ellipse(id):
     return image(fig)
 
 def __setup_endpoints(app, db):
-    init_projection(app,db)
     from .api import api
     app.register_blueprint(elevation,url_prefix="/elevation")
     app.register_blueprint(api,url_prefix="/api")
 
+SRID = None
+
 def setup_app():
     app = Flask(__name__)
     app.config.from_object('elevation.config')
-    app.config.from_envvar('ELEVATION_CONFIG',silent=True)
-    db.init_app(app)
+    with open(environ["ORIENTEER_CONFIG"]) as f:
+        cfg = load(f)
+        cfg["SRID"] = cfg["srid"]
+        cfg["SQLALCHEMY_DATABASE_URI"] = cfg.get("database_uri",None)
+
+    app.config.update(cfg)
+    global SRID
+    SRID = app.config.get("srid")
+    init_projection(app,db)
+    try:
+        db.init_app(app)
+    except AttributeError:
+        raise Exception("Please specify a database uri in the ORIENTEER_CONFIG json file")
+
     __setup_endpoints(app,db)
     log.info("App setup complete")
 

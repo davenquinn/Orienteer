@@ -54,13 +54,21 @@ def offset_mask(mask):
     offset = (yo,xo)
     return offset, array
 
+def coords_array(geometry):
+    try:
+        coords_in = N.array(geometry.coords)
+    except NotImplementedError:
+        coords_in = N.vstack([g.coords for g in geometry.geoms])
+    return coords_in
+
 def extract_line(geom, dem, **kwargs):
     """
     Extract a linear feature from a `rasterio` geospatial dataset.
     """
     kwargs.setdefault('masked', True)
 
-    coords_in = N.array(geom.coords)
+    coords_in = coords_array(geom)
+
     # Transform geometry into pixels
     f = lambda *x: ~dem.transform * x
     px = transform(f,geom)
@@ -77,7 +85,8 @@ def extract_line(geom, dem, **kwargs):
     # Get min and max coords for windowing
     # Does not deal with edge cases where points
     # are outside of footprint of DEM
-    coords_px = N.array(px.coords)
+
+    coords_px = coords_array(px)
     mins = N.floor(coords_px.min(axis=0))
     maxs = N.ceil(coords_px.max(axis=0))
 
@@ -91,9 +100,9 @@ def extract_line(geom, dem, **kwargs):
 
     band = dem.read(1, window=window, **kwargs)
     extracted = bilinear(band, px_to_extract)
-    coords = N.array(extracted.coords)
+    coords = coords_array(extracted)
 
-    coords[:,:2] = N.array(geom.coords)
+    coords[:,:2] = coords_array(geom)
     return coords
 
 def extract_area(geom, dem, **kwargs):
@@ -142,16 +151,28 @@ def extract_area(geom, dem, **kwargs):
     coords[2] = z
     return coords.transpose()
 
+class ProjectionDifferenceError(Exception):
+    pass
+
 def extract(self):
     source_crs = db.session.query(Projection).get(self.geometry.srid).crs
     demfile = self.dataset.dem_path
 
     with rasterio.open(demfile) as dem:
-
         # Transform the shape to the DEM's projection
         projection = transformation(source_crs, dem.crs)
-        geom = transform(projection,
-                to_shape(self.geometry))
+
+        # Add some asserts here maybe since we don't do any cleaning
+
+        for point in ((0,0),(10,10)):
+            try:
+                assert N.allclose(point, projection(*point))
+            except AssertionError:
+                raise ProjectionDifferenceError(
+                    "DEM and geometry projections are different."
+                    "This is not yet allowed.")
+
+        geom = to_shape(self.geometry)
 
         if geom.area == 0:
             coords = extract_line(geom,dem)

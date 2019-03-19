@@ -19,6 +19,7 @@ update = require 'immutability-helper'
 yaml = require 'js-yaml'
 {readFileSync} = require 'fs'
 styles = require './styles/layout.styl'
+{remote} = require 'electron'
 
 FocusStyleManager.onlyShowFocusOnTabs()
 
@@ -28,6 +29,8 @@ class App extends React.Component
     window.app = @
     @API = require "./api"
     @opts = require "./options"
+
+    @config = remote.getGlobal('config')
 
     _ = readFileSync "#{__dirname}/sql/stored-filters.yaml", 'utf8'
     @subqueryIndex = yaml.load _
@@ -84,6 +87,8 @@ class App extends React.Component
       render: -> h Stereonet, {settings, records}
 
     attitude = -> h AttitudePage, {settings, records, query, featureTypes, showSidebar}
+    # The other pages of the app don't work right now
+    return attitude()
 
     h "div#root", [
       h Route, path: "/", component: Frontpage, exact: true

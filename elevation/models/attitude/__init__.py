@@ -23,7 +23,7 @@ from sqlalchemy import (
     ForeignKey, Boolean, Float)
 
 from .tag import Tag, attitude_tag
-from ..feature import DatasetFeature, srid
+from ..feature import DatasetFeature, SRID
 from ...database import db
 from ..base import BaseModel
 
@@ -37,12 +37,16 @@ class Attitude(BaseModel):
     type = Column(String)
     feature_id = Column(
         Integer,
-        ForeignKey('dataset_feature.id'))
+        ForeignKey('dataset_feature.id',
+                   ondelete='CASCADE',
+                   onupdate='CASCADE'))
 
     feature = relationship(DatasetFeature)
 
     strike = Column(Float)
     dip = Column(Float)
+    rake = Column(Float)
+
     correlation_coefficient = Column(Float)
 
     principal_axes = Column(ARRAY(Float,
@@ -54,7 +58,7 @@ class Attitude(BaseModel):
     min_angular_error = Column(Float)
 
     geometry = association_proxy('feature','geometry')
-    location = Column(Geometry("POINT", srid=srid.world))
+    center = Column(Geometry("POINTZ", srid=SRID))
 
     valid = Column(Boolean)
     member_of = Column(
@@ -90,7 +94,7 @@ class Attitude(BaseModel):
         return error_ellipse(self)
 
     def plot_aligned(self):
-        from attitude.plot import plot_aligned
+        from attitude.display import plot_aligned
         return plot_aligned(self.pca())
 
     @property
@@ -141,15 +145,18 @@ class Attitude(BaseModel):
             geometry=mapping(to_shape(self.feature.geometry)),
             properties=dict(
                 r=self.correlation_coefficient,
-                center=mapping(to_shape(self.location)),
+                center=mapping(to_shape(self.center)),
                 strike=self.strike,
                 dip=self.dip,
+                rake=self.rake,
                 n_samples=self.n_samples,
                 hyperbolic_axes=self.hyperbolic_axes,
                 axes=self.principal_axes))
 
     def calculate(self):
-        self.location = func.ST_Centroid(self.geometry)
+
+        self.center = func.ST_SetSRID(
+            func.ST_MakePoint(*self.array.mean(axis=0)), SRID)
 
         try:
             pca = Orientation(self.centered_array)
@@ -165,7 +172,7 @@ class Attitude(BaseModel):
         # should change API to reflect this distinction
         self.hyperbolic_axes = sampling_axes(pca).tolist()
         self.n_samples = pca.n
-        self.strike, self.dip = pca.strike_dip()
+        self.strike, self.dip, self.rake = pca.strike_dip_rake()
         if self.dip == 90:
             self.valid = False
 
@@ -189,7 +196,8 @@ class AttitudeGroup(Attitude):
         polymorphic_identity='group')
 
     same_plane = Column(Boolean,
-            nullable=False, default=False)
+            nullable=False, default=False,
+            server_default="0")
 
     measurements = relationship(Attitude)
 

@@ -10,15 +10,19 @@ from sqlalchemy import (
     Column, String, Text, Integer,
     DateTime, ForeignKey, Boolean, Float)
 
+from ...core import SRID
 from ..base import db, BaseModel
-
-from ...core.proj import srid
 
 def wkb(shape):
     """Creates a WKB representation of the
     shape for inclusion in the database
     """
-    return from_shape(shape, srid=srid.world)
+    return from_shape(shape, srid=SRID)
+
+class FeatureClass(BaseModel):
+    __tablename__ = "feature_class"
+    id = Column(String, primary_key=True)
+    type = Column(String)
 
 class DatasetFeature(BaseModel):
     """A feature tied to a specific dataset. Has a pixel geometry
@@ -28,7 +32,7 @@ class DatasetFeature(BaseModel):
 
     id = Column(Integer, primary_key=True)
     type = Column(String(64)) # Polymorphic discriminator column
-    geometry = Column(Geometry(srid=srid.world))
+    geometry = Column(Geometry(srid=SRID))
     date_created = Column(DateTime,server_default=text("now()"), nullable=False)
 
     mapping = property(lambda self: self.__geo_interface__)
@@ -42,11 +46,13 @@ class DatasetFeature(BaseModel):
             type="Feature",
             geometry=mapping(to_shape(self.geometry)))
 
+    _class = Column("class", String, ForeignKey('feature_class.id'))
     dataset_id = Column(String(64), ForeignKey('dataset.id'))
     extracted = Column(ARRAY(Float, dimensions=2,zero_indexes=True))
     # Column to track whether the dataset_id
     # was set using a script or user-specified
-    dataset_id_autoset = Column(Boolean, default=False, nullable=False)
+    dataset_id_autoset = Column(Boolean, default=False, nullable=False,
+                                server_default="0")
 
     from .extract import extract
 
@@ -60,7 +66,5 @@ class DatasetFeature(BaseModel):
     @property
     def length(self):
         return db.session.scalar(
-            func.ST_Length(func.ST_Transform(
-                self.geometry, srid.local
-                )))
+            func.ST_Length(self.geometry))
 
