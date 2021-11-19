@@ -1,9 +1,0 @@
-{
-  "name": "Mars Lab",
-  "srid": 949901,
-  "center": [77,17],
-  "zoom": 10,
-  "layers": {
-    "Orthophotos": "mbtiles:///Volumes/Lilienthal/syrtis-major/data/elevation-models/ortho.all.mbtiles"
-  }
-}

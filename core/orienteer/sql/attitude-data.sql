@@ -1,10 +1,10 @@
-CREATE OR REPLACE VIEW attitude_data AS
+CREATE OR REPLACE VIEW orienteer.attitude_data AS
   WITH tagged AS (
     -- Aggregate tags
     SELECT
       t.attitude_id fid,
       array_agg(t.tag_name) AS tags
-    FROM attitude_tag t
+    FROM orienteer.attitude_tag t
     GROUP BY fid),
   a AS (
     -- Basic selection for join
@@ -15,8 +15,8 @@ CREATE OR REPLACE VIEW attitude_data AS
       class,
       a.id,
       a.member_of
-    FROM attitude a
-    JOIN dataset_feature f
+    FROM orienteer.attitude a
+    JOIN orienteer.dataset_feature f
       ON a.feature_id = f.id),
   b AS (
     -- Get geometry from features
@@ -56,9 +56,9 @@ CREATE OR REPLACE VIEW attitude_data AS
       a.member_of,
       dataset_id dataset,
       instrument
-    FROM attitude a
-    LEFT JOIN dataset_feature f ON a.feature_id = f.id
-    LEFT JOIN dataset d ON f.dataset_id = d.id
+    FROM orienteer.attitude a
+    LEFT JOIN orienteer.dataset_feature f ON a.feature_id = f.id
+    LEFT JOIN orienteer.dataset d ON f.dataset_id = d.id
   ),
   paired_instruments AS (
     SELECT
@@ -110,7 +110,7 @@ CREATE OR REPLACE VIEW attitude_data AS
     (a.member_of IS NOT null) AS in_group,
     dataset,
     instrument
-  FROM attitude a
+  FROM orienteer.attitude a
   RIGHT JOIN b ON a.id = b.id
   LEFT JOIN tagged ON a.id = tagged.fid
   LEFT JOIN instrument_attitude ia

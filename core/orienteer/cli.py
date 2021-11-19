@@ -177,7 +177,7 @@ def shell():
     from IPython import embed
     from . import models as m
 
-    _ = style("Elevation", fg="green")
+    _ = style("Orienteer", fg="green")
     echo("Welcome to the " + _ + " application!")
     embed()
 
@@ -187,7 +187,7 @@ def serve():
     """
     Run a basic development server for the application.
     """
-    from elevation.core import setup_app
+    from orienteer.core import setup_app
 
     app = setup_app()
     with app.app_context():
@@ -201,7 +201,7 @@ def create_tables():
     """
     app = setup_app()
     with app.app_context():
+        db.engine.execute("CREATE SCHEMA IF NOT EXISTS orienteer")
         db.create_all()
-        sql = path.join(__dirname, "../frontend/sql/attitude-data.sql")
-        query = open(sql).read()
-        db.engine.execute(query)
+        stored_procedure("attitude-data")
+        # db.engine.execute(query)
