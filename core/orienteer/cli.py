@@ -42,6 +42,7 @@ def extract():
     # where it is undefined
     stored_procedure("add-dataset")
     stored_procedure("init-attitudes")
+    db.session.commit()
 
     q = (
         db.session.query(DatasetFeature)
@@ -204,4 +205,5 @@ def create_tables():
         db.engine.execute("CREATE SCHEMA IF NOT EXISTS orienteer")
         db.create_all()
         stored_procedure("attitude-data")
+        db.session.commit()
         # db.engine.execute(query)
