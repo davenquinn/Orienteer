@@ -1,6 +1,7 @@
 *.egg-info
 *.pyc
 *.log
+__pycache__
 
 node_modules
 build

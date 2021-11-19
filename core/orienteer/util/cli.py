@@ -8,27 +8,31 @@ import contextlib
 
 from ..database import db
 
+
 def header(message, color="red"):
-    secho("\n◉ "+style(message, bold=True), fg=color)
+    secho("\n◉ " + style(message, bold=True), fg=color)
+
 
 def message(message, section=None, color="cyan"):
     s = "\n"
-    s += "["+style(section, color)+"] " if section else ""
+    s += "[" + style(section, color) + "] " if section else ""
     s += message
     echo(s)
+
 
 def run(*command, **kwargs):
     """
     Runs a command safely in the terminal,
     only initializing a subshell if specified.
     """
-    shell = kwargs.pop("shell",False)
+    shell = kwargs.pop("shell", False)
     command = " ".join(command)
-    echo(u"➔ "+style(command,"green"))
+    echo(u"➔ " + style(command, "green"))
     if shell:
-        call(command,shell=True)
+        call(command, shell=True)
     else:
         call(split(command))
+
 
 def quote(arg):
     """
@@ -37,9 +41,11 @@ def quote(arg):
     """
     return "'{}'".format(arg)
 
-def execute_sql(statement,*params, **multiparams):
-    echo(u"➔ "+style(statement, "yellow"))
-    return db.session.execute(statement,*params, **multiparams)
+
+def execute_sql(statement, *params, **multiparams):
+    echo(u"➔ " + style(statement, "yellow"))
+    return db.session.execute(statement, *params, **multiparams)
+
 
 def mkdirs(path):
     try:
@@ -47,6 +53,7 @@ def mkdirs(path):
     except Exception:
         pass
     return path
+
 
 @contextlib.contextmanager
 def working_directory(path):
@@ -57,4 +64,3 @@ def working_directory(path):
     os.chdir(path)
     yield
     os.chdir(prev_cwd)
-

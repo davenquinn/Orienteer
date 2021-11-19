@@ -1,12 +1,18 @@
-from ..database import db
+from os import environ
+from sqlalchemy import MetaData
 from sqlalchemy.orm import object_session
 from sqlalchemy.ext.declarative import declarative_base
 from click import echo
 
-Base = declarative_base()
+from ..database import db
+
+schema = environ.get("ORIENTEER_SCHEMA", "orienteer")
+Base = declarative_base(metadata=MetaData(schema=schema))
+
 
 class BaseModel(Base):
     __abstract__ = True
+
     @classmethod
     def get_or_create(cls, **kwargs):
         instance = db.session.query(cls).filter_by(**kwargs).first()
