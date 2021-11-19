@@ -89,13 +89,14 @@ SRID = None
 
 def setup_app():
     app = Flask(__name__)
-    app.config.from_object("elevation.config")
-    with open(environ["ORIENTEER_CONFIG"]) as f:
-        cfg = load(f)
-        cfg["SRID"] = cfg["srid"]
-        cfg["SQLALCHEMY_DATABASE_URI"] = cfg.get("database_uri", None)
-
-    app.config.update(cfg)
+    app.config.from_object("orienteer.config")
+    cfg_file = environ.get("ORIENTEER_CONFIG")
+    if cfg_file is not None:
+        with open(cfg_file) as f:
+            cfg = load(f)
+            cfg["SRID"] = cfg["srid"]
+            cfg["SQLALCHEMY_DATABASE_URI"] = cfg.get("database_uri", None)
+        app.config.update(cfg)
     global SRID
     SRID = app.config.get("srid")
     init_projection(app, db)

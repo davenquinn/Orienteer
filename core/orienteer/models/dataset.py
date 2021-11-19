@@ -10,7 +10,7 @@ import rasterio
 import rasterio.features
 import rasterio.warp
 
-from ..core import SRID
+from ..config import SRID
 
 
 class Dataset(BaseModel):
