@@ -17,16 +17,16 @@ ENV PIP_DEFAULT_TIMEOUT=100 \
 WORKDIR /app/
 
 # Copy only requirements to cache them in docker layer
-COPY ./bundled-deps /app/bundled-deps
+COPY ./deps /app/deps
 COPY ./pyproject.toml /app/
 
-RUN poetry install --no-interaction --no-ansi --no-root
+RUN poetry install --no-interaction --no-ansi --no-root --no-dev
 
 EXPOSE 8000
 
-COPY ./python-tools /python-tools/
 # Creating folders, and files for a project:
 COPY ./ /app/
 
 # Install the root package
-RUN poetry install --no-interaction --no-ansi
+# RUN poetry install --no-interaction --no-ansi
+RUN pip install -e .

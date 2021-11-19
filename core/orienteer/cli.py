@@ -3,10 +3,16 @@ from click import Group, echo, secho, style
 from collections import defaultdict
 from os import path
 
+from .core import setup_app
+
+from . import app, db
+from os import path
+
+__dirname = path.dirname(__file__)
 from .util.cli import execute_sql, header, message
 from .database import db
 
-ElevationCommand = Group(help="Deals with elevation models")
+OrienteerCommand = Group(help="Deals with elevation models")
 
 
 def stored_procedure(fn):
@@ -23,7 +29,7 @@ def stored_procedure(fn):
     return res
 
 
-@ElevationCommand.command()
+@OrienteerCommand.command()
 def extract():
     """
     Extract elevation data from DEMs
@@ -71,7 +77,7 @@ def extract():
             db.session.rollback()
 
 
-@ElevationCommand.command(name="compute-footprints")
+@OrienteerCommand.command(name="compute-footprints")
 @click.option("--regenerate", is_flag=True, default=False)
 def compute_footprints(regenerate=False):
     """
@@ -91,7 +97,7 @@ def compute_footprints(regenerate=False):
     db.session.commit()
 
 
-@ElevationCommand.command()
+@OrienteerCommand.command()
 @click.option("--extract", is_flag=True, default=False)
 def recalculate(extract=False):
     from .models import Attitude, AttitudeGroup, DatasetFeature
@@ -126,7 +132,7 @@ def recalculate(extract=False):
         db.session.commit()
 
 
-@ElevationCommand.command(name="check-integrity")
+@OrienteerCommand.command(name="check-integrity")
 def check_integrity():
     """
     Checks the integrity of computed data in the database
@@ -160,3 +166,42 @@ def check_integrity():
     secho("Errors", fg="red", bold=True)
     for k, v in index.items():
         echo("{}: ".format(k) + ", ".join([style(str(i), fg="red") for i in v]))
+
+
+@OrienteerCommand.command()
+def shell():
+    """
+    Create a python interpreter inside
+    the application.
+    """
+    from IPython import embed
+    from . import models as m
+
+    _ = style("Elevation", fg="green")
+    echo("Welcome to the " + _ + " application!")
+    embed()
+
+
+@OrienteerCommand.command()
+def serve():
+    """
+    Run a basic development server for the application.
+    """
+    from elevation.core import setup_app
+
+    app = setup_app()
+    with app.app_context():
+        app.run()
+
+
+@OrienteerCommand.command(name="create-tables")
+def create_tables():
+    """
+    Create all tables used by the application.
+    """
+    app = setup_app()
+    with app.app_context():
+        db.create_all()
+        sql = path.join(__dirname, "../frontend/sql/attitude-data.sql")
+        query = open(sql).read()
+        db.engine.execute(query)
