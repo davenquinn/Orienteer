@@ -4,7 +4,7 @@ ViewerControl = require './viewer'
 React = require 'react'
 style = require './style'
 h = require 'react-hyperscript'
-{NonIdealState} = require '@blueprintjs/core'
+{NonIdealState, Button} = require '@blueprintjs/core'
 
 class SelectionControl extends React.Component
   render: ->
@@ -37,6 +37,7 @@ class Sidebar extends React.Component
   defaultProps:
     records: []
     hovered: null
+    openGroupViewer: null
   constructor: (props)->
     super props
     @state =
@@ -72,6 +73,7 @@ class Sidebar extends React.Component
     <div className={"#{style.sidebar} flex flex-container"} >
       {core}
       <div className="modal-controls">
+        <Button onClick={@props.openGroupViewer}>View group</Button>
         {closeButton}
       </div>
     </div>
