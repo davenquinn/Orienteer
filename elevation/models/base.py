@@ -5,8 +5,10 @@ from click import echo
 
 Base = declarative_base()
 
+
 class BaseModel(Base):
     __abstract__ = True
+
     @classmethod
     def get_or_create(cls, **kwargs):
         instance = db.session.query(cls).filter_by(**kwargs).first()

@@ -12,6 +12,7 @@ import rasterio.warp
 
 from ..core import SRID
 
+
 class Dataset(BaseModel):
     __tablename__ = "dataset"
     id = Column(String(64), primary_key=True)
@@ -38,8 +39,7 @@ class Dataset(BaseModel):
             # Takes the largest contiguous geometry
             accepted_geom = None
             area = 0
-            for geom, val in rasterio.features.shapes(
-                    mask, transform=dem.transform):
+            for geom, val in rasterio.features.shapes(mask, transform=dem.transform):
                 shape = asShape(geom)
                 if shape.area > area:
                     area = shape.area
@@ -48,6 +48,6 @@ class Dataset(BaseModel):
             # Transform shapes from the dataset's own coordinate
             # reference system to CRS84 (EPSG:4326).
             geom = rasterio.warp.transform_geom(
-                dem.crs, 'EPSG:'+str(SRID), accepted_geom, precision=6)
+                dem.crs, "EPSG:" + str(SRID), accepted_geom, precision=6
+            )
             self.footprint = from_shape(asShape(geom), SRID)
-
