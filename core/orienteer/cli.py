@@ -1,5 +1,5 @@
 import click
-from click import Group, echo, secho, style
+from click import Group, echo, secho, style, option
 from collections import defaultdict
 from os import path
 
@@ -30,7 +30,8 @@ def stored_procedure(fn):
 
 
 @OrienteerCommand.command()
-def extract():
+@option("--skip-errors", is_flag=True, default=False)
+def extract(skip_errors=False):
     """
     Extract elevation data from DEMs
     """
@@ -57,6 +58,8 @@ def extract():
             db.session.add(d)
             db.session.commit()
         except Exception as err:
+            if not skip_errors:
+                raise err
             message("Couldn't extract feature " + str(d.id))
             secho(str(err), fg="red")
             db.session.rollback()
