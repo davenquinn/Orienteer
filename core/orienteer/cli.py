@@ -167,6 +167,10 @@ def check_integrity():
             equal(a, "number of samples", pca.n, a.n_samples)
             equal(a, "strike and dip", pca.strike_dip(), (a.strike, a.dip))
 
+    if len(index) == 0:
+        secho("No errors", fg="green", bold=True)
+        return
+
     secho("Errors", fg="red", bold=True)
     for k, v in index.items():
         echo("{}: ".format(k) + ", ".join([style(str(i), fg="red") for i in v]))
