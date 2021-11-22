@@ -85,18 +85,22 @@ def extract_line(geom, dem, **kwargs):
 
     # Subdivide geometry segments
     # at 1-pixel intervals
-    px = subdivide(px, interval=1)
+    px_1 = subdivide(px, interval=1)
 
     # Transform pixels back to geometry
     # to capture subdivisions
     f = lambda *x: dem.transform * (x[0], x[1])
-    geom = transform(f, px)
+    geom_1 = transform(f, px_1)
 
     # Get min and max coords for windowing
     # Does not deal with edge cases where points
     # are outside of footprint of DEM
 
-    coords_px = coords_array(px)
+    if len(px_1.xy) == 0:
+        raise ValueError("No coordinates available.")
+
+    coords_px = coords_array(px_1)
+
     mins = N.floor(coords_px.min(axis=0))
     maxs = N.ceil(coords_px.max(axis=0))
 
@@ -105,13 +109,13 @@ def extract_line(geom, dem, **kwargs):
     aff = Affine.translation(*(-mins))
 
     f = lambda *x: aff * x
-    px_to_extract = transform(f, px)
+    px_to_extract = transform(f, px_1)
 
     band = dem.read(1, window=window, **kwargs)
     extracted = bilinear(band, px_to_extract)
     coords = coords_array(extracted)
 
-    coords[:, :2] = coords_array(geom)
+    coords[:, :2] = coords_array(geom_1)
     return coords
 
 
@@ -165,23 +169,22 @@ def extract(self):
         # Transform the shape to the DEM's projection
         projection = transformation(source_crs, dem.crs.to_dict())
 
-        import IPython
-
-        IPython.embed()
-        raise
-
         # Add some asserts here maybe since we don't do any cleaning
 
-        for point in ((0, 0), (10, 10)):
-            try:
-                assert N.allclose(point, projection(*point))
-            except AssertionError:
-                raise ProjectionDifferenceError(
-                    "DEM and geometry projections are different."
-                    "This is not yet allowed."
-                )
+        # for point in ((0, 0), (10, 10)):
+        #     try:
+        #         assert N.allclose(point, projection(*point))
+        #     except AssertionError:
+        #         raise ProjectionDifferenceError(
+        #             "DEM and geometry projections are different."
+        #             "This is not yet allowed."
+        #         )
 
-        geom = to_shape(self.geometry)
+        geom_shape = to_shape(self.geometry)
+        geom = transform(projection, geom_shape)
+
+        if len(geom.coords) == 0:
+            raise ValueError("Trying to transform an empty geometry")
 
         if geom.area == 0:
             coords = extract_line(geom, dem)

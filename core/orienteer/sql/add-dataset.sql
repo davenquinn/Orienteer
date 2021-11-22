@@ -14,8 +14,9 @@ SELECT DISTINCT ON (f.id)
   d.id dataset_id
 FROM orienteer.dataset_feature f
 JOIN d ON ST_Contains(
-  ST_Transform(d.footprint, ST_SRID(f.geometry)),
-  f.geometry)
+  d.footprint,
+  ST_Transform(f.geometry, ST_SRID(d.footprint))
+)
 WHERE f.dataset_id IS null
 ORDER BY f.id, d.area
 )

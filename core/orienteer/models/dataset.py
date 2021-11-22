@@ -10,7 +10,8 @@ import rasterio
 import rasterio.features
 import rasterio.warp
 
-from ..config import SRID
+from ..config import SRID, FOOTPRINT_SRID
+from ..core.proj import Projection
 
 
 class Dataset(BaseModel):
@@ -19,7 +20,7 @@ class Dataset(BaseModel):
     instrument = Column(String(64))
     dem_path = Column(Text)
 
-    footprint = Column(Geometry("POLYGON", srid=SRID))
+    footprint = Column(Geometry("POLYGON", srid=FOOTPRINT_SRID))
 
     @property
     def bounds(self):
@@ -34,6 +35,7 @@ class Dataset(BaseModel):
         with rasterio.open(self.dem_path) as dem:
 
             mask = dem.dataset_mask()
+            crs = db.session.query(Projection).get(FOOTPRINT_SRID).crs
 
             # Extract feature shapes and values from the array.
             # Takes the largest contiguous geometry
@@ -47,7 +49,8 @@ class Dataset(BaseModel):
 
             # Transform shapes from the dataset's own coordinate
             # reference system to CRS84 (EPSG:4326).
+            # TODO: This won't work right now.
             geom = rasterio.warp.transform_geom(
-                dem.crs, "EPSG:" + str(SRID), accepted_geom, precision=6
+                dem.crs, crs, accepted_geom, precision=6
             )
-            self.footprint = from_shape(asShape(geom), SRID)
+            self.footprint = from_shape(asShape(geom), FOOTPRINT_SRID)
