@@ -1,9 +1,10 @@
 import click
 from click import Group, echo, secho, style, option
 from collections import defaultdict
-from os import path
+from os import path, environ
 
 from .core import setup_app
+from .config import HOST
 
 from . import app, db
 from os import path
@@ -199,7 +200,7 @@ def serve():
 
     app = setup_app()
     with app.app_context():
-        app.run()
+        app.run(host=HOST)
 
 
 @OrienteerCommand.command(name="create-tables")

@@ -83,6 +83,10 @@ def __setup_endpoints(app, db):
     app.register_blueprint(elevation, url_prefix="/elevation")
     app.register_blueprint(api, url_prefix="/api")
 
+    @app.route("/")
+    def index():
+        return dict(success=True, message="Welcome to the Orienteer application!")
+
 
 SRID = None
 

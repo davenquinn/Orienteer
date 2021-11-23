@@ -28,5 +28,4 @@ EXPOSE 8000
 COPY ./ /app/
 
 # Install the root package
-# RUN poetry install --no-interaction --no-ansi
-RUN pip install -e .
+RUN poetry install --no-interaction --no-ansi --no-dev
