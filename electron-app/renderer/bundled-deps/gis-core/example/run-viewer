@@ -1,4 +1,0 @@
-#!/bin/bash
-
-DIR="$(npm root)/.."
-electron "$DIR/main.js" "$DIR/example/config.yaml"

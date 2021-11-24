@@ -108,6 +108,9 @@
     "xml2json": "^0.9.0",
     "yargs": "^17.2.1"
   },
+  "workspaces": [
+    "packages"
+  ],
   "repository": "/Users/Daven/Development/Repositories/Elevation.git",
   "resolutions": {
     "graceful-fs": "^4.2.4"
