@@ -12,7 +12,8 @@
   "electronVersion": "1.8.2",
   "scripts": {
     "postinstall": "linklocal",
-    "dev": "ts-node ./compile-styles.ts & electron main.js",
+    "preinstall": "npx npm-force-resolutions",
+    "dev": "electron main.js",
     "start": "electron main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -104,7 +105,12 @@
     "underscore": "^1.8.3",
     "velocity-animate": "^1.2.2",
     "wkx": "^0.4.1",
-    "xml2json": "^0.9.0"
+    "xml2json": "^0.9.0",
+    "yargs": "^17.2.1"
   },
-  "repository": "/Users/Daven/Development/Repositories/Elevation.git"
+  "repository": "/Users/Daven/Development/Repositories/Elevation.git",
+  "resolutions": {
+    "graceful-fs": "^4.2.4"
+  },
+  "prettier": {}
 }

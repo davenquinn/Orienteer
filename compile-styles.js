@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env ts-node-transpile-only
 /*
  * decaffeinate suggestions:
  * DS102: Remove unnecessary code created because of implicit returns
