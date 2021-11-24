@@ -41,5 +41,5 @@ startApp(`file://${__dirname}/render/index.html`, {
     styles: "./**/*.scss",
     scripts: list,
   },
-  ...config,
+  ...config
 });
