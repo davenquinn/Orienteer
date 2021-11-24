@@ -12,8 +12,7 @@
   "electronVersion": "1.8.2",
   "scripts": {
     "postinstall": "linklocal",
-    "preinstall": "npx npm-force-resolutions",
-    "dev": "electron main.js",
+    "dev": "npm --prefix electron-app run dev",
     "start": "electron main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -39,8 +38,10 @@
     "linklocal": "^2.8.2",
     "npm-registry-client": "^7.0.9",
     "pretty-hrtime": "^0.2.1",
+    "sass-loader": "^12.3.0",
     "space-pen": "^3.3.0",
     "spine": "^1.3.2",
+    "stylus-loader": "^6.2.0",
     "through2": "^0.6.5",
     "vinyl-source-stream": "^0.1.1"
   },
@@ -112,8 +113,5 @@
     "packages"
   ],
   "repository": "/Users/Daven/Development/Repositories/Elevation.git",
-  "resolutions": {
-    "graceful-fs": "^4.2.4"
-  },
   "prettier": {}
 }

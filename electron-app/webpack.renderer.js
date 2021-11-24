@@ -6,12 +6,14 @@ const modifyConfig = (cfg) => {
   jsRule = cfg.module.rules[0];
   jsRule.test = /\.(js|jsx|ts|tsx)$/;
   jsRule.use.options.presets = [
-    ["@babel/preset-env", { modules: false, targets: { electron: version } }],
+    ["@babel/preset-env", { targets: { electron: version } }],
     "@babel/preset-react",
     "@babel/preset-typescript",
   ];
 
-  return merge(cfg, {});
+  return merge(cfg, {
+    resolve: { extensions: [".ts", ".js", ".jsx"] },
+  });
 };
 
 module.exports = modifyConfig;
