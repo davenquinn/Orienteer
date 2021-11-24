@@ -24,7 +24,7 @@
     },
     "renderer": {
       "sourceDirectory": "renderer",
-      "webpackConfig": "webpack.electron.js"
+      "webpackConfig": "webpack.renderer.js"
     }
   }
 }

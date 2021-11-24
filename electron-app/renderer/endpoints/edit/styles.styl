@@ -1,0 +1,19 @@
+$root
+  @require '../styles';
+
+.page {
+}
+
+.sidebar {
+  background: white;
+  z-index: 5000;
+  display: block;
+  padding: 1em;
+  @extends $root .sidebar;
+}
+
+.item {
+  button {
+    margin-right: 0.2em;
+  }
+}

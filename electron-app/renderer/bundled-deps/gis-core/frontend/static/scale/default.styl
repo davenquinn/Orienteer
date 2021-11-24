@@ -1,0 +1,31 @@
+scale_gray=#888888
+
+g.scale
+  fill: white
+  //transform: translate(-1px, 1px) // Eliminate hairline
+  rect.background
+    fill: white
+
+rect.scale-background
+  stroke: scale_gray
+  stroke-width: 4
+
+.scale-overlay
+  rect
+    fill: white
+    stroke: none
+  rect.even
+    fill: scale_gray
+
+.tick-labels
+  text-anchor: middle
+
+.unit-label
+  text-anchor: start
+
+text
+  font-family: "Gotham"
+
+.scale text
+  fill: scale_gray
+  font-size: 12

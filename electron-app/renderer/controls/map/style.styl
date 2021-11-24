@@ -1,0 +1,104 @@
+strike_dip = lighten(#ff0000,20%);
+hovered = darken(#ff0000,10%);
+selected = darken(lightgreen,10%);
+
+// Temporary solution
+:global {
+.data-layer {
+  pointer-events: all;
+  #markerCircle circle, #markerArrow path {
+    fill: strike-dip;
+  }
+  #hoverCircle circle, #hoverArrow path {
+    fill: hovered;
+  }
+  #selectedArrow path {
+    fill: selected;
+  }
+  .features,.markers {
+    cursor: crosshair;
+  }
+  .features {
+    strike_dip_feature = darken(strike_dip,30%);
+    selected_feature = darken(selected,30%);
+    hovered_feature = darken(hovered,20%);
+    path {
+      fill: transparent;
+      stroke: transparentify(strike_dip_feature, 0.5);
+      stroke-width: 2;
+      &.Polygon, &.MultiPolygon {
+        fill: transparentify(strike_dip_feature, 0.7);
+        &.selected {
+          fill: transparentify(selected_feature, 0.3);
+          &.hovered {
+            fill: transparentify(darken(selected_feature,10%), 0.3);
+          }
+        }
+        &.hovered {
+          fill: transparentify(hovered_feature, 0.5);
+        }
+      }
+      &.hovered {
+        stroke: hovered_feature;
+        stroke-width: 3px;
+      }
+      &.selected {
+        stroke: selected_feature;
+        &.hovered {
+          stroke: darken(selected_feature,10%);
+        }
+      }
+    }
+  }
+  .markers {
+    line {
+      stroke-width: 1px;
+    }
+    .hovered {
+      circle, line {
+        fill: hovered;
+        stroke-width: 2px;
+        stroke: hovered;
+      }
+    }
+    .selected {
+      circle, line {
+        fill: selected;
+        stroke: selected;
+      }
+      &.hovered {
+        c = darken(selected, 10%);
+        circle, line {
+          stroke: c;
+          fill: c;
+        }
+      }
+    }
+ }
+}
+
+.leaflet-container {
+  flex-grow: 1
+  }
+.leaflet-overlay-pane svg {
+    pointer-events: all;
+  }
+
+  .leaflet-overlay-pane path, .leaflet-marker-icon {
+      cursor: pointer;
+      }
+
+.leaflet-control-layers {
+  min-width: 34px;
+  min-height: 34px;
+}
+.leaflet-container .leaflet-control-layers-toggle {
+  width: inherit;
+  height: inherit;
+  font-size: inherit
+  line-height: 30px;
+  text-align: center;
+  color: black;
+}
+
+}

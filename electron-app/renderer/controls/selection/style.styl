@@ -1,0 +1,32 @@
+:local {
+  .sidebar {
+    display: flex;
+    flex-grow: 1;
+    &>div {
+      overflow-y: scroll;
+    }
+    img {
+      max-width: 100%;
+    }
+    div.controls {
+      ul {
+        list-style: none;
+        padding-left: 0;
+      }
+      .more {
+        margin-top: 0.2em;
+        color: #888888;
+      }
+    }
+  }
+
+  .dataViewer {
+    overflow-y: scroll
+  }
+}
+
+.combined-panel
+  display: flex
+  flex-direction: row
+  &>div
+    flex-grow: 1
