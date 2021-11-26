@@ -13,22 +13,23 @@ const {
 } = require("react-leaflet");
 const h = require("react-hyperscript");
 const { Component } = require("react");
-const style = require("./style");
+const style = require("./style.styl");
 const path = require("path");
 const BaseMapnikLayer = require("gis-core/frontend/mapnik-layer");
 const setupProjection = require("gis-core/frontend/projection");
 const parseConfig = require("gis-core/frontend/config");
 const SelectBox = require("./select-box");
 const BackButton = require("./back-button");
-const BaseTileLiveLayer = require("./tilelive-layer");
+//const BaseTileLiveLayer = require("./tilelive-layer");
 const { BaseLayer, Overlay } = LayersControl;
 
 class TileLiveLayer extends MapLayer {
   createLeafletElement(props) {
     const { id, uri } = props;
     const opts = this.getOptions(props);
-    const lyr = new BaseTileLiveLayer(id, uri, opts);
-    return lyr;
+    return null;
+    // const lyr = new BaseTileLiveLayer(id, uri, opts);
+    // return lyr;
   }
 }
 

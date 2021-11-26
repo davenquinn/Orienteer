@@ -1,4 +1,5 @@
 import h from "@macrostrat/hyper";
 import { render } from "react-dom";
+import App from "./app";
 
-render(h("div", "Hello, world!"), document.getElementById("app"));
+render(h(App), document.getElementById("app"));

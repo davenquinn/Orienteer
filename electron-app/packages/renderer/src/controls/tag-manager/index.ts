@@ -7,7 +7,7 @@
  */
 const React = require("react");
 const ReactDOM = require("react-dom");
-const style = require("./style");
+const style = require("./style.styl");
 const h = require("react-hyperscript");
 const { Tag, Intent } = require("@blueprintjs/core");
 

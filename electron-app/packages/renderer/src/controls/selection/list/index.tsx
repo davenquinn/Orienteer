@@ -8,10 +8,10 @@
 const Spine = require("spine");
 const $ = require("jquery");
 const d3 = require("d3");
-const React = require('react');
-const style = require('./style');
-let h = require('react-hyperscript');
-const {Tag} = require('@blueprintjs/core');
+const React = require("react");
+const style = require("./style.styl");
+let h = require("react-hyperscript");
+const { Tag } = require("@blueprintjs/core");
 
 const f = d3.format(">.1f");
 
@@ -25,33 +25,49 @@ class ListItem extends React.Component {
   }
 
   static initClass() {
-    this.prototype.defaultProps =
-      {allowRemoval: false};
+    this.prototype.defaultProps = { allowRemoval: false };
   }
   render() {
-    const {strike, dip, grouped,max_angular_error,
-     min_angular_error, hovered, measurements} = this.props.data;
+    const {
+      strike,
+      dip,
+      grouped,
+      max_angular_error,
+      min_angular_error,
+      hovered,
+      measurements,
+    } = this.props.data;
 
-    let cls = 'list-item';
+    let cls = "list-item";
     if (hovered) {
       cls += ` ${style.hovered}`;
     }
 
     // This is crazy-inefficient
-    return <tr className={cls} onClick={this.props.focusItem} onMouseEnter={this.mousein}>
-      <td>{f(strike)}</td>
-      <td>{f(dip)}</td>
-      <td>{f(max_angular_error)}</td>
-      <td>{f(min_angular_error)}</td>
-      <td>{grouped ? <Tag>{measurements.length} attitudes</Tag> : undefined}</td>
-      {this.props.allowRemoval ? this.createRemoveButton() : undefined}
-    </tr>;
+    return (
+      <tr
+        className={cls}
+        onClick={this.props.focusItem}
+        onMouseEnter={this.mousein}
+      >
+        <td>{f(strike)}</td>
+        <td>{f(dip)}</td>
+        <td>{f(max_angular_error)}</td>
+        <td>{f(min_angular_error)}</td>
+        <td>
+          {grouped ? <Tag>{measurements.length} attitudes</Tag> : undefined}
+        </td>
+        {this.props.allowRemoval ? this.createRemoveButton() : undefined}
+      </tr>
+    );
   }
 
   createRemoveButton() {
-    return <td className="remove" onClick={this.props.removeItem}>
-      <i className='fa fa-remove'></i>
-    </td>;
+    return (
+      <td className="remove" onClick={this.props.removeItem}>
+        <i className="fa fa-remove"></i>
+      </td>
+    );
   }
 
   isHovered() {
@@ -78,12 +94,12 @@ class SelectionList extends React.Component {
     this.prototype.defaultProps = {
       focusItem() {},
       removeItem() {},
-      allowRemoval: false
+      allowRemoval: false,
     };
   }
 
-  renderItem(d){
-    const onRemove = event=> {
+  renderItem(d) {
+    const onRemove = (event) => {
       this.props.removeItem(d);
       return event.stopPropagation();
     };
@@ -95,29 +111,34 @@ class SelectionList extends React.Component {
     if (this.props.hovered != null) {
       h = d.id === this.props.hovered.id;
     }
-    return <ListItem
-      data={d}
-      key={d.id}
-      focusItem={onFocus}
-      removeItem={onRemove}
-      allowRemoval={this.props.allowRemoval} />;
+    return (
+      <ListItem
+        data={d}
+        key={d.id}
+        focusItem={onFocus}
+        removeItem={onRemove}
+        allowRemoval={this.props.allowRemoval}
+      />
+    );
   }
 
   render() {
-    return <table className={"pt-table pt-striped pt-condensed selection-list-table"}>
-      <thead>
-        <tr>
-          <td>Str</td>
-          <td>Dip</td>
-          <td colSpan="2">Errors (º)</td>
-          <td>Info</td>
-          {this.props.allowRemoval ? <td></td> : undefined}
-        </tr>
-      </thead>
-      <tbody>
-        {this.props.records.map(this.renderItem)}
-      </tbody>
-    </table>;
+    return (
+      <table
+        className={"pt-table pt-striped pt-condensed selection-list-table"}
+      >
+        <thead>
+          <tr>
+            <td>Str</td>
+            <td>Dip</td>
+            <td colSpan="2">Errors (º)</td>
+            <td>Info</td>
+            {this.props.allowRemoval ? <td></td> : undefined}
+          </tr>
+        </thead>
+        <tbody>{this.props.records.map(this.renderItem)}</tbody>
+      </table>
+    );
   }
 }
 SelectionList.initClass();

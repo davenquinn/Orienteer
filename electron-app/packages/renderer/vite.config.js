@@ -1,9 +1,11 @@
 /* eslint-env node */
 
 import { chrome } from "../../electron-vendors.config.json";
-import { join } from "path";
+import { join, resolve } from "path";
 import { builtinModules } from "module";
 import react from "@vitejs/plugin-react";
+import { viteCommonjs } from "@originjs/vite-plugin-commonjs";
+import createExternal from "vite-plugin-external";
 
 const PACKAGE_ROOT = __dirname;
 
@@ -17,14 +19,18 @@ const config = {
   resolve: {
     alias: {
       "/@/": join(PACKAGE_ROOT, "src") + "/",
+      "gis-core": resolve(join(PACKAGE_ROOT, "../../../packages/gis-core")),
     },
   },
-  plugins: [react()],
+  plugins: [react(), viteCommonjs({})],
   base: "",
   server: {
     fs: {
       strict: true,
     },
+  },
+  optimizeDeps: {
+    exclude: ["pg", "pg-native", "pg-promise", "@blueprintjs/core"],
   },
   build: {
     sourcemap: true,
@@ -32,7 +38,7 @@ const config = {
     outDir: "dist",
     assetsDir: ".",
     rollupOptions: {
-      external: [...builtinModules],
+      external: [...builtinModules, "pg-native"],
     },
     emptyOutDir: true,
     brotliSize: false,

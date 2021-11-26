@@ -12,7 +12,7 @@ const h = require("react-hyperscript");
 const React = require("react");
 const ReactDOM = require("react-dom");
 const { HashRouter, Route, Link } = require("react-router-dom");
-let { remote } = require("electron");
+//let { remote } = require("electron");
 const { FocusStyleManager } = require("@blueprintjs/core");
 const setupMenu = require("./menu");
 const Map = require("./controls/map");
@@ -25,7 +25,7 @@ const update = require("immutability-helper");
 const yaml = require("js-yaml");
 const { readFileSync } = require("fs");
 const styles = require("./styles/layout.styl");
-({ remote } = require("electron"));
+//({ remote } = require("electron"));
 
 FocusStyleManager.onlyShowFocusOnTabs();
 
@@ -43,13 +43,12 @@ class App extends React.Component {
 
     const query = this.subqueryIndex[0].sql;
 
-    const { state } = remote.app;
+    //const { state } = remote.app;
     this.state = {
       query,
       featureTypes: [],
       showSidebar: false,
       records: [],
-      ...state,
     };
 
     setupMenu(this);
@@ -58,8 +57,8 @@ class App extends React.Component {
 
     // Share config from main process
     // Config can't be edited at runtime
-    const c = remote.app.config;
-    this.config = JSON.parse(JSON.stringify(c));
+    //const c = remote.app.config;
+    this.config = {}; ///JSON.parse(JSON.stringify(c));
     this.data = new Data({
       logger: this.log,
       onUpdated: this.updateData.bind(this),
@@ -134,7 +133,4 @@ class App extends React.Component {
 
 const Router = () => h(HashRouter, [h(App)]);
 
-ReactDOM.render(
-  React.createElement(Router),
-  document.getElementById("wrapper")
-);
+export default Router;
