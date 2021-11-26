@@ -1,5 +1,7 @@
+node_modules
 .DS_Store
-dist/
-node_modules/
+dist
+*.local
 thumbs.db
-.idea/
+
+.eslintcache
