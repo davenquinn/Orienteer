@@ -4,10 +4,9 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-const React = require('react');
-const Select = require('react-select');
-const h = require('react-hyperscript');
-require("react-select/dist/react-select.css");
+import React from 'react';
+import Select from 'react-select';
+import h from '@macrostrat/hyper';
 
 class SelectType extends React.Component {
   render() {
@@ -54,5 +53,5 @@ class SelectType extends React.Component {
   }
 }
 
-module.exports = SelectType;
+export default SelectType;
 

@@ -6,13 +6,51 @@
     "dev": "parcel"
   },
   "devDependencies": {
+    "@parcel/transformer-stylus": "^2.0.1",
     "parcel": "^2.0.1",
     "stylus": "^0.55.0",
-    "typescript": "4.5.2"
+    "typescript": "^4.5.2"
   },
   "dependencies": {
+    "@blueprintjs/core": "^1.22.0",
+    "@blueprintjs/table": "^1.21.0",
     "@macrostrat/hyper": "^1.4.2",
+    "attitude": "file:../core/deps/Attitude/js-frontend",
+    "bluebird": "^3.4.6",
+    "chroma-js": "^1.1.1",
+    "classnames": "^2.2.5",
+    "coffeescript": "next",
+    "d3": "^4.2.6",
+    "d3-queue": "^2.0.1",
+    "d3-request": "^0.3.2",
+    "d3-selection-multi": "^1.0.0",
+    "d3-tip": "^0.6.7",
+    "dragdealer": "^0.9.8",
+    "elemental": "^0.5.14",
+    "font-awesome": "^4.5.0",
+    "geojson-rewind": "^0.1.0",
+    "immutability-helper": "^2.0.0",
+    "jquery": "^2.1.1",
+    "leaflet": "^1.1.0",
+    "leaflet-draw": "github:leaflet/Leaflet.draw#leaflet-master",
+    "prop-types": "^15.5.10",
+    "queue-async": "^1.2.1",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-addons-css-transition-group": "^15.0.1",
+    "react-dimensions": "^1.3.0",
+    "react-dom": "^17.0.2",
+    "react-hyperscript": "^3.0.0",
+    "react-infinite": "^0.10.0",
+    "react-leaflet": "^1.4.0",
+    "react-measure": "^1.3.1",
+    "react-router": "^4.1.1",
+    "react-router-dom": "^4.1.1",
+    "react-select": "^5.2.1",
+    "react-split-pane": "^0.1.51",
+    "react-switch-button": "^2.0.1",
+    "react-tap-event-plugin": "^0.2.1",
+    "spine": "^1.6.2",
+    "underscore": "^1.8.3",
+    "velocity-animate": "^1.2.2"
   }
 }

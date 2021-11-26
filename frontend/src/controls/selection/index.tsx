@@ -63,13 +63,11 @@ class CloseButton extends React.Component {
 }
 
 class Sidebar extends React.Component {
-  static initClass() {
-    this.prototype.defaultProps = {
-      records: [],
-      hovered: null,
-      openGroupViewer: null,
-    };
-  }
+  static defaultProps = {
+    records: [],
+    hovered: null,
+    openGroupViewer: null,
+  };
   constructor(props) {
     super(props);
     this.focusItem = this.focusItem.bind(this);
@@ -149,6 +147,5 @@ class Sidebar extends React.Component {
     return this.setState({ focused: null });
   }
 }
-Sidebar.initClass();
 
 module.exports = Sidebar;

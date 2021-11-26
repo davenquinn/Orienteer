@@ -74,7 +74,7 @@ class MapControl extends Component {
   render() {
     // Add base layers
     const { center, zoom, layers } = this.state.options;
-    const c = [center[1], center[0]];
+    const c = [0, 0]; // [center[1], center[0]];
 
     let ix = 0;
     let overlays = this.props.children;

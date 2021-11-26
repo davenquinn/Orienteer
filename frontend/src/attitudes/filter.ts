@@ -83,9 +83,10 @@ class FilterPanel extends Component {
   }
 
   menu() {
+    const subqueryIndex = [];
     return h(
       Menu,
-      app.subqueryIndex.map((d) =>
+      subqueryIndex.map((d) =>
         h(MenuItem, {
           text: d.name,
           onClick() {

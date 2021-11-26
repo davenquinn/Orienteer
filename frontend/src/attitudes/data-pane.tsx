@@ -4,13 +4,13 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-const React = require("react");
-const Measure = require("react-measure");
-const Stereonet = require("../controls/stereonet");
-const TagManager = require("../controls/tag-manager");
-const SelectType = require("../controls/select-type");
-const { debounce } = require("underscore");
-const style = require("./style.styl");
+import React from "react";
+import Measure from "react-measure";
+import Stereonet from "../controls/stereonet";
+import TagManager from "../controls/tag-manager";
+import SelectType from "../controls/select-type";
+import { debounce } from "underscore";
+import style from "./style.styl";
 
 class DataPane extends React.Component {
   constructor(props) {
@@ -53,4 +53,4 @@ class DataPane extends React.Component {
   }
 }
 
-module.exports = DataPane;
+export default DataPane;
