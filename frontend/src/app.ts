@@ -4,31 +4,24 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-const $ = require("jquery");
-
-window.server_url = "http://0.0.0.0:8000";
-
-const h = require("react-hyperscript");
-const React = require("react");
-const ReactDOM = require("react-dom");
-const { HashRouter, Route, Link } = require("react-router-dom");
-//let { remote } = require("electron");
-const { FocusStyleManager } = require("@blueprintjs/core");
-const setupMenu = require("./menu");
-const Map = require("./controls/map");
-const Frontpage = require("./frontpage");
-const Data = require("./data-manager");
-const AttitudePage = require("./attitudes");
-const Stereonet = require("./endpoints/stereonet");
-const LogHandler = require("./log-handler");
-const update = require("immutability-helper");
-const yaml = require("js-yaml");
-const { readFileSync } = require("fs");
-const styles = require("./styles/layout.styl");
-//({ remote } = require("electron"));
+import h from "@macrostrat/hyper";
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { FocusStyleManager } from "@blueprintjs/core";
+//import setupMenu from "./menu";
+//import Map from "./controls/map";
+//import Frontpage from "./frontpage";
+// import Data from "./data-manager";
+import AttitudePage from "./attitudes";
+// import Stereonet from "./endpoints/stereonet";
+// import LogHandler from "./log-handler";
+// import update from "immutability-helper";
+// import yaml from "js-yaml";
+// import { readFileSync } from "fs";
+//import styles from "./styles/layout.styl";
 
 FocusStyleManager.onlyShowFocusOnTabs();
 
+/*
 class App extends React.Component {
   constructor() {
     super();
@@ -51,7 +44,7 @@ class App extends React.Component {
       records: [],
     };
 
-    setupMenu(this);
+    //setupMenu(this);
 
     this.log = new LogHandler();
 
@@ -123,14 +116,27 @@ class App extends React.Component {
     // The other pages of the app don't work right now
     return attitude();
 
-    return h("div#root", [
-      h(Route, { path: "/", component: Frontpage, exact: true }),
-      h(Route, { path: "/map", render: attitude }),
-      h(Route, { path: "/stereonet", component: DataStereonet }),
-    ]);
+    // return h("div#root", [
+    //   h(Route, { path: "/", component: Frontpage, exact: true }),
+    //   h(Route, { path: "/map", render: attitude }),
+    //   h(Route, { path: "/stereonet", component: DataStereonet }),
+    // ]);
   }
 }
+*/
 
-const Router = () => h(HashRouter, [h(App)]);
+const App = () =>
+  h("div.root", [
+    h(AttitudePage, {
+      settings: {},
+      records: [],
+      query: "",
+      featureTypes: [],
+      showSidebar: false,
+      //toggleSidebar,
+    }),
+  ]);
 
-export default Router;
+const AppRouter = () => h(Router, [h(App)]);
+
+export default AppRouter;

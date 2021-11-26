@@ -19,6 +19,7 @@
   "author": "Daven Quinn",
   "license": "MIT",
   "devDependencies": {
+    "@parcel/transformer-stylus": "^2.0.1",
     "bootstrap-sass": "^3.3.1",
     "browser-sync": "^2.10.0",
     "chalk": "^0.5.1",

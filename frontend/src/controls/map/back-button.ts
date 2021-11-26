@@ -1,13 +1,5 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-const React = require("react");
-const ReactDOM = require("react-dom");
-const { Link, browserHistory } = require("react-router");
-const L = require("leaflet");
-const { MapControl } = require("react-leaflet");
+import L from "leaflet";
+import { MapControl } from "react-leaflet";
 
 const Control = L.Control.extend({
   options: {
@@ -36,4 +28,4 @@ class HomeButton extends MapControl {
   }
 }
 
-module.exports = HomeButton;
+export default HomeButton;

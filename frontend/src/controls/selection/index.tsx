@@ -71,9 +71,9 @@ class Sidebar extends React.Component {
     };
   }
   constructor(props) {
+    super(props);
     this.focusItem = this.focusItem.bind(this);
     this.clearFocus = this.clearFocus.bind(this);
-    super(props);
     this.state = { focused: null };
   }
   render() {

@@ -4,15 +4,13 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-const Spine = require("spine");
-const React = require("react");
-const ReactDOM = require("react-dom");
-const MapControl = require("../controls/map");
-const SelectionControl = require("../controls/selection");
-const DataPane = require("./data-pane");
-const h = require("react-hyperscript");
-const SplitPane = require("react-split-pane");
-const {
+import React from "react";
+import MapControl from "../controls/map";
+import SelectionControl from "../controls/selection";
+import DataPane from "./data-pane";
+import h from "@macrostrat/hyper";
+import SplitPane from "react-split-pane";
+import {
   Tab2,
   Tabs2,
   Hotkey,
@@ -20,14 +18,12 @@ const {
   HotkeysTarget,
   Button,
   Toolbar,
-} = require("@blueprintjs/core");
-const FilterPanel = require("./filter");
-const MapDataLayer = require("../controls/map-data-layer");
+} from "@blueprintjs/core";
+import FilterPanel from "./filter";
+import MapDataLayer from "../controls/map-data-layer";
+import * as d3 from "d3";
 
-const d3 = require("d3");
-const $ = require("jquery");
-
-const style = require("./style.styl");
+import style from "./style.styl";
 
 const f = d3.format("> 6.1f");
 
@@ -38,9 +34,9 @@ const paneStyle = {
 
 class AttitudePage extends React.Component {
   constructor(props) {
+    super(props);
     this.onChangeTab = this.onChangeTab.bind(this);
     this.onResizePane = this.onResizePane.bind(this);
-    super(props);
     this.state = { splitPosition: 350, selectedTabId: 1, showGroupInfo: false };
   }
 
@@ -144,7 +140,7 @@ class AttitudePage extends React.Component {
         label: "Clear selection",
         combo: "backspace",
         global: true,
-        onKeyDown: app.data.clearSelection,
+        onKeyDown: null,
       }),
     ]);
   }
@@ -152,4 +148,4 @@ class AttitudePage extends React.Component {
 
 HotkeysTarget(AttitudePage);
 
-module.exports = AttitudePage;
+export default AttitudePage;

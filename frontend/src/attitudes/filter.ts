@@ -1,21 +1,14 @@
-/*
- * decaffeinate suggestions:
- * DS002: Fix invalid constructor
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-const { Component } = require("react");
-const {
+import { Component } from "react";
+import {
   EditableText,
   Menu,
   MenuItem,
   Popover,
   Button,
   Position,
-} = require("@blueprintjs/core");
-const h = require("react-hyperscript");
-const { db, storedProcedure } = require("../database");
+} from "@blueprintjs/core";
+import h from "@macrostrat/hyper";
+//import { db, storedProcedure } from "../database";
 
 const udtmap = {
   varchar: "text",
@@ -45,18 +38,19 @@ const formatType = function (row) {
 
 class FilterPanel extends Component {
   constructor(props) {
+    super(props);
+
     this.setupTypes = this.setupTypes.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onConfirm = this.onConfirm.bind(this);
-    super(props);
     this.state = {
       dataTypes: [],
       value: this.props.query,
     };
 
-    db.query(storedProcedure("column-types"))
-      .map(formatType)
-      .then(this.setupTypes);
+    // db.query(storedProcedure("column-types"))
+    //   .map(formatType)
+    //   .then(this.setupTypes);
   }
 
   setupTypes(dataTypes) {

@@ -38,9 +38,9 @@ const buildTagData = function (records) {
 
 class TagForm extends React.Component {
   constructor(props) {
+    super(props);
     this.sanitizeField = this.sanitizeField.bind(this);
     this.submitForm = this.submitForm.bind(this);
-    super(props);
     this.state = { value: "" };
   }
 

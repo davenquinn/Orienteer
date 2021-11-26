@@ -4,34 +4,19 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-const {
+import {
   Map,
   MapLayer,
   LayersControl,
   ScaleControl,
   TileLayer,
-} = require("react-leaflet");
-const h = require("react-hyperscript");
-const { Component } = require("react");
-const style = require("./style.styl");
-const path = require("path");
-const BaseMapnikLayer = require("gis-core/frontend/mapnik-layer");
-const setupProjection = require("gis-core/frontend/projection");
-const parseConfig = require("gis-core/frontend/config");
-const SelectBox = require("./select-box");
-const BackButton = require("./back-button");
+} from "react-leaflet";
+import h from "@macrostrat/hyper";
+import { Component } from "react";
+import SelectBox from "./select-box";
+import BackButton from "./back-button";
 //const BaseTileLiveLayer = require("./tilelive-layer");
 const { BaseLayer, Overlay } = LayersControl;
-
-class TileLiveLayer extends MapLayer {
-  createLeafletElement(props) {
-    const { id, uri } = props;
-    const opts = this.getOptions(props);
-    return null;
-    // const lyr = new BaseTileLiveLayer(id, uri, opts);
-    // return lyr;
-  }
-}
 
 const defaultOptions = {
   tileSize: 256,
@@ -59,10 +44,10 @@ class MapControl extends Component {
     let k, v;
     super(props);
 
-    const cfg = app.config;
+    const cfg = {};
 
     this.state = {
-      center: app.config.center,
+      center: [0, 0],
     };
 
     const options = {};
@@ -97,6 +82,7 @@ class MapControl extends Component {
       overlays = [overlays];
     }
 
+    /*
     for (let k in app.config.layers) {
       var lyr;
       const uri = app.config.layers[k];
@@ -121,9 +107,10 @@ class MapControl extends Component {
       );
       ix += 1;
     }
+    */
 
     return h(BoxSelectMap, { center: c, zoom, boxZoom: false }, [
-      h(LayersControl, { position: "topleft" }, overlays),
+      h(LayersControl, { position: "topleft" }, []),
       //h LayersControl, position: 'topleft', overlays
       //h ScaleControl, {imperial: false}
       //h BackButton # We cause major problems with back-navigation for now

@@ -1,9 +1,4 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-const L = require("leaflet");
+import L from "leaflet";
 
 class BoxSelect extends L.Map.BoxZoom {
   _onMouseUp(e) {
@@ -19,4 +14,4 @@ class BoxSelect extends L.Map.BoxZoom {
   }
 }
 
-module.exports = BoxSelect;
+export default BoxSelect;

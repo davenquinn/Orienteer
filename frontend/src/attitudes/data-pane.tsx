@@ -14,8 +14,9 @@ const style = require("./style.styl");
 
 class DataPane extends React.Component {
   constructor(props) {
-    this._setSize = this._setSize.bind(this);
     super(props);
+
+    this._setSize = this._setSize.bind(this);
     this.state = { width: 300 };
     // Create debounced method for setting size
     this.setSize = debounce(this._setSize, 200);
