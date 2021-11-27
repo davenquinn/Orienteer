@@ -1,0 +1,18 @@
+version: "3"
+services:
+  orienteer:
+    build: core
+    command: orienteer serve
+    environment:
+      - ORIENTEER_DATABASE
+      - ORIENTEER_SRID
+      - ORIENTEER_GEOGRAPHIC_SRID
+      - ORIENTEER_HOST=0.0.0.0
+    expose: [5000]
+  orienteer_api:
+    image: postgrest/postgrest
+    expose: [3000]
+    environment:
+      - PGRST_DB_URI=ORIENTEER_DATABASE
+      - PGRST_DB_SCHEMA=orienteer_api
+      - PGRST_DB_ANON_ROLE=postgres
