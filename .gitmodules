@@ -2,7 +2,7 @@
 	path = core/deps/Attitude
 	url = git://github.com/davenquinn/Attitude.git
 [submodule "bundled-deps/gis-core"]
-	path = frontend/bundled-deps/gis-core
+	path = packages/gis-core
 	url = git://github.com/davenquinn/gis-core.git
 [submodule "bundled-deps/pg-projector"]
 	path = core/deps/pg-projector
