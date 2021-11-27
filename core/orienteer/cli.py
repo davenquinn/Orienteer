@@ -5,6 +5,7 @@ from os import path, environ
 
 from .core import setup_app
 from .config import HOST
+from .models import Base
 
 from . import app, db
 from os import path
@@ -211,7 +212,9 @@ def create_tables():
     app = setup_app()
     with app.app_context():
         db.engine.execute("CREATE SCHEMA IF NOT EXISTS orienteer")
-        db.create_all()
+
+        # Create all tables defined by SQLAlchemy ORM objects.
+        Base.metadata.create_all(db.engine)
+
         stored_procedure("attitude-data")
         db.session.commit()
-        # db.engine.execute(query)
