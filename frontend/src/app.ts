@@ -1,9 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import h from "@macrostrat/hyper";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import { FocusStyleManager } from "@blueprintjs/core";
@@ -132,7 +126,7 @@ const App = () =>
       records: [],
       query: "",
       featureTypes: [],
-      showSidebar: false,
+      showSidebar: true,
       //toggleSidebar,
     }),
   ]);

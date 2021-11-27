@@ -5,4 +5,6 @@ __pycache__
 
 node_modules
 build
-deps.parcel-cache
+deps
+.parcel-cache
+.env

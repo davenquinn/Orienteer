@@ -1,17 +1,8 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-const Spine = require("spine");
-const $ = require("jquery");
-const d3 = require("d3");
-const React = require("react");
-const style = require("./style.styl");
-let h = require("react-hyperscript");
-const { Tag } = require("@blueprintjs/core");
+import * as d3 from "d3";
+import React from "react";
+import style from "./style.styl";
+import h from "@macrostrat/hyper";
+import { Tag } from "@blueprintjs/core";
 
 const f = d3.format(">.1f");
 

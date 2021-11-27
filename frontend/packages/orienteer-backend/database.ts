@@ -1,17 +1,9 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 // Can't use native pg extension right now
-const Promise = require("bluebird");
+import Promise from "bluebird";
 const pgp = require("pg-promise")({ promiseLib: Promise });
-const { Buffer } = require("buffer");
-const { Geometry } = require("wkx");
-const path = require("path");
+import { Buffer } from "buffer";
+import { Geometry } from "wkx";
+import path from "path";
 
 const cfg = require(process.env.ORIENTEER_CONFIG);
 

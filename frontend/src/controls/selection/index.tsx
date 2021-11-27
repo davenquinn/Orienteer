@@ -7,12 +7,12 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 //GroupedDataControl = require "./grouped-data"
-const SelectionList = require("./list");
-const ViewerControl = require("./viewer");
-const React = require("react");
-const style = require("./style.styl");
-const h = require("react-hyperscript");
-const { NonIdealState, Button } = require("@blueprintjs/core");
+import SelectionList from "./list";
+import ViewerControl from "./viewer";
+import React from "react";
+import style from "./style.styl";
+import h from "react-hyperscript";
+import { NonIdealState, Button } from "@blueprintjs/core";
 
 class SelectionControl extends React.Component {
   constructor(...args) {
@@ -148,4 +148,4 @@ class Sidebar extends React.Component {
   }
 }
 
-module.exports = Sidebar;
+export default Sidebar;
