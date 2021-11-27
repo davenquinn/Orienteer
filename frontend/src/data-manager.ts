@@ -390,15 +390,14 @@ const baseReducer = (state, action) => {
   return state;
 };
 
-const POSTGREST_URL = "http://localhost:3000";
+const POSTGREST_URL = process.env.ORIENTEER_API_BASE + "/models";
 const pg = new PostgrestClient(POSTGREST_URL);
 
 function useAttitudeData() {
   const [data, setData] = useState([]);
   useEffect(() => {
-    pg.from("attitude_data")
+    pg.from("attitude")
       .select()
-      .lt("correlation_coefficient", 1)
       .then((res) => {
         setData(res.data.map(prepareData));
       });
