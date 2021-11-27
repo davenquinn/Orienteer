@@ -4,7 +4,7 @@ from collections import defaultdict
 from os import path, environ
 
 from .core import setup_app
-from .config import HOST
+from .config import HOST, GEOGRAPHIC_SRID
 from .models import Base
 from .database import db
 
@@ -214,4 +214,7 @@ def create_tables():
         Base.metadata.create_all(db.engine)
 
         stored_procedure("attitude-data")
+        stored_procedure(
+            "create-api-views", params={"geographic_srid": GEOGRAPHIC_SRID}
+        )
         db.session.commit()
