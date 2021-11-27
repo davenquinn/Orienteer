@@ -10,3 +10,6 @@
 [submodule "bundled-deps/subdivide"]
 	path = core/deps/subdivide
 	url = git://github.com/davenquinn/subdivide.git
+[submodule "core/deps/python-tools"]
+	path = core/deps/python-tools
+	url = https://github.com/UW-Macrostrat/python-tools.git

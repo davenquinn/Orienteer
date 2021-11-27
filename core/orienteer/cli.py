@@ -4,30 +4,28 @@ from collections import defaultdict
 from os import path, environ
 
 from .core import setup_app
-from .config import HOST
-
-from . import app, db
-from os import path
-
-__dirname = path.dirname(__file__)
-from .util.cli import execute_sql, header, message
+from .config import HOST, GEOGRAPHIC_SRID
+from .models import Base
 from .database import db
 
 OrienteerCommand = Group(help="Deals with elevation models")
 
 
-def stored_procedure(fn):
+def message(message, section=None, color="cyan"):
+    s = "\n"
+    s += "[" + style(section, color) + "] " if section else ""
+    s += message
+    echo(s)
+
+
+def stored_procedure(fn, params=None):
     """
     Run SQL sourced from a file in the `sql` directory
     in this tree
     """
     here = path.dirname(__file__)
-    n = path.join(here, "sql", fn + ".sql")
-    with open(n) as f:
-        q = f.read()
-    res = execute_sql(q)
-    echo(res)
-    return res
+    fn = path.join(here, "sql", fn + ".sql")
+    db.exec_sql(fn, params)
 
 
 @OrienteerCommand.command()
@@ -186,8 +184,8 @@ def shell():
     from IPython import embed
     from . import models as m
 
-    _ = style("Orienteer", fg="green")
-    echo("Welcome to the " + _ + " application!")
+    Orienteer = style("Orienteer", fg="green")
+    echo(f"Welcome to the {Orienteer} application!")
     embed()
 
 
@@ -211,7 +209,12 @@ def create_tables():
     app = setup_app()
     with app.app_context():
         db.engine.execute("CREATE SCHEMA IF NOT EXISTS orienteer")
-        db.create_all()
+
+        # Create all tables defined by SQLAlchemy ORM objects.
+        Base.metadata.create_all(db.engine)
+
         stored_procedure("attitude-data")
+        stored_procedure(
+            "create-api-views", params={"geographic_srid": GEOGRAPHIC_SRID}
+        )
         db.session.commit()
-        # db.engine.execute(query)

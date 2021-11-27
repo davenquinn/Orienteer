@@ -15,7 +15,7 @@ from shapely.ops import transform
 from pg_projector import transformation
 
 from ...database import db
-from ...util.extract import bilinear
+from .interpolation import bilinear
 from ...core.proj import Projection
 
 from logging import getLogger

@@ -104,12 +104,6 @@ def setup_app():
     global SRID
     SRID = app.config.get("srid")
     init_projection(app, db)
-    try:
-        db.init_app(app)
-    except AttributeError:
-        raise Exception(
-            "Please specify a database uri in the ORIENTEER_CONFIG json file"
-        )
 
     __setup_endpoints(app, db)
     log.info("App setup complete")
