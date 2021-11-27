@@ -4,7 +4,7 @@ import { FocusStyleManager } from "@blueprintjs/core";
 //import setupMenu from "./menu";
 //import Map from "./controls/map";
 //import Frontpage from "./frontpage";
-// import Data from "./data-manager";
+import { DataManager, AppDataProvider, useAttitudeData } from "./data-manager";
 import AttitudePage from "./attitudes";
 // import Stereonet from "./endpoints/stereonet";
 // import LogHandler from "./log-handler";
@@ -119,18 +119,19 @@ class App extends React.Component {
 }
 */
 
-const App = () =>
-  h("div.root", [
+const App = () => {
+  const data = useAttitudeData();
+  return h("div.root", [
     h(AttitudePage, {
       settings: {},
-      records: [],
+      records: data,
       query: "",
       featureTypes: [],
       showSidebar: true,
       //toggleSidebar,
     }),
   ]);
-
-const AppRouter = () => h(Router, [h(App)]);
+};
+const AppRouter = () => h(AppDataProvider, null, h(Router, [h(App)]));
 
 export default AppRouter;

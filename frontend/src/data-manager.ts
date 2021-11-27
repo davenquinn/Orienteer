@@ -1,20 +1,21 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-const tags = require("./shared/data/tags");
-const Promise = require("bluebird");
-const { LatLng } = require("leaflet");
-const _ = require("underscore");
-const update = require("immutability-helper");
-const { readFileSync } = require("fs");
-const { storedProcedure, db } = require("./database");
+import tags from "./shared/data/tags";
+import Promise from "bluebird";
+import { LatLng } from "leaflet";
+import _ from "underscore";
+import update from "immutability-helper";
+import { readFileSync } from "fs";
+import {
+  createContext,
+  useState,
+  useContext,
+  useReducer,
+  useEffect,
+} from "react";
+//const { storedProcedure, db } = require("./database");
+import h from "@macrostrat/hyper";
+import { PostgrestClient } from "@supabase/postgrest-js";
 
-const API = require("./api");
+import API from "./api";
 
 const prepareData = function (d) {
   // Transform raw data
@@ -29,7 +30,7 @@ const prepareData = function (d) {
   return d;
 };
 
-class Data {
+class DataManager {
   static initClass() {
     this.prototype.hoveredItem = null;
     this.prototype.fetched = false;
@@ -378,6 +379,40 @@ class Data {
     return this.updateUsing(changeset);
   }
 }
-Data.initClass();
+DataManager.initClass();
 
-module.exports = Data;
+const noOpDispatch = () => {};
+
+const AppDataContext = createContext(null);
+const AppDispatchContext = createContext<React.Dispatch<any>>(noOpDispatch);
+
+const baseReducer = (state, action) => {
+  return state;
+};
+
+const POSTGREST_URL = "http://localhost:3000";
+const pg = new PostgrestClient(POSTGREST_URL);
+
+function useAttitudeData() {
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    pg.from("attitude_data")
+      .select()
+      .lt("correlation_coefficient", 1)
+      .then((res) => {
+        setData(res.data.map(prepareData));
+      });
+  }, []);
+  return data;
+}
+
+function AppDataProvider(props) {
+  const [data, dispatch] = useReducer(baseReducer, {});
+  return h(
+    AppDataContext.Provider,
+    { value: data },
+    h(AppDispatchContext.Provider, { value: dispatch }, props.children)
+  );
+}
+
+export { DataManager, AppDataContext, AppDataProvider, useAttitudeData };
