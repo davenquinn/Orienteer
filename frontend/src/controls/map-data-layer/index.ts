@@ -5,15 +5,13 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-const d3 = require("d3");
-const L = require("leaflet");
-const { MapLayer } = require("react-leaflet");
-const { Component } = require("react");
-const { findDOMNode } = require("react-dom");
-const h = require("react-hyperscript");
-const mapType = require("react-leaflet/lib/propTypes/map");
-const classNames = require("classnames");
-const { instanceOf } = require("prop-types");
+import * as d3 from "d3";
+import L from "leaflet";
+import { MapLayer } from "react-leaflet";
+import { Component } from "react";
+import { findDOMNode } from "react-dom";
+import h from "react-hyperscript";
+import classNames from "classnames";
 
 const fmt = d3.format(".0f");
 
@@ -201,5 +199,4 @@ class DataLayer extends MapLayer {
     return super.componentWillUnmount(...arguments);
   }
 }
-
-module.exports = DataLayer;
+export default DataLayer;

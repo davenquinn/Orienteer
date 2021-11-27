@@ -1,5 +1,4 @@
 import tags from "./shared/data/tags";
-import Promise from "bluebird";
 import { LatLng } from "leaflet";
 import _ from "underscore";
 import update from "immutability-helper";

@@ -5,13 +5,13 @@ import DataPane from "./data-pane";
 import h from "@macrostrat/hyper";
 import SplitPane from "react-split-pane";
 import {
-  Tab2,
-  Tabs2,
+  Tab,
+  Tabs,
   Hotkey,
   Hotkeys,
   HotkeysTarget,
   Button,
-  Toolbar,
+  Navbar,
 } from "@blueprintjs/core";
 import FilterPanel from "./filter";
 import MapDataLayer from "../controls/map-data-layer";
@@ -61,15 +61,15 @@ class AttitudePage extends React.Component {
 
     if (this.state.splitPosition < 600) {
       panels = [
-        h(Tab2, { id: 1, title: "Selection", panel: selectionPanel }),
-        h(Tab2, { id: 2, title: "Data", panel: dataManagementPanel }),
+        h(Tab, { id: 1, title: "Selection", panel: selectionPanel }),
+        h(Tab, { id: 2, title: "Data", panel: dataManagementPanel }),
       ];
     } else {
       if (selectedTabId === 2) {
         selectedTabId = 1;
       }
       panels = [
-        h(Tab2, {
+        h(Tab, {
           id: 1,
           title: "Selection / Data",
           panel: h("div.combined-panel", [selectionPanel, dataManagementPanel]),
@@ -82,7 +82,7 @@ class AttitudePage extends React.Component {
         h(MapDataLayer, { records }),
       ]);
     } else {
-      pane1 = h("div", [h(Toolbar, [h(Button, {}, "Close pane")])]);
+      pane1 = h("div", [h(Navbar, [h(Button, {}, "Close pane")])]);
     }
 
     return h(
@@ -99,7 +99,7 @@ class AttitudePage extends React.Component {
       [
         pane1,
         h(
-          Tabs2,
+          Tabs,
           {
             className: "sidebar-outer",
             selectedTabId,
@@ -107,12 +107,12 @@ class AttitudePage extends React.Component {
           },
           [
             ...panels,
-            h(Tab2, {
+            h(Tab, {
               id: 3,
               title: "Filter",
               panel: h(FilterPanel, { query }),
             }),
-            h(Tab2, { id: 4, title: "Options", panel: h("div") }),
+            h(Tab, { id: 4, title: "Options", panel: h("div") }),
           ]
         ),
       ]

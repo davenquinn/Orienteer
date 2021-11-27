@@ -109,12 +109,16 @@ class MapControl extends Component {
     }
     */
 
-    return h(BoxSelectMap, { center: c, zoom, boxZoom: false }, [
-      h(LayersControl, { position: "topleft" }, []),
-      //h LayersControl, position: 'topleft', overlays
-      //h ScaleControl, {imperial: false}
-      //h BackButton # We cause major problems with back-navigation for now
-    ]);
+    return h(
+      BoxSelectMap,
+      { center: c, zoom, boxZoom: false, width: 500, height: 500 },
+      [
+        h(LayersControl, { position: "topleft" }, []),
+        //h LayersControl, position: 'topleft', overlays
+        h(ScaleControl, { imperial: false }),
+        //h BackButton # We cause major problems with back-navigation for now
+      ]
+    );
   }
 }
 
