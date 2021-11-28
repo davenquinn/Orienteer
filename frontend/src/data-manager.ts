@@ -11,7 +11,8 @@ import {
   useEffect,
 } from "react";
 //const { storedProcedure, db } = require("./database");
-import h from "@macrostrat/hyper";
+import h, { compose, C } from "@macrostrat/hyper";
+import { APIProvider } from "@macrostrat/ui-components";
 import { PostgrestClient } from "@supabase/postgrest-js";
 
 import API from "./api";
@@ -407,9 +408,13 @@ function useAttitudeData() {
 function AppDataProvider(props) {
   const [data, dispatch] = useReducer(baseReducer, {});
   return h(
-    AppDataContext.Provider,
-    { value: data },
-    h(AppDispatchContext.Provider, { value: dispatch }, props.children)
+    APIProvider,
+    {},
+    h(
+      AppDataContext.Provider,
+      { value: data },
+      h(AppDispatchContext.Provider, { value: dispatch }, props.children)
+    )
   );
 }
 

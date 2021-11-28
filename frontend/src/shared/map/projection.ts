@@ -4,10 +4,10 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-const L = require("leaflet");
-const proj4 = require("proj4");
+import L from "leaflet";
+import proj4 from "proj4";
 
-const setupProjection = function (def, options) {
+const createProjection = function (def, options) {
   options = options || {};
   if (!("resolutions" in options)) {
     if (!"minResolution" in options) {
@@ -40,16 +40,16 @@ const setupProjection = function (def, options) {
 
   const projection = proj4(gp, p);
 
-  if (!("bounds" in options)) {
-    throw "bounds required";
-  }
-  const _bounds = options.bounds
-    .map(projection.forward)
-    .map((d) => L.point(d[0], d[1]));
-  const bounds = L.bounds(_bounds);
+  // if (!("bounds" in options)) {
+  //   throw "bounds required";
+  // }
+  // const _bounds = options.bounds
+  //   .map(projection.forward)
+  //   .map((d) => L.point(d[0], d[1]));
+  // const bounds = L.bounds(_bounds);
 
   const Projection = {
-    bounds,
+    //bounds,
     project(ll) {
       const out = projection.forward([ll.lng, ll.lat]);
       return new L.Point(out[0], out[1]);
@@ -63,15 +63,15 @@ const setupProjection = function (def, options) {
   return L.extend({}, L.CRS.Earth, {
     code: "IAU:950000",
     projection: Projection,
-    transformation: new L.Transformation(1, -bounds.min.x, -1, bounds.max.y),
-    scale(zoom) {
-      return 1 / options.resolutions[zoom];
-    },
-    wrapLng: null,
-    resolution(zoom) {
-      return options.resolutions[zoom];
-    },
+    // transformation: new L.Transformation(1, -bounds.min.x, -1, bounds.max.y),
+    // scale(zoom) {
+    //   return 1 / options.resolutions[zoom];
+    // },
+    // wrapLng: null,
+    // resolution(zoom) {
+    //   return options.resolutions[zoom];
+    // },
   });
 };
 
-module.exports = setupProjection;
+export { createProjection };

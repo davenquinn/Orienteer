@@ -2,11 +2,6 @@ strike_dip = lighten(#ff0000,20%);
 hovered = darken(#ff0000,10%);
 selected = darken(lightgreen,10%);
 
-// Temporary solution
-:global {
-.leaflet-container 
-  height: 100vh;
-
 .data-layer {
   pointer-events: all;
   #markerCircle circle, #markerArrow path {
@@ -77,12 +72,14 @@ selected = darken(lightgreen,10%);
         }
       }
     }
- }
+}
 }
 
 .leaflet-container {
-  flex-grow: 1
-  }
+  flex-grow: 1;
+  height: 100vh;
+}
+
 .leaflet-overlay-pane svg {
     pointer-events: all;
   }
@@ -91,17 +88,15 @@ selected = darken(lightgreen,10%);
       cursor: pointer;
       }
 
-.leaflet-control-layers {
-  min-width: 34px;
-  min-height: 34px;
-}
-.leaflet-container .leaflet-control-layers-toggle {
-  width: inherit;
-  height: inherit;
-  font-size: inherit
-  line-height: 30px;
-  text-align: center;
-  color: black;
-}
-
-}
+// .leaflet-control-layers {
+//   min-width: 34px;
+//   min-height: 34px;
+// }
+// .leaflet-container .leaflet-control-layers-toggle {
+//   width: inherit;
+//   height: inherit;
+//   font-size: inherit
+//   line-height: 30px;
+//   text-align: center;
+//   color: black;
+// }
