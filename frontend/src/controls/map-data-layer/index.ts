@@ -135,9 +135,9 @@ class Feature extends Component {
 
 class DataLayer extends MapLayer {
   constructor(props) {
+    super(props);
     this.buildProjection = this.buildProjection.bind(this);
     console.log("Created data layer");
-    super(props);
     this.state = { zoom: null };
   }
 
@@ -164,6 +164,10 @@ class DataLayer extends MapLayer {
     console.log("Rendering data layer");
     const { records } = this.props;
     const { projection, pathGenerator, zoom } = this.state;
+
+    if (projection == null) {
+      return null;
+    }
 
     const data = records.filter((d) => !d.in_group);
 

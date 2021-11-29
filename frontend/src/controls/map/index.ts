@@ -83,7 +83,7 @@ function useMapBounds() {
 
 function MapControl(props) {
   // Add base layers
-  const { center, zoom, layers } = props;
+  const { center, zoom, layers, children } = props;
   const c = [0, 0]; // [center[1], center[0]];
 
   let ix = 0;
@@ -142,6 +142,7 @@ function MapControl(props) {
     [
       //h(LayersControl, { position: "topleft" }, []),
       //lyr,
+      children,
       h(TileLayer, {
         maxZoom: 18,
         url: "https://argyre.geoscience.wisc.edu/tiles/mosaic/hirise_red/tiles/{z}/{x}/{y}.png",
