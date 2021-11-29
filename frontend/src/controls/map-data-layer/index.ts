@@ -7,8 +7,16 @@
  */
 import * as d3 from "d3";
 import L from "leaflet";
-import { LayerGroup, Polygon, Polyline, GeoJSON } from "react-leaflet";
-import { Component } from "react";
+import {
+  LayerGroup,
+  Polygon,
+  Polyline,
+  GeoJSON,
+  Pane,
+  SVGOverlay,
+  useMapEvent,
+} from "react-leaflet";
+import { Component, useState, useCallback } from "react";
 import { findDOMNode } from "react-dom";
 import h from "@macrostrat/hyper";
 import classNames from "classnames";
@@ -23,7 +31,7 @@ const eventHandlers = function (record) {
   return { onMouseOver, onMouseOut, onMouseDown };
 };
 
-class StrikeDip extends Component {
+class _StrikeDip extends Component {
   constructor(props) {
     super(props);
     this.state = this.buildState();
@@ -46,6 +54,7 @@ class StrikeDip extends Component {
     }
     const { record, projection } = props;
     const c = record.center.coordinates;
+
     const location = projection(c[0], c[1]);
     return { location };
   }
@@ -90,48 +99,165 @@ scale(${0.5 + 0.1 * zoom})`;
   }
 }
 
-class _Feature extends Component {
-  constructor(props) {
-    super(props);
-    this.state = this.buildState();
-  }
+function StrikeDip(props) {
+  const { record, zoom, projection } = props;
+  const { strike, dip, selected, hovered, center } = record;
+  const scalar = 5 + 0.2 * zoom;
 
-  shouldComponentUpdate(nextProps) {
-    const { record, pathGenerator } = this.props;
-    if (pathGenerator !== nextProps.pathGenerator) {
-      return true;
-    }
-    if (record !== nextProps.record) {
-      return true;
-    }
-    return false;
-  }
+  if (projection == null) return null;
 
-  buildState(props) {
-    if (props == null) {
-      ({ props } = this);
-    }
-    const { record, pathGenerator } = props;
-    const d = pathGenerator(record);
-    return { d };
-  }
+  const c = record.center.coordinates;
+  const location = projection(c[0], c[1]);
+  console.log(c, zoom, location);
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.pathGenerator !== this.props.pathGenerator) {
-      return this.setState(this.buildState(nextProps));
-    }
-  }
+  const className = classNames("strike_dip", "marker", {
+    hovered,
+    selected,
+  });
 
-  render() {
-    const { record, pathGenerator } = this.props;
-    const handlers = eventHandlers(record);
-    const { selected, hovered } = record;
+  const transform = `translate(${location.x} ${location.y}) \
+rotate(${strike} 0 0) \
+scale(${0.5 + 0.1 * zoom})`;
 
-    const className = classNames(record.geometry.type, { hovered, selected });
+  const handlers = eventHandlers(record);
+  return h("g", { transform, className, ...handlers }, [
+    h("line", { x2: 5, stroke: "black" }),
+    h("line", { y1: -10, y2: 10, stroke: "black" }),
+    h(
+      "text.dip-magnitude",
+      {
+        x: 10,
+        textAnchor: "middle",
+        dy: scalar / 2,
+        fontSize: scalar,
+        transform: `rotate(${-strike} 10 0)`,
+      },
+      fmt(dip)
+    ),
+  ]);
+}
 
-    const { d } = this.state;
-    return h("path", { className, d, ...handlers });
-  }
+function DataLayer(props) {
+  const { records } = props;
+
+  const [zoom, setZoom] = useState(null);
+  console.log(map);
+  const map = useMapEvent("zoom", () => {
+    setZoom(map.getZoom());
+  });
+
+  //const origin = map.getPixelOrigin();
+  const origin = map.getPixelOrigin();
+  const projection = useCallback(
+    (x, y) => {
+      const pt = map.latLngToLayerPoint(new L.LatLng(y, x));
+      return { x: pt.x + origin.x, y: pt.y + origin.y };
+    },
+    [map, zoom]
+  );
+  const worldBounds = map.getPixelWorldBounds();
+
+  const transform = d3.geoTransform({
+    point(x, y) {
+      const point = projection(x, y);
+      return this.stream.point(point.x, point.y);
+    },
+  });
+  const pathGenerator = d3.geoPath().projection(transform);
+
+  console.log(origin, map.getPixelWorldBounds());
+  // const projection = d3.geoTransform({
+  //   point(x, y) {
+  //     const point = proj(x, y);
+  //     return this.stream.point(point.x, point.y);
+  //   },
+  // });
+
+  if (projection == null) return null;
+
+  return h(Pane, [
+    h(
+      "svg.data-layer.leaflet-zoom-hide",
+      {
+        width: worldBounds.max.x,
+        height: worldBounds.max.y,
+        transform: `translate(${-origin.x},${-origin.y})`,
+      },
+      [
+        h(
+          "g.markers",
+          records.map((d) =>
+            h(StrikeDip, {
+              key: d.id,
+              record: d,
+              projection,
+              zoom: zoom ?? map.getZoom(),
+            })
+          )
+        ),
+        h(
+          "g.features",
+          records.map((d) => h(Feature, { record: d, pathGenerator }))
+        ),
+      ]
+    ),
+  ]);
+}
+
+// class _Feature extends Component {
+//   constructor(props) {
+//     super(props);
+//     this.state = this.buildState();
+//   }
+
+//   shouldComponentUpdate(nextProps) {
+//     const { record, pathGenerator } = this.props;
+//     if (pathGenerator !== nextProps.pathGenerator) {
+//       return true;
+//     }
+//     if (record !== nextProps.record) {
+//       return true;
+//     }
+//     return false;
+//   }
+
+//   buildState(props) {
+//     if (props == null) {
+//       ({ props } = this);
+//     }
+//     const { record, pathGenerator } = props;
+//     const d = pathGenerator(record);
+//     return { d };
+//   }
+
+//   componentWillReceiveProps(nextProps) {
+//     if (nextProps.pathGenerator !== this.props.pathGenerator) {
+//       return this.setState(this.buildState(nextProps));
+//     }
+//   }
+
+//   render() {
+//     const { record, pathGenerator } = this.props;
+//     const handlers = eventHandlers(record);
+//     const { selected, hovered } = record;
+
+//     const className = classNames(record.geometry.type, { hovered, selected });
+
+//     const { d } = this.state;
+//     return h("path", { className, d, ...handlers });
+//   }
+// }
+
+function Feature(props) {
+  const { record, pathGenerator } = props;
+  const handlers = eventHandlers(record);
+  const { selected, hovered } = record;
+
+  const className = classNames(record.geometry.type, { hovered, selected });
+
+  const d = pathGenerator(record);
+
+  return h("path", { className, d, ...handlers });
 }
 
 /*
@@ -209,32 +335,35 @@ class _DataLayer extends MapLayer {
 }
 */
 
-function Feature(props) {
-  const { record } = props;
-  const { geometry } = record;
-  const p1 = {
-    positions: geometry.coordinates,
-    pathOptions: { color: "lime" },
-  };
-  switch (geometry.type) {
-    case "Polygon":
-    case "MultiPolygon":
-      return h(Polygon, p1);
-    case "LineString":
-    case "MultiLineString":
-      return h(Polyline, p1);
-    default:
-      return null;
-  }
-}
+// function Feature(props) {
+//   const { record } = props;
+//   const { geometry } = record;
+//   const p1 = {
+//     positions: geometry.coordinates,
+//     pathOptions: { color: "lime" },
+//   };
+//   switch (geometry.type) {
+//     case "Polygon":
+//     case "MultiPolygon":
+//       return h(Polygon, p1);
+//     case "LineString":
+//     case "MultiLineString":
+//       return h(Polyline, p1);
+//     default:
+//       return null;
+//   }
+// }
 
-function DataLayer(props) {
-  const { records } = props;
-  // return h(
-  //   LayerGroup,
-  //   records.map((d) => h(Feature, { key: d.id, record: d }))
-  // );
-  return h(GeoJSON, { data: { type: "FeatureCollection", features: records } });
-}
+// function DataLayer(props) {
+//   const { records } = props;
+//   // return h(
+//   //   LayerGroup,
+//   //   records.map((d) => h(Feature, { key: d.id, record: d }))
+//   // );
+//   return h(LayerGroup, [
+//     h(GeoJSON, { data: { type: "FeatureCollection", features: records } }),
+//     h(Orientations, { records }),
+//   ]);
+// }
 
 export default DataLayer;
