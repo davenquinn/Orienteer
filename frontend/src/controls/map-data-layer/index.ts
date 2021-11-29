@@ -7,15 +7,7 @@
  */
 import * as d3 from "d3";
 import L from "leaflet";
-import {
-  LayerGroup,
-  Polygon,
-  Polyline,
-  GeoJSON,
-  Pane,
-  SVGOverlay,
-  useMapEvent,
-} from "react-leaflet";
+import { Pane, useMapEvent } from "react-leaflet";
 import { Component, useState, useCallback, useEffect } from "react";
 import { findDOMNode } from "react-dom";
 import h from "@macrostrat/hyper";
@@ -30,111 +22,6 @@ const eventHandlers = function (record) {
   const onMouseOut = () => app.data.hovered(null);
   return { onMouseOver, onMouseOut, onMouseDown };
 };
-
-class _StrikeDip extends Component {
-  constructor(props) {
-    super(props);
-    this.state = this.buildState();
-  }
-
-  shouldComponentUpdate(nextProps) {
-    const { record, zoom } = this.props;
-    if (zoom !== nextProps.zoom) {
-      return true;
-    }
-    if (record !== nextProps.record) {
-      return true;
-    }
-    return false;
-  }
-
-  buildState(props) {
-    if (props == null) {
-      ({ props } = this);
-    }
-    const { record, projection } = props;
-    const c = record.center.coordinates;
-
-    const location = projection(c[0], c[1]);
-    return { location };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.zoom !== this.props.zoom) {
-      return this.setState(this.buildState(nextProps));
-    }
-  }
-
-  render() {
-    const { record, projection, zoom } = this.props;
-    const { location } = this.state;
-    const { strike, dip, selected, hovered, center } = record;
-    const scalar = 5 + 0.2 * zoom;
-
-    const className = classNames("strike_dip", "marker", {
-      hovered,
-      selected,
-    });
-
-    const transform = `translate(${location.x} ${location.y}) \
-rotate(${strike} 0 0) \
-scale(${0.5 + 0.1 * zoom})`;
-
-    const handlers = eventHandlers(record);
-    return h("g", { transform, className, ...handlers }, [
-      h("line", { x2: 5, stroke: "black" }),
-      h("line", { y1: -10, y2: 10, stroke: "black" }),
-      h(
-        "text.dip-magnitude",
-        {
-          x: 10,
-          textAnchor: "middle",
-          dy: scalar / 2,
-          fontSize: scalar,
-          transform: `rotate(${-strike} 10 0)`,
-        },
-        fmt(dip)
-      ),
-    ]);
-  }
-}
-
-function StrikeDip(props) {
-  const { record, zoom, projection } = props;
-  const { strike, dip, selected, hovered, center } = record;
-  const scalar = 5 + 0.2 * zoom;
-
-  if (projection == null) return null;
-
-  const c = record.center.coordinates;
-  const location = projection(c[0], c[1]);
-
-  const className = classNames("strike_dip", "marker", {
-    hovered,
-    selected,
-  });
-
-  const transform = `translate(${location.x} ${location.y}) \
-rotate(${strike} 0 0) \
-scale(${0.5 + 0.1 * zoom})`;
-
-  const handlers = eventHandlers(record);
-  return h("g", { transform, className, ...handlers }, [
-    h("line", { x2: 5, stroke: "black" }),
-    h("line", { y1: -10, y2: 10, stroke: "black" }),
-    h(
-      "text.dip-magnitude",
-      {
-        x: 10,
-        textAnchor: "middle",
-        dy: scalar / 2,
-        fontSize: scalar,
-        transform: `rotate(${-strike} 10 0)`,
-      },
-      fmt(dip)
-    ),
-  ]);
-}
 
 function DataLayer(props) {
   const { records } = props;
@@ -153,7 +40,7 @@ function DataLayer(props) {
     setBounds(map.getPixelBounds());
   }, [map]);
 
-  const padding = 0;
+  const padding = 5000;
   const origin = { x: bounds?.min.x - padding, y: bounds.min.y - padding };
 
   const pixelOffset = map.getPixelOrigin();
@@ -168,8 +55,8 @@ function DataLayer(props) {
     (x, y) => {
       const pt = map.latLngToLayerPoint(new L.LatLng(y, x));
       return {
-        x: pt.x - origin.x + pixelOffset.x + padding,
-        y: pt.y - origin.y + pixelOffset.y + padding,
+        x: pt.x - origin.x + pixelOffset.x,
+        y: pt.y - origin.y + pixelOffset.y,
       };
     },
     [map, origin]
@@ -216,50 +103,6 @@ function DataLayer(props) {
   ]);
 }
 
-// class _Feature extends Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = this.buildState();
-//   }
-
-//   shouldComponentUpdate(nextProps) {
-//     const { record, pathGenerator } = this.props;
-//     if (pathGenerator !== nextProps.pathGenerator) {
-//       return true;
-//     }
-//     if (record !== nextProps.record) {
-//       return true;
-//     }
-//     return false;
-//   }
-
-//   buildState(props) {
-//     if (props == null) {
-//       ({ props } = this);
-//     }
-//     const { record, pathGenerator } = props;
-//     const d = pathGenerator(record);
-//     return { d };
-//   }
-
-//   componentWillReceiveProps(nextProps) {
-//     if (nextProps.pathGenerator !== this.props.pathGenerator) {
-//       return this.setState(this.buildState(nextProps));
-//     }
-//   }
-
-//   render() {
-//     const { record, pathGenerator } = this.props;
-//     const handlers = eventHandlers(record);
-//     const { selected, hovered } = record;
-
-//     const className = classNames(record.geometry.type, { hovered, selected });
-
-//     const { d } = this.state;
-//     return h("path", { className, d, ...handlers });
-//   }
-// }
-
 function Feature(props) {
   const { record, pathGenerator } = props;
   const handlers = eventHandlers(record);
@@ -272,110 +115,41 @@ function Feature(props) {
   return h("path", { className, d, ...handlers });
 }
 
-/*
-class _DataLayer extends MapLayer {
-  constructor(props) {
-    super(props);
-    this.buildProjection = this.buildProjection.bind(this);
-    console.log("Created data layer");
-    this.state = { zoom: null };
-  }
+function StrikeDip(props) {
+  const { record, zoom, projection } = props;
+  const { strike, dip, selected, hovered, center } = record;
+  const scalar = 5 + 0.2 * zoom;
 
-  buildProjection() {
-    console.log("Building projection");
-    const { map } = this.context;
-    const zoom = map.getZoom();
-    const proj = (x, y) => map.latLngToLayerPoint(new L.LatLng(y, x));
-    const projection = d3.geoTransform({
-      point(x, y) {
-        const point = proj(x, y);
-        return this.stream.point(point.x, point.y);
+  if (projection == null) return null;
+
+  const c = center.coordinates;
+  const location = projection(c[0], c[1]);
+
+  const className = classNames("strike_dip", "marker", {
+    hovered,
+    selected,
+  });
+
+  const transform = `translate(${location.x} ${location.y}) \
+rotate(${strike} 0 0) \
+scale(${0.5 + 0.1 * zoom})`;
+
+  const handlers = eventHandlers(record);
+  return h("g", { transform, className, ...handlers }, [
+    h("line", { x2: 5, stroke: "black" }),
+    h("line", { y1: -10, y2: 10, stroke: "black" }),
+    h(
+      "text.dip-magnitude",
+      {
+        x: 10,
+        textAnchor: "middle",
+        dy: scalar / 2,
+        fontSize: scalar,
+        transform: `rotate(${-strike} 10 0)`,
       },
-    });
-    const pathGenerator = d3.geoPath().projection(projection);
-    return this.setState({ projection: proj, pathGenerator, zoom });
-  }
-
-  createLeafletElement() {
-    return new L.SVG({ padding: 0.1 });
-  }
-
-  render() {
-    console.log("Rendering data layer");
-    const { records } = this.props;
-    const { projection, pathGenerator, zoom } = this.state;
-
-    if (projection == null) {
-      return null;
-    }
-
-    const data = records.filter((d) => !d.in_group);
-
-    const children = data.map((record) => {
-      return h(StrikeDip, { key: record.id, record, projection, zoom });
-    });
-
-    const childFeatures = data.map((record) => {
-      return h(Feature, {
-        key: record.id,
-        record,
-        pathGenerator,
-      });
-    });
-
-    return h("div.data-layer-container", [
-      h("svg.data-layer.leaflet-zoom-hide", {}, [
-        h("g.features", childFeatures),
-        h("g.markers", children),
-      ]),
-    ]);
-  }
-
-  componentDidMount() {
-    console.log("Mounted data layer");
-    // Bind renderer to SVG
-    this.leafletElement._container = findDOMNode(this);
-    this.buildProjection();
-    this.context.map.on("zoomend", this.buildProjection);
-    return super.componentDidMount(...arguments);
-  }
-
-  componentWillUnmount() {
-    console.log("Unmounted data layer");
-    return super.componentWillUnmount(...arguments);
-  }
+      fmt(dip)
+    ),
+  ]);
 }
-*/
-
-// function Feature(props) {
-//   const { record } = props;
-//   const { geometry } = record;
-//   const p1 = {
-//     positions: geometry.coordinates,
-//     pathOptions: { color: "lime" },
-//   };
-//   switch (geometry.type) {
-//     case "Polygon":
-//     case "MultiPolygon":
-//       return h(Polygon, p1);
-//     case "LineString":
-//     case "MultiLineString":
-//       return h(Polyline, p1);
-//     default:
-//       return null;
-//   }
-// }
-
-// function DataLayer(props) {
-//   const { records } = props;
-//   // return h(
-//   //   LayerGroup,
-//   //   records.map((d) => h(Feature, { key: d.id, record: d }))
-//   // );
-//   return h(LayerGroup, [
-//     h(GeoJSON, { data: { type: "FeatureCollection", features: records } }),
-//     h(Orientations, { records }),
-//   ]);
-// }
 
 export default DataLayer;
