@@ -217,4 +217,5 @@ def create_tables():
         stored_procedure(
             "create-api-views", params={"geographic_srid": GEOGRAPHIC_SRID}
         )
-        db.session.commit()
+        # Reload PostgREST schema cache
+        db.engine.execute("NOTIFY pgrst, 'reload schema'")

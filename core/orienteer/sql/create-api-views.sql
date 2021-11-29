@@ -1,6 +1,8 @@
-CREATE SCHEMA IF NOT EXISTS orienteer_api;
 
-CREATE OR REPLACE VIEW orienteer_api.attitude AS
+DROP SCHEMA orienteer_api CASCADE;
+CREATE SCHEMA orienteer_api;
+
+CREATE VIEW orienteer_api.attitude AS
 SELECT
   id,
   ST_Transform(geometry, :geographic_srid) geometry,
@@ -23,3 +25,9 @@ SELECT
 FROM
   orienteer.attitude_data
 WHERE correlation_coefficient < 1;
+
+CREATE FUNCTION orienteer_api.project_bounds() RETURNS geometry AS $$
+  SELECT 
+    ST_Envelope(ST_Union(ST_Transform(geometry, :geographic_srid))) 
+  FROM orienteer.dataset_feature;
+$$ LANGUAGE SQL
