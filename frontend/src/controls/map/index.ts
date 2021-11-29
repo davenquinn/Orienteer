@@ -1,5 +1,5 @@
 import {
-  Map,
+  MapContainer,
   MapLayer,
   LayersControl,
   ScaleControl,
@@ -25,6 +25,7 @@ const defaultOptions = {
   debounceMoveend: true,
 };
 
+/*
 class BoxSelectMap extends Map {
   createLeafletElement(props) {
     const map = super.createLeafletElement(props);
@@ -37,6 +38,7 @@ class BoxSelectMap extends Map {
     return map;
   }
 }
+*/
 
 class _MapControl extends Component {
   constructor(props) {
@@ -133,7 +135,7 @@ function MapControl(props) {
   //ix += 1;
 
   return h(
-    BoxSelectMap,
+    MapContainer,
     {
       boxZoom: false,
       bounds,
@@ -142,16 +144,14 @@ function MapControl(props) {
     [
       //h(LayersControl, { position: "topleft" }, []),
       //lyr,
-      children,
+      //children,
       h(TileLayer, {
-        maxZoom: 14,
         url: "https://argyre.geoscience.wisc.edu/tiles/mosaic/ctx_mosaic/tiles/{z}/{x}/{y}.png?rescale=0,255",
       }),
       h(TileLayer, {
-        maxZoom: 18,
         url: "https://argyre.geoscience.wisc.edu/tiles/mosaic/hirise_red/tiles/{z}/{x}/{y}.png",
       }),
-      h(LayersControl, { position: "topleft", overlays }),
+      //h(LayersControl, { position: "topleft", overlays }),
       h(ScaleControl, { imperial: false }),
       //h BackButton # We cause major problems with back-navigation for now
     ]

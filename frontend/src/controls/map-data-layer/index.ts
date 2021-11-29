@@ -133,7 +133,8 @@ class Feature extends Component {
   }
 }
 
-class DataLayer extends MapLayer {
+/*
+class _DataLayer extends MapLayer {
   constructor(props) {
     super(props);
     this.buildProjection = this.buildProjection.bind(this);
@@ -205,4 +206,10 @@ class DataLayer extends MapLayer {
     return super.componentWillUnmount(...arguments);
   }
 }
+*/
+
+function DataLayer(props) {
+  return null;
+}
+
 export default DataLayer;
