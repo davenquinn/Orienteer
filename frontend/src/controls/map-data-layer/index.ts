@@ -7,11 +7,12 @@
  */
 import * as d3 from "d3";
 import L from "leaflet";
-import { MapLayer } from "react-leaflet";
+import { LayerGroup, Polygon, Polyline, GeoJSON } from "react-leaflet";
 import { Component } from "react";
 import { findDOMNode } from "react-dom";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import classNames from "classnames";
+import { NavLink } from "react-router-dom";
 
 const fmt = d3.format(".0f");
 
@@ -89,7 +90,7 @@ scale(${0.5 + 0.1 * zoom})`;
   }
 }
 
-class Feature extends Component {
+class _Feature extends Component {
   constructor(props) {
     super(props);
     this.state = this.buildState();
@@ -208,8 +209,32 @@ class _DataLayer extends MapLayer {
 }
 */
 
+function Feature(props) {
+  const { record } = props;
+  const { geometry } = record;
+  const p1 = {
+    positions: geometry.coordinates,
+    pathOptions: { color: "lime" },
+  };
+  switch (geometry.type) {
+    case "Polygon":
+    case "MultiPolygon":
+      return h(Polygon, p1);
+    case "LineString":
+    case "MultiLineString":
+      return h(Polyline, p1);
+    default:
+      return null;
+  }
+}
+
 function DataLayer(props) {
-  return null;
+  const { records } = props;
+  // return h(
+  //   LayerGroup,
+  //   records.map((d) => h(Feature, { key: d.id, record: d }))
+  // );
+  return h(GeoJSON, { data: { type: "FeatureCollection", features: records } });
 }
 
 export default DataLayer;

@@ -144,13 +144,13 @@ function MapControl(props) {
     [
       //h(LayersControl, { position: "topleft" }, []),
       //lyr,
-      //children,
       h(TileLayer, {
         url: "https://argyre.geoscience.wisc.edu/tiles/mosaic/ctx_mosaic/tiles/{z}/{x}/{y}.png?rescale=0,255",
       }),
       h(TileLayer, {
         url: "https://argyre.geoscience.wisc.edu/tiles/mosaic/hirise_red/tiles/{z}/{x}/{y}.png",
       }),
+      children,
       //h(LayersControl, { position: "topleft", overlays }),
       h(ScaleControl, { imperial: false }),
       //h BackButton # We cause major problems with back-navigation for now
