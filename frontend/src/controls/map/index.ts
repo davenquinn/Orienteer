@@ -144,6 +144,10 @@ function MapControl(props) {
       //lyr,
       children,
       h(TileLayer, {
+        maxZoom: 14,
+        url: "https://argyre.geoscience.wisc.edu/tiles/mosaic/ctx_mosaic/tiles/{z}/{x}/{y}.png?rescale=0,255",
+      }),
+      h(TileLayer, {
         maxZoom: 18,
         url: "https://argyre.geoscience.wisc.edu/tiles/mosaic/hirise_red/tiles/{z}/{x}/{y}.png",
       }),
