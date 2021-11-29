@@ -16,7 +16,7 @@ import {
   SVGOverlay,
   useMapEvent,
 } from "react-leaflet";
-import { Component, useState, useCallback } from "react";
+import { Component, useState, useCallback, useEffect } from "react";
 import { findDOMNode } from "react-dom";
 import h from "@macrostrat/hyper";
 import classNames from "classnames";
@@ -108,7 +108,6 @@ function StrikeDip(props) {
 
   const c = record.center.coordinates;
   const location = projection(c[0], c[1]);
-  console.log(c, zoom, location);
 
   const className = classNames("strike_dip", "marker", {
     hovered,
@@ -140,22 +139,41 @@ scale(${0.5 + 0.1 * zoom})`;
 function DataLayer(props) {
   const { records } = props;
 
+  const nullBounds = { x: 0, y: 0 };
   const [zoom, setZoom] = useState(null);
-  console.log(map);
-  const map = useMapEvent("zoom", () => {
+  const [bounds, setBounds] = useState({ min: nullBounds, max: nullBounds });
+  //console.log(map);
+  const map = useMapEvent("zoom moveend", () => {
     setZoom(map.getZoom());
+    setBounds(map.getPixelBounds());
   });
 
-  //const origin = map.getPixelOrigin();
-  const origin = map.getPixelOrigin();
+  useEffect(() => {
+    setZoom(map.getZoom());
+    setBounds(map.getPixelBounds());
+  }, [map]);
+
+  const padding = 0;
+  const origin = { x: bounds?.min.x - padding, y: bounds.min.y - padding };
+
+  const pixelOffset = map.getPixelOrigin();
+
+  //const padding = 10000;
+  //const offset = { x: bounds.min.x - padding, y: bounds.min.y - padding };
+  //console.log(origin, worldBounds?.min, bounds.min, offset);
+
+  //const pixelOffset = {x: .x, y: origin.y};
+
   const projection = useCallback(
     (x, y) => {
       const pt = map.latLngToLayerPoint(new L.LatLng(y, x));
-      return { x: pt.x + origin.x, y: pt.y + origin.y };
+      return {
+        x: pt.x - origin.x + pixelOffset.x + padding,
+        y: pt.y - origin.y + pixelOffset.y + padding,
+      };
     },
-    [map, zoom]
+    [map, origin]
   );
-  const worldBounds = map.getPixelWorldBounds();
 
   const transform = d3.geoTransform({
     point(x, y) {
@@ -165,23 +183,17 @@ function DataLayer(props) {
   });
   const pathGenerator = d3.geoPath().projection(transform);
 
-  console.log(origin, map.getPixelWorldBounds());
-  // const projection = d3.geoTransform({
-  //   point(x, y) {
-  //     const point = proj(x, y);
-  //     return this.stream.point(point.x, point.y);
-  //   },
-  // });
-
-  if (projection == null) return null;
+  if (projection == null || origin == null) return null;
 
   return h(Pane, [
     h(
       "svg.data-layer.leaflet-zoom-hide",
       {
-        width: worldBounds.max.x,
-        height: worldBounds.max.y,
-        transform: `translate(${-origin.x},${-origin.y})`,
+        width: bounds.max.x - bounds.min.x + padding * 2,
+        height: bounds.max.y - bounds.min.y + padding * 2,
+        transform: `translate(${origin.x - pixelOffset.x},${
+          origin.y - pixelOffset.y
+        })`,
       },
       [
         h(
