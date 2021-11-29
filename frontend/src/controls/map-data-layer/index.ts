@@ -183,9 +183,11 @@ class DataLayer extends MapLayer {
       });
     });
 
-    return h("svg.data-layer.leaflet-zoom-hide", {}, [
-      h("g.features", childFeatures),
-      h("g.markers", children),
+    return h("div.data-layer-container", [
+      h("svg.data-layer.leaflet-zoom-hide", {}, [
+        h("g.features", childFeatures),
+        h("g.markers", children),
+      ]),
     ]);
   }
 
