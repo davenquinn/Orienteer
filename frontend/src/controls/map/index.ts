@@ -1,16 +1,13 @@
 import {
   MapContainer,
-  MapLayer,
   LayersControl,
   ScaleControl,
   TileLayer,
   useMap,
 } from "react-leaflet";
 import h from "@macrostrat/hyper";
-import { Component } from "react";
 import "./style.styl";
 import { useAPIResult } from "@macrostrat/ui-components";
-import { createProjection } from "../../shared/map/projection";
 import { MARS949901 } from "./mars-crs";
 import Control from "./custom-control";
 //const BaseTileLiveLayer = require("./tilelive-layer");

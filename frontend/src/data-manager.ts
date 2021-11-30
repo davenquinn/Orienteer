@@ -7,6 +7,7 @@ import {
   createContext,
   useState,
   useContext,
+  useCallback,
   useReducer,
   useEffect,
 } from "react";
@@ -16,6 +17,7 @@ import { APIProvider } from "@macrostrat/ui-components";
 import { PostgrestClient } from "@supabase/postgrest-js";
 
 import API from "./api";
+import { AnyMxRecord } from "dns";
 
 const prepareData = function (d) {
   // Transform raw data
@@ -386,36 +388,87 @@ const noOpDispatch = () => {};
 const AppDataContext = createContext(null);
 const AppDispatchContext = createContext<React.Dispatch<any>>(noOpDispatch);
 
-const baseReducer = (state, action) => {
-  return state;
+type AppReducer = (state: AppState, action: AppSyncAction) => AppState;
+
+const baseReducer: AppReducer = (state: AppState, action: AppSyncAction) => {
+  switch (action.type) {
+    case "set-data":
+      return { ...state, data: action.data };
+    default:
+      return state;
+  }
 };
 
 const POSTGREST_URL = process.env.ORIENTEER_API_BASE + "/models";
 const pg = new PostgrestClient(POSTGREST_URL);
 
-function useAttitudeData() {
-  const [data, setData] = useState([]);
-  useEffect(() => {
-    pg.from("attitude")
-      .select()
-      .then((res) => {
-        setData(res.data.map(prepareData));
-      });
-  }, []);
-  return data;
+type AttitudeData = object[];
+
+type AppSyncAction = { type: "set-data"; data: AttitudeData };
+
+type AppAsyncAction = { type: "get-initial-data" };
+
+type AppAction = AppAsyncAction | AppSyncAction;
+
+interface AppState {
+  data: AttitudeData;
+}
+
+async function actionCreator(state, dispatch, action: AppAction) {
+  switch (action.type) {
+    case "get-initial-data":
+      const res = await pg.from("attitude");
+      dispatch({ type: "set-data", data: res.data.map(prepareData) });
+    default:
+      return baseReducer(state, action as AppSyncAction);
+  }
+}
+
+const initialState: AppState = {
+  data: [],
+};
+
+function useActionRunner() {
+  // @ts-ignore
+  const [state, dispatch] = useReducer<AppReducer, AppState>(
+    baseReducer,
+    initialState
+  );
+  const runAction = useCallback(
+    (action) => actionCreator(state, dispatch, action),
+    [state, dispatch]
+  );
+  return [state, runAction];
+}
+
+function useAppDispatch() {
+  return useContext(AppDispatchContext);
+}
+
+type StateAccessor = (state: AppState) => any;
+
+function useAppState(accessor: StateAccessor | null | undefined) {
+  const state = useContext(AppDataContext);
+  if (accessor == null) return state;
+  return accessor(state);
 }
 
 function AppDataProvider(props) {
-  const [data, dispatch] = useReducer(baseReducer, {});
+  const [state, runAction] = useActionRunner();
+
+  useEffect(() => {
+    runAction({ type: "get-initial-data" });
+  }, []);
+
   return h(
     APIProvider,
     {},
     h(
       AppDataContext.Provider,
-      { value: data },
-      h(AppDispatchContext.Provider, { value: dispatch }, props.children)
+      { value: state },
+      h(AppDispatchContext.Provider, { value: runAction }, props.children)
     )
   );
 }
 
-export { DataManager, AppDataContext, AppDataProvider, useAttitudeData };
+export { DataManager, AppDataContext, AppDataProvider, useAppState };
