@@ -4,10 +4,10 @@ import {
   LayersControl,
   ScaleControl,
   TileLayer,
+  useMap,
 } from "react-leaflet";
 import h from "@macrostrat/hyper";
 import { Component } from "react";
-import SelectBox from "./select-box";
 import "./style.styl";
 import { useAPIResult } from "@macrostrat/ui-components";
 import { createProjection } from "../../shared/map/projection";
@@ -25,6 +25,20 @@ const defaultOptions = {
   debounceMoveend: true,
 };
 
+class BoxSelect extends L.Map.BoxZoom {
+  _onMouseUp(e) {
+    this._finish();
+    if (!this._moved) {
+      return;
+    }
+    const s = this._map.containerPointToLatLng(this._startPoint);
+    e = this._map.containerPointToLatLng(this._point);
+
+    const bounds = new L.LatLngBounds(s, e);
+    return this._map.fire("boxSelected", { bounds });
+  }
+}
+
 /*
 class BoxSelectMap extends Map {
   createLeafletElement(props) {
@@ -40,6 +54,7 @@ class BoxSelectMap extends Map {
 }
 */
 
+/*
 class _MapControl extends Component {
   constructor(props) {
     let k, v;
@@ -71,6 +86,18 @@ class _MapControl extends Component {
 
     this.state.options = options;
   }
+}
+*/
+
+function BoxSelectControl() {
+  const map = useMap();
+  map.addHandler("boxSelect", BoxSelect);
+  map.boxSelect.enable();
+  map.on("boxSelected", (e) => {
+    console.log("Box selected");
+    return app.data.selectByBox(e.bounds);
+  });
+  return null;
 }
 
 function useMapBounds() {
@@ -152,6 +179,7 @@ function MapControl(props) {
       h(TileLayer, {
         url: "https://argyre.geoscience.wisc.edu/tiles/mosaic/hirise_red/tiles/{z}/{x}/{y}.png",
       }),
+      h(BoxSelectControl),
       //h(LayersControl, { position: "topleft", overlays }),
       h(ScaleControl, { imperial: false }),
       //h BackButton # We cause major problems with back-navigation for now
