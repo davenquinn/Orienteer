@@ -15,7 +15,7 @@ import {
 } from "@blueprintjs/core";
 import FilterPanel from "./filter";
 import MapDataLayer from "../controls/map-data-layer";
-import { useAppState, useAppDispatch } from "~/hooks";
+import { useAppState, useAppDispatch } from "app/hooks";
 import * as d3 from "d3";
 
 import style from "./style.styl";

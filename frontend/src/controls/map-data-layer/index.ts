@@ -11,7 +11,7 @@ import { Pane, useMapEvent } from "react-leaflet";
 import { useState, useCallback, useEffect } from "react";
 import h from "@macrostrat/hyper";
 import classNames from "classnames";
-import { useAppDispatch, useAppState } from "~/hooks";
+import { useAppDispatch, useAppState } from "app/hooks";
 import { useAPIHelpers } from "@macrostrat/ui-components/lib/types";
 
 const fmt = d3.format(".0f");

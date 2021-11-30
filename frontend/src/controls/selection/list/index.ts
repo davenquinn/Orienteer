@@ -4,7 +4,7 @@ import style from "./style.styl";
 import { Tag, Table } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
 const f = d3.format(">.1f");
-import { useAppDispatch } from "~/hooks";
+import { useAppDispatch } from "app/hooks";
 
 function ListItem(props) {
   const dispatch = useAppDispatch();

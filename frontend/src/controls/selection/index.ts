@@ -13,7 +13,7 @@ import React from "react";
 import style from "./style.styl";
 import { NonIdealState, Button } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
-import { useAppDispatch, useAppState } from "~/hooks";
+import { useAppDispatch, useAppState } from "app/hooks";
 
 function SelectionControl(props) {
   const dispatch = useAppDispatch();

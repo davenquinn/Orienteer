@@ -15,7 +15,7 @@ import Control from "./custom-control";
 const { BaseLayer, Overlay } = LayersControl;
 import L from "leaflet";
 import { Icon } from "@blueprintjs/core";
-import { useAppDispatch } from "~/hooks";
+import { useAppDispatch } from "app/hooks";
 
 const defaultOptions = {
   tileSize: 256,
