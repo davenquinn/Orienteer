@@ -12,10 +12,11 @@ import "./style.styl";
 import { useAPIResult } from "@macrostrat/ui-components";
 import { createProjection } from "../../shared/map/projection";
 import { MARS949901 } from "./mars-crs";
-import BackButton from "./back-button";
+import Control from "./custom-control";
 //const BaseTileLiveLayer = require("./tilelive-layer");
 const { BaseLayer, Overlay } = LayersControl;
 import L from "leaflet";
+import { Icon } from "@blueprintjs/core";
 
 const defaultOptions = {
   tileSize: 256,
@@ -38,56 +39,6 @@ class BoxSelect extends L.Map.BoxZoom {
     return this._map.fire("boxSelected", { bounds });
   }
 }
-
-/*
-class BoxSelectMap extends Map {
-  createLeafletElement(props) {
-    const map = super.createLeafletElement(props);
-    map.addHandler("boxSelect", SelectBox);
-    map.boxSelect.enable();
-    map.on("boxSelected", (e) => {
-      console.log("Box selected");
-      return app.data.selectByBox(e.bounds);
-    });
-    return map;
-  }
-}
-*/
-
-/*
-class _MapControl extends Component {
-  constructor(props) {
-    let k, v;
-    super(props);
-
-    const cfg = {};
-
-    this.state = {
-      center: [0, 0],
-    };
-
-    const options = {};
-    for (k in cfg) {
-      v = cfg[k];
-      if (k === "layers") {
-        continue;
-      }
-      if (options[k] == null) {
-        options[k] = v;
-      }
-    }
-
-    for (k in defaultOptions) {
-      v = defaultOptions[k];
-      if (options[k] == null) {
-        options[k] = v;
-      }
-    }
-
-    this.state.options = options;
-  }
-}
-*/
 
 function BoxSelectControl() {
   const map = useMap();
@@ -180,6 +131,11 @@ function MapControl(props) {
         url: "https://argyre.geoscience.wisc.edu/tiles/mosaic/hirise_red/tiles/{z}/{x}/{y}.png",
       }),
       h(BoxSelectControl),
+      h(
+        Control,
+        { position: "topright" },
+        h("a", null, h(Icon, { icon: "menu" }))
+      ),
       //h(LayersControl, { position: "topleft", overlays }),
       h(ScaleControl, { imperial: false }),
       //h BackButton # We cause major problems with back-navigation for now
