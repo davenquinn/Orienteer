@@ -12,6 +12,8 @@ import SelectType from "../controls/select-type";
 import { debounce } from "underscore";
 import style from "./style.styl";
 import h from "@macrostrat/hyper";
+import { Orientation } from "@attitude/core";
+import { Stereonet } from "@attitude/notebook-ui/src";
 
 class DataPane extends React.Component {
   constructor(props) {
@@ -48,6 +50,7 @@ class DataPane extends React.Component {
               featureTypes: this.props.featureTypes,
             }),
           ]),
+          h(Stereonet, {}, []),
           // h(Stereonet, {
           //   data: this.props.records,
           //   hovered: this.props.hovered,

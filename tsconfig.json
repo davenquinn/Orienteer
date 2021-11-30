@@ -7,5 +7,6 @@
     "paths": { "~/*": ["./*"] },
     "esModuleInterop": true,
     "jsx": "react"
-  }
+  },
+  "include": ["./frontend", "./core/deps/Attitude/frontend/packages"]
 }
