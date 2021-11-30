@@ -11,141 +11,129 @@ import SelectionList from "./list";
 import ViewerControl from "./viewer";
 import React from "react";
 import style from "./style.styl";
-import h from "react-hyperscript";
 import { NonIdealState, Button } from "@blueprintjs/core";
+import h from "@macrostrat/hyper";
+import { useAppDispatch, useAppState } from "~/hooks";
 
-class SelectionControl extends React.Component {
-  constructor(...args) {
-    super(...args);
-    this.createGroup = this.createGroup.bind(this);
-  }
-
-  render() {
-    const a = this.props.actions;
-    return (
-      <div className={`${style.selectionControl}`}>
-        <h3>Selection</h3>
-        <SelectionList
-          records={this.props.records}
-          hovered={this.props.hovered}
-          removeItem={a.removeItem}
-          focusItem={a.focusItem}
-          allowRemoval={true}
-        />
-        <p>
-          <button
-            className="group pt-button pt-intent-primary pt-icon-group-objects"
-            onClick={this.createGroup}
-          >
-            Group measurements
-          </button>
-        </p>
-      </div>
-    );
-  }
-
-  createGroup() {
-    return app.data.createGroup(this.props.records);
-  }
+function SelectionControl(props) {
+  const dispatch = useAppDispatch();
+  const a = props.actions;
+  return (
+    <div className={`${style.selectionControl}`}>
+      <h3>Selection</h3>
+      <SelectionList
+        records={props.records}
+        hovered={props.hovered}
+        removeItem={a.removeItem}
+        focusItem={a.focusItem}
+        allowRemoval={true}
+      />
+      <p>
+        <button
+          className="group pt-button pt-intent-primary pt-icon-group-objects"
+          onClick={() => dispatch({ type: "group-selected" })}
+        >
+          Group measurements
+        </button>
+      </p>
+    </div>
+  );
 }
 
-class CloseButton extends React.Component {
-  render() {
-    return (
-      <button
-        className={`pt-button pt-intent-danger pt-icon-${this.props.icon}`}
-        onClick={this.props.action}
-      >
-        {this.props.children}
-      </button>
-    );
-  }
+function CloseButton(props) {
+  const { focused } = props;
+  const inFocus = focused != null;
+  const name = inFocus ? "focus" : "selection";
+  const dispatch = useAppDispatch();
+
+  return h(
+    Button,
+    {
+      intent: "danger",
+      icon: inFocus ? "chevron-left" : "cross",
+      onClick() {
+        dispatch({ type: `clear-${name}` });
+      },
+    },
+    `Clear ${name}`
+  );
 }
 
-class Sidebar extends React.Component {
-  static defaultProps = {
-    records: [],
-    hovered: null,
-    openGroupViewer: null,
-  };
-  constructor(props) {
-    super(props);
-    this.focusItem = this.focusItem.bind(this);
-    this.clearFocus = this.clearFocus.bind(this);
-    this.state = { focused: null };
-  }
-  render() {
-    let core;
-    const rec = this.props.records;
+// class Sidebar extends React.Component {
+//   static defaultProps = {
+//     records: [],
+//     hovered: null,
+//     openGroupViewer: null,
+//   };
+//   constructor(props) {
+//     super(props);
+//     this.focusItem = this.focusItem.bind(this);
+//     this.clearFocus = this.clearFocus.bind(this);
+//     this.state = { focused: null };
+//   }
 
-    // Render nothing for empty selection
-    if (rec.length === 0) {
-      return h(NonIdealState, {
-        title: "No items selected",
-        description: "Select some items on the map",
-        visual: "send-to-map",
-      });
-    }
+function Sidebar(props) {
+  const dispatch = useAppDispatch();
+  const focused = useAppState((d) => d.focused);
+  const hovered = useAppState((d) => d.hovered);
 
-    let closeButton = (
-      <CloseButton action={app.data.clearSelection} icon="cross">
-        Clear selection
-      </CloseButton>
-    );
-    if (this.state.focused != null) {
-      closeButton = (
-        <CloseButton action={this.clearFocus} icon="chevron-left">
-          Back to selection
-        </CloseButton>
-      );
-      core = (
-        <ViewerControl
-          data={this.state.focused}
-          hovered={this.props.hovered}
-          focusItem={this.focusItem}
-        />
-      );
-    } else if (rec.length === 1) {
-      core = (
-        <ViewerControl
-          data={rec[0]}
-          hovered={this.props.hovered}
-          focusItem={this.focusItem}
-        />
-      );
-    } else {
-      const actions = {
-        removeItem: app.data.updateSelection.bind(app.data),
-        focusItem: this.focusItem,
-        createGroup: app.data.createGroupFromSelection,
-      };
-      core = (
-        <SelectionControl
-          records={rec}
-          hovered={this.props.hovered}
-          actions={actions}
-        />
-      );
-    }
+  let core;
+  const rec = props.records; // Render nothing for empty selection
 
-    return (
-      <div className={`${style.sidebar} flex flex-container`}>
-        {core}
-        <div className="modal-controls">
-          <Button onClick={this.props.openGroupViewer}>View group</Button>
-          {closeButton}
-        </div>
-      </div>
-    );
+  if (rec.length === 0) {
+    return h(NonIdealState, {
+      title: "No items selected",
+      description: "Select some items on the map",
+      visual: "send-to-map",
+    });
   }
 
-  focusItem(d) {
-    return this.setState({ focused: d });
+  const focusItem = (item) => dispatch({ type: "focus-item", data: item });
+
+  if (focused != null) {
+    core = h(ViewerControl, {
+      data: focused,
+      hovered,
+      focusItem,
+    });
+  } else if (rec.length === 1) {
+    core = h(ViewerControl, {
+      data: rec[0],
+      hovered,
+      focusItem,
+    });
+  } else {
+    const actions = {
+      removeItem: (item) => dispatch({ type: "group-remove-item", data: item }),
+      focusItem,
+      createGroup: () => dispatch({ type: "group-selected" }),
+    };
+    core = h(SelectionControl, {
+      records: rec,
+      hovered,
+      actions: actions,
+    });
   }
 
-  clearFocus(d) {
-    return this.setState({ focused: null });
-  }
+  return h(
+    "div",
+    {
+      className: `${style.sidebar} flex flex-container`,
+    },
+    [
+      core,
+      h("div.modal-controls", [
+        h(
+          Button,
+          {
+            onClick: () => openGroupViewer(),
+          },
+          "View group"
+        ),
+        h(CloseButton, { focused }),
+      ]),
+    ]
+  );
 }
 
 export default Sidebar;

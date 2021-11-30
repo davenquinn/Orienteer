@@ -8,18 +8,19 @@
 import * as d3 from "d3";
 import L from "leaflet";
 import { Pane, useMapEvent } from "react-leaflet";
-import { Component, useState, useCallback, useEffect } from "react";
-import { findDOMNode } from "react-dom";
+import { useState, useCallback, useEffect } from "react";
 import h from "@macrostrat/hyper";
 import classNames from "classnames";
-import { NavLink } from "react-router-dom";
+import { useAppDispatch, useAppState } from "~/hooks";
+import { useAPIHelpers } from "@macrostrat/ui-components/lib/types";
 
 const fmt = d3.format(".0f");
 
-const eventHandlers = function (record) {
-  const onMouseDown = () => app.data.updateSelection(record);
-  const onMouseOver = () => app.data.hovered(record);
-  const onMouseOut = () => app.data.hovered(null);
+const eventHandlers = function (record, dispatch) {
+  const onMouseDown = () =>
+    dispatch({ type: "toggle-selection", data: record });
+  const onMouseOver = () => dispatch({ type: "hover", data: record });
+  const onMouseOut = () => dispatch({ type: "hover", data: null });
   return { onMouseOver, onMouseOut, onMouseDown };
 };
 
@@ -103,12 +104,24 @@ function DataLayer(props) {
   ]);
 }
 
+function useEventHandlers(record) {
+  const dispatch = useAppDispatch();
+  return eventHandlers(record, dispatch);
+}
+
+function useSelectedState(record) {
+  const hovered = useAppState((d) => d?.hovered == record);
+  const selected = useAppState((d) => d?.selected.has(record));
+  return { hovered, selected };
+}
+
 function Feature(props) {
   const { record, pathGenerator } = props;
-  const handlers = eventHandlers(record);
-  const { selected, hovered } = record;
 
-  const className = classNames(record.geometry.type, { hovered, selected });
+  const handlers = useEventHandlers(record);
+  const classes = useSelectedState(record);
+
+  const className = classNames(record.geometry.type, classes);
 
   const d = pathGenerator(record);
 
@@ -117,8 +130,11 @@ function Feature(props) {
 
 function StrikeDip(props) {
   const { record, zoom, projection } = props;
-  const { strike, dip, selected, hovered, center } = record;
+  const { strike, dip, center } = record;
+  const { hovered, selected } = useSelectedState(record);
+
   const scalar = 5 + 0.2 * zoom;
+  const handlers = useEventHandlers(record);
 
   if (projection == null) return null;
 
@@ -134,7 +150,6 @@ function StrikeDip(props) {
 rotate(${strike} 0 0) \
 scale(${0.5 + 0.1 * zoom})`;
 
-  const handlers = eventHandlers(record);
   return h("g", { transform, className, ...handlers }, [
     h("line", { x2: 5, stroke: "black" }),
     h("line", { y1: -10, y2: 10, stroke: "black" }),

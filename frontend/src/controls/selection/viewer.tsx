@@ -67,8 +67,9 @@ class DataViewer extends React.Component {
     };
   }
   constructor(props) {
-    this.onNetworkData = this.onNetworkData.bind(this);
     super(props);
+
+    this.onNetworkData = this.onNetworkData.bind(this);
     this.state = { content: <span className="loading">Loading...</span> };
   }
 

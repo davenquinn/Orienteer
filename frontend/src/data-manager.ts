@@ -5,19 +5,17 @@ import update from "immutability-helper";
 import { readFileSync } from "fs";
 import {
   createContext,
-  useState,
   useContext,
   useCallback,
   useReducer,
   useEffect,
 } from "react";
 //const { storedProcedure, db } = require("./database");
-import h, { compose, C } from "@macrostrat/hyper";
+import h from "@macrostrat/hyper";
 import { APIProvider } from "@macrostrat/ui-components";
 import { PostgrestClient } from "@supabase/postgrest-js";
-
-import API from "./api";
-import { AnyMxRecord } from "dns";
+import { LatLngBounds } from "leaflet";
+import { Point } from "geojson";
 
 const prepareData = function (d) {
   // Transform raw data
@@ -385,26 +383,38 @@ DataManager.initClass();
 
 const noOpDispatch = () => {};
 
+type AppDispatch = React.Dispatch<AppAction>;
+
 const AppDataContext = createContext(null);
-const AppDispatchContext = createContext<React.Dispatch<any>>(noOpDispatch);
+const AppDispatchContext = createContext<AppDispatch>(noOpDispatch);
 
-type AppReducer = (state: AppState, action: AppSyncAction) => AppState;
-
-const baseReducer: AppReducer = (state: AppState, action: AppSyncAction) => {
-  switch (action.type) {
-    case "set-data":
-      return { ...state, data: action.data };
-    default:
-      return state;
-  }
-};
+type AppReducer = (
+  state: AppState,
+  action: AppSyncAction | AppPrivateAction
+) => AppState;
 
 const POSTGREST_URL = process.env.ORIENTEER_API_BASE + "/models";
 const pg = new PostgrestClient(POSTGREST_URL);
 
-type AttitudeData = object[];
+interface Attitude {
+  center: Point;
+  in_group: boolean;
+}
+type AttitudeData = Attitude[];
 
-type AppSyncAction = { type: "set-data"; data: AttitudeData };
+type AppSyncAction =
+  | { type: "set-data"; data: AttitudeData }
+  | { type: "toggle-selection"; data: AttitudeData }
+  | { type: "hover"; data: Attitude | null }
+  | { type: "select-box"; data: LatLngBounds }
+  | { type: "group-selected" }
+  | { type: "clear-selection" }
+  | { type: "group-remove-item"; data: Attitude }
+  | { type: "group-add-item"; data: Attitude }
+  | { type: "clear-focus" }
+  | { type: "focus-item"; data: Attitude };
+
+type AppPrivateAction = { type: "set-state"; data: AttitudeData };
 
 type AppAsyncAction = { type: "get-initial-data" };
 
@@ -412,20 +422,68 @@ type AppAction = AppAsyncAction | AppSyncAction;
 
 interface AppState {
   data: AttitudeData;
+  hovered: Attitude | null;
+  focused: Attitude | null;
+  selected: Set<Attitude>;
 }
 
-async function actionCreator(state, dispatch, action: AppAction) {
+const baseReducer: AppReducer = (
+  state: AppState = initialState,
+  action: AppSyncAction | AppPrivateAction
+) => {
+  console.log(action);
+  switch (action.type) {
+    case "set-state":
+      return action.data;
+    case "set-data":
+      return { ...state, data: action.data };
+    case "toggle-selection":
+      const _action = state.selected.has(action.data) ? "$remove" : "$add";
+      return update(state, { selected: { [_action]: [action.data] } });
+    case "select-box":
+      const bounds = action.data;
+      let data = state.data
+        .filter(function (d) {
+          const a = d.center.coordinates;
+          const l = new LatLng(a[1], a[0]);
+          return bounds.contains(l);
+        })
+        .filter((d) => !d.in_group);
+      return update(state, { selected: { $add: data } });
+    case "clear-selection":
+      return update(state, { selected: { $set: new Set() } });
+    case "hover":
+      return { ...state, hovered: action.data };
+    case "focus-item":
+      return { ...state, focused: action.data };
+    case "clear-focus":
+      return { ...state, focused: null };
+    default:
+      return state;
+  }
+};
+
+async function actionCreator(
+  dispatch,
+  action: AppAction
+): Promise<AppSyncAction> {
   switch (action.type) {
     case "get-initial-data":
       const res = await pg.from("attitude");
-      dispatch({ type: "set-data", data: res.data.map(prepareData) });
+      return {
+        type: "set-data",
+        data: res.data.map(prepareData),
+      };
     default:
-      return baseReducer(state, action as AppSyncAction);
+      return action as AppSyncAction;
   }
 }
 
 const initialState: AppState = {
   data: [],
+  hovered: null,
+  focused: null,
+  selected: new Set(),
 };
 
 function useActionRunner() {
@@ -435,19 +493,23 @@ function useActionRunner() {
     initialState
   );
   const runAction = useCallback(
-    (action) => actionCreator(state, dispatch, action),
-    [state, dispatch]
+    async function runAction(action) {
+      console.log(action);
+      const _action = await actionCreator(dispatch, action);
+      dispatch(_action);
+    },
+    [dispatch]
   );
   return [state, runAction];
 }
 
-function useAppDispatch() {
+export function useAppDispatch() {
   return useContext(AppDispatchContext);
 }
 
 type StateAccessor = (state: AppState) => any;
 
-function useAppState(accessor: StateAccessor | null | undefined) {
+export function useAppState(accessor: StateAccessor | null = null) {
   const state = useContext(AppDataContext);
   if (accessor == null) return state;
   return accessor(state);
@@ -471,4 +533,4 @@ function AppDataProvider(props) {
   );
 }
 
-export { DataManager, AppDataContext, AppDataProvider, useAppState };
+export { DataManager, AppDataContext, AppDataProvider };

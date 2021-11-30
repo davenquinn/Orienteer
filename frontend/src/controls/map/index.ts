@@ -4,6 +4,7 @@ import {
   ScaleControl,
   TileLayer,
   useMap,
+  useMapEvents,
 } from "react-leaflet";
 import h from "@macrostrat/hyper";
 import "./style.styl";
@@ -14,6 +15,7 @@ import Control from "./custom-control";
 const { BaseLayer, Overlay } = LayersControl;
 import L from "leaflet";
 import { Icon } from "@blueprintjs/core";
+import { useAppDispatch } from "~/hooks";
 
 const defaultOptions = {
   tileSize: 256,
@@ -24,6 +26,7 @@ const defaultOptions = {
 };
 
 class BoxSelect extends L.Map.BoxZoom {
+  dispatch: React.Dispatch<any> | null;
   _onMouseUp(e) {
     this._finish();
     if (!this._moved) {
@@ -33,18 +36,16 @@ class BoxSelect extends L.Map.BoxZoom {
     e = this._map.containerPointToLatLng(this._point);
 
     const bounds = new L.LatLngBounds(s, e);
-    return this._map.fire("boxSelected", { bounds });
+    return this.dispatch?.({ type: "select-box", data: bounds });
   }
 }
 
 function BoxSelectControl() {
+  const dispatch = useAppDispatch();
   const map = useMap();
   map.addHandler("boxSelect", BoxSelect);
+  map.boxSelect.dispatch = dispatch;
   map.boxSelect.enable();
-  map.on("boxSelected", (e) => {
-    console.log("Box selected");
-    return app.data.selectByBox(e.bounds);
-  });
   return null;
 }
 
