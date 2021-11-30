@@ -18,7 +18,7 @@ SELECT
   max_angular_error,
   min_angular_error,
   n_samples,
-  ST_Transform(center, :geographic_srid) center,
+  ST_Transform(ST_Centroid(geometry), :geographic_srid) center,
   principal_axes AS axes,
   tags,
   hyperbolic_axes
