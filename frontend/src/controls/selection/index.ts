@@ -18,25 +18,35 @@ import { useAppDispatch, useAppState } from "~/hooks";
 function SelectionControl(props) {
   const dispatch = useAppDispatch();
   const a = props.actions;
-  return (
-    <div className={`${style.selectionControl}`}>
-      <h3>Selection</h3>
-      <SelectionList
-        records={props.records}
-        hovered={props.hovered}
-        removeItem={a.removeItem}
-        focusItem={a.focusItem}
-        allowRemoval={true}
-      />
-      <p>
-        <button
-          className="group pt-button pt-intent-primary pt-icon-group-objects"
-          onClick={() => dispatch({ type: "group-selected" })}
-        >
-          Group measurements
-        </button>
-      </p>
-    </div>
+  return h(
+    "div",
+    {
+      className: `${style.sidebar}`,
+    },
+    [
+      h("h3", null, "Selection"),
+      h(SelectionList, {
+        records: props.records,
+        hovered: props.hovered,
+        removeItem: a.removeItem,
+        focusItem: a.focusItem,
+        allowRemoval: true,
+      }),
+      h("p", null, [
+        h(
+          "button",
+          {
+            className:
+              "group pt-button pt-intent-primary pt-icon-group-objects",
+            onClick: () =>
+              dispatch({
+                type: "group-selected",
+              }),
+          },
+          "Group measurements"
+        ),
+      ]),
+    ]
   );
 }
 
@@ -58,19 +68,6 @@ function CloseButton(props) {
     `Clear ${name}`
   );
 }
-
-// class Sidebar extends React.Component {
-//   static defaultProps = {
-//     records: [],
-//     hovered: null,
-//     openGroupViewer: null,
-//   };
-//   constructor(props) {
-//     super(props);
-//     this.focusItem = this.focusItem.bind(this);
-//     this.clearFocus = this.clearFocus.bind(this);
-//     this.state = { focused: null };
-//   }
 
 function Sidebar(props) {
   const dispatch = useAppDispatch();
