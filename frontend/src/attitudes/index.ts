@@ -18,7 +18,7 @@ import MapDataLayer from "../controls/map-data-layer";
 import { useAppState, useAppDispatch } from "app/hooks";
 import * as d3 from "d3";
 
-import style from "./style.styl";
+import styles from "./style.module.styl";
 
 const f = d3.format("> 6.1f");
 
@@ -26,6 +26,11 @@ const paneStyle = {
   display: "flex",
   flexDirection: "column",
 };
+
+function SidebarTab(props) {
+  const { panel, ...rest } = props;
+  return h(Tab, rest, h("div.sidebar-tab", null, panel));
+}
 
 function AttitudesPageSidebar(props) {
   const { featureTypes, query } = props;
@@ -42,6 +47,7 @@ function AttitudesPageSidebar(props) {
       className: "sidebar-outer",
       selectedTabId,
       onChange: onChangeTab,
+      renderActiveTabPanelOnly: true,
     },
     [
       h(Tab, {

@@ -9,45 +9,38 @@
 //GroupedDataControl = require "./grouped-data"
 import SelectionList from "./list";
 import ViewerControl from "./viewer";
-import React from "react";
-import style from "./style.styl";
+import styles from "./style.module.styl";
 import { NonIdealState, Button } from "@blueprintjs/core";
-import h from "@macrostrat/hyper";
+import { hyperStyled } from "@macrostrat/hyper";
 import { useAppDispatch, useAppState } from "app/hooks";
+
+const h = hyperStyled(styles);
 
 function SelectionControl(props) {
   const dispatch = useAppDispatch();
   const a = props.actions;
-  return h(
-    "div",
-    {
-      className: `${style.sidebar}`,
-    },
-    [
-      h("h3", null, "Selection"),
-      h(SelectionList, {
-        records: props.records,
-        hovered: props.hovered,
-        removeItem: a.removeItem,
-        focusItem: a.focusItem,
-        allowRemoval: true,
-      }),
-      h("p", null, [
-        h(
-          "button",
-          {
-            className:
-              "group pt-button pt-intent-primary pt-icon-group-objects",
-            onClick: () =>
-              dispatch({
-                type: "group-selected",
-              }),
-          },
-          "Group measurements"
-        ),
-      ]),
-    ]
-  );
+  return h("div.sidebar-inner", [
+    h(SelectionList, {
+      records: props.records,
+      hovered: props.hovered,
+      removeItem: a.removeItem,
+      focusItem: a.focusItem,
+      allowRemoval: true,
+    }),
+    h("p", null, [
+      h(
+        "button",
+        {
+          className: "group pt-button pt-intent-primary pt-icon-group-objects",
+          onClick: () =>
+            dispatch({
+              type: "group-selected",
+            }),
+        },
+        "Group measurements"
+      ),
+    ]),
+  ]);
 }
 
 function CloseButton(props) {
@@ -112,25 +105,19 @@ function Sidebar(props) {
     });
   }
 
-  return h(
-    "div",
-    {
-      className: `${style.sidebar} flex flex-container`,
-    },
-    [
-      core,
-      h("div.modal-controls", [
-        h(
-          Button,
-          {
-            onClick: () => openGroupViewer(),
-          },
-          "View group"
-        ),
-        h(CloseButton, { focused }),
-      ]),
-    ]
-  );
+  return h("div.selection-panel.flex.flex-container", [
+    core,
+    h("div.modal-controls", [
+      h(
+        Button,
+        {
+          onClick: () => openGroupViewer(),
+        },
+        "View group"
+      ),
+      h(CloseButton, { focused }),
+    ]),
+  ]);
 }
 
 export default Sidebar;

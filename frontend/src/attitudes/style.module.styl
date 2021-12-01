@@ -1,0 +1,104 @@
+:global
+  .Resizer {
+    background: #000;
+    opacity: .2;
+    z-index: 500;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    -moz-background-clip: padding;
+    -webkit-background-clip: padding;
+    background-clip: padding-box;
+    pointer-events: all;
+    &:hover {
+        -webkit-transition: all 2s ease;
+        transition: all 2s ease;
+    }
+
+  &.horizontal {
+      height: 11px;
+      margin: -5px 0;
+      border-top: 5px solid rgba(255, 255, 255, 0);
+      border-bottom: 5px solid rgba(255, 255, 255, 0);
+      cursor: row-resize;
+      width: 100%;
+    }
+
+    &.horizontal:hover {
+        border-top: 5px solid rgba(0, 0, 0, 0.5);
+        border-bottom: 5px solid rgba(0, 0, 0, 0.5);
+    }
+
+    &.vertical {
+        width: 11px;
+        margin: 0 -5px;
+        border-left: 5px solid rgba(255, 255, 255, 0);
+        border-right: 5px solid rgba(255, 255, 255, 0);
+        cursor: col-resize;
+    }
+
+    &.vertical:hover {
+        border-left: 5px solid rgba(0, 0, 0, 0.5);
+        border-right: 5px solid rgba(0, 0, 0, 0.5);
+    }
+    &.disabled {
+      cursor: not-allowed;
+    }
+    &.disabled:hover {
+      border-color: transparent;
+    }
+  }
+
+  body
+    user-select: none
+
+  .sidebar-outer.bp3-tabs
+
+    &>div
+      padding: 0 1rem
+    user-select: none
+    height: 100vh
+    display: flex
+    flex-direction: column
+    flex-grow: 1
+    position relative
+    .bp3-tab-panel
+      flex 1
+      position relative
+      display flex
+      flex-direction: column
+      overflow: hidden
+    .combined-panel
+      margin: 0 -1rem
+    .bp3-tab-panel, .combined-panel>div
+      margin: 0 1rem
+      padding: 0
+
+  table
+    width: 100%
+    font-size: 0.8em
+    td, th
+      padding: 5px
+  .bp3-editable-content
+    height: inherit !important
+
+  .disabled
+    width: 0
+
+
+.sidebarComponent
+  flex: 1
+  width: 100%
+  min-width: 280px
+  &>div
+    padding-top: 1rem
+    padding-bottom: 1rem
+
+.filter-window
+  min-height: 10em
+
+.data-filter
+.code-window, table td
+  font-family: "Droid Sans Mono", "Consolas", monospace
+
+
