@@ -13,59 +13,65 @@ import { debounce } from "underscore";
 import style from "./style.styl";
 import h from "@macrostrat/hyper";
 import { Orientation } from "@attitude/core";
-import { Stereonet } from "@attitude/notebook-ui/src";
+import { Attitude } from "app/data-manager";
+import { InteractiveStereonetComponent } from "@attitude/notebook-ui/src/components/stereonet";
+import { useAppState } from "app/hooks";
 
-class DataPane extends React.Component {
-  constructor(props) {
-    super(props);
-    this._setSize = this._setSize.bind(this);
-    this.state = {
-      width: 300,
-    }; // Create debounced method for setting size
+function transformRecord(record: Attitude): Orientation {
+  return {
+    strike: record.strike,
+    dip: record.dip,
+    rake: record.rake,
+    minError: record.min_angular_error,
+    maxError: record.max_angular_error,
+  };
+}
 
-    this.setSize = debounce(this._setSize, 200);
+function DataPane(props) {
+  const [width, setWidth] = React.useState(300);
+  const { records } = props;
+  const hovered = useAppState((d) => d.hovered);
+  let hoveredRec = [];
+  if (hovered != null) {
+    hoveredRec = [transformRecord(hovered)];
   }
-
-  render() {
-    return h(
-      Measure,
+  return h(
+    Measure,
+    {
+      onMeasure: debounce((d) => setWidth(d.width), 200),
+    },
+    h(
+      "div",
       {
-        onMeasure: this.setSize,
+        className: style.sidebarComponent,
       },
-      h(
-        "div",
-        {
-          className: style.sidebarComponent,
-        },
-        [
-          h(TagManager, {
-            records: this.props.records,
-            hovered: this.props.hovered,
+      [
+        h(TagManager, {
+          records: props.records,
+          hovered,
+        }),
+        h("div", null, [
+          h("h6", null, "Data type"),
+          h(SelectType, {
+            records,
+            hovered,
+            featureTypes: props.featureTypes,
           }),
-          h("div", null, [
-            h("h6", null, "Data type"),
-            h(SelectType, {
-              records: this.props.records,
-              hovered: this.props.hovered,
-              featureTypes: this.props.featureTypes,
-            }),
-          ]),
-          h(Stereonet, {}, []),
-          // h(Stereonet, {
-          //   data: this.props.records,
-          //   hovered: this.props.hovered,
-          //   width: this.state.width,
-          // }),
-        ]
-      )
-    );
-  }
-
-  _setSize(dimensions) {
-    return this.setState({
-      width: dimensions.width,
-    });
-  }
+        ]),
+        h(InteractiveStereonetComponent, {
+          data: records.map(transformRecord),
+          hovered: hoveredRec,
+          width,
+        }),
+        //h(Stereonet, {}, []),
+        // h(Stereonet, {
+        //   data: this.props.records,
+        //   hovered: this.props.hovered,
+        //   width: this.state.width,
+        // }),
+      ]
+    )
+  );
 }
 
 export default DataPane;

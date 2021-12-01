@@ -1,16 +1,9 @@
-/*
- * decaffeinate suggestions:
- * DS002: Fix invalid constructor
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import React from "react";
 import $ from "jquery";
 import * as d3 from "d3";
 import SelectionList from "./list";
 import { Button, Intent } from "@blueprintjs/core";
+import h from "@macrostrat/hyper";
 const sf = d3.format(">8.1f");
 const df = d3.format(">6.1f");
 
@@ -125,9 +118,7 @@ class DataViewer extends React.Component {
   render() {
     const grouped = this.props.data.is_group;
     const method = grouped ? this.props.focusItem : function () {};
-    return h(
-      "div",
-      null,
+    return h("div", null, [
       h("h4", null, [grouped ? "Group" : "Attitude", " ", this.props.data.id]),
       h(SelectionList, {
         records: [this.props.data],
@@ -139,8 +130,8 @@ class DataViewer extends React.Component {
         h("img", {
           src: `${process.env.ORIENTEER_API_BASE}/elevation/attitude/${this.props.data.id}/axis-aligned.png`,
         }),
-      ])
-    );
+      ]),
+    ]);
   }
 }
 

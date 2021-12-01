@@ -16,6 +16,7 @@ import { APIProvider } from "@macrostrat/ui-components";
 import { PostgrestClient } from "@supabase/postgrest-js";
 import { LatLngBounds } from "leaflet";
 import { Point } from "geojson";
+import { Vector3 } from "@attitude/core/src/math";
 
 const prepareData = function (d) {
   // Transform raw data
@@ -396,9 +397,16 @@ type AppReducer = (
 const POSTGREST_URL = process.env.ORIENTEER_API_BASE + "/models";
 const pg = new PostgrestClient(POSTGREST_URL);
 
-interface Attitude {
+export interface Attitude {
+  strike: number;
+  dip: number;
+  rake: number;
   center: Point;
   in_group: boolean;
+  min_angular_error: number;
+  max_angular_error: number;
+  axes: [Vector3, Vector3, Vector3];
+  hyperbolic_axes: Vector3;
 }
 type AttitudeData = Attitude[];
 
