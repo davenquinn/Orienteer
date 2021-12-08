@@ -1,10 +1,12 @@
 import * as d3 from "d3";
 import React from "react";
-import style from "./style.styl";
+import styles from "./style.module.styl";
 import { Tag, Table } from "@blueprintjs/core";
-import h from "@macrostrat/hyper";
+import { hyperStyled } from "@macrostrat/hyper";
 const f = d3.format(">.1f");
 import { useAppDispatch } from "app/hooks";
+
+const h = hyperStyled(styles);
 
 function ListItem(props) {
   const dispatch = useAppDispatch();
@@ -21,7 +23,7 @@ function ListItem(props) {
   let cls = "list-item";
 
   if (hovered) {
-    cls += ` ${style.hovered}`;
+    cls += ` ${styles.hovered}`;
   } // This is crazy-inefficient
 
   return h(
@@ -84,10 +86,10 @@ class SelectionList extends React.Component {
       return this.props.focusItem(d);
     };
 
-    h = false;
+    let hovered = false;
 
     if (this.props.hovered != null) {
-      h = d.id === this.props.hovered.id;
+      hovered = d.id === this.props.hovered.id;
     }
 
     return h(ListItem, {
@@ -96,6 +98,7 @@ class SelectionList extends React.Component {
       focusItem: onFocus,
       removeItem: onRemove,
       allowRemoval: this.props.allowRemoval,
+      hovered,
     });
   }
 

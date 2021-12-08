@@ -2,7 +2,7 @@ import { useState, Component } from "react";
 import MapControl from "../controls/map";
 import SelectionControl from "../controls/selection";
 import DataPane from "./data-pane";
-import h from "@macrostrat/hyper";
+import { hyperStyled } from "@macrostrat/hyper";
 import SplitPane from "react-split-pane";
 import {
   Tab,
@@ -17,8 +17,10 @@ import FilterPanel from "./filter";
 import MapDataLayer from "../controls/map-data-layer";
 import { useAppState, useAppDispatch } from "app/hooks";
 import * as d3 from "d3";
-
 import styles from "./style.module.styl";
+const h = hyperStyled(styles);
+
+debugger;
 
 const f = d3.format("> 6.1f");
 
