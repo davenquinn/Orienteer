@@ -1,0 +1,23 @@
+# From here:
+# https://stackoverflow.com/questions/53835198/integrating-python-poetry-with-docker
+# NOTE: we might want to make things a bit nicer here
+
+# Right now this must be built in the root directory of the Docker-compose project
+
+FROM node:14 AS builder
+
+COPY ./core/deps/Attitude/frontend /app/core/deps/Attitude/frontend
+COPY ./package.json ./yarn.lock /app/
+
+WORKDIR /app/frontend/
+
+RUN yarn
+
+COPY ./frontend /app/frontend/
+
+RUN npm run build
+
+# Run a basic web server
+FROM nginx AS runner
+
+COPY --from=builder /app/frontend/dist /usr/share/nginx/html
