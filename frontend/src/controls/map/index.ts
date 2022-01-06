@@ -1,22 +1,21 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import {
-  Map,
-  MapLayer,
+  MapContainer,
   LayersControl,
   ScaleControl,
   TileLayer,
+  useMap,
+  useMapEvents,
 } from "react-leaflet";
 import h from "@macrostrat/hyper";
-import { Component } from "react";
-import SelectBox from "./select-box";
-import BackButton from "./back-button";
+import "./style.styl";
+import { useAPIResult } from "@macrostrat/ui-components";
+import { MARS949901 } from "./mars-crs";
+import Control from "./custom-control";
 //const BaseTileLiveLayer = require("./tilelive-layer");
 const { BaseLayer, Overlay } = LayersControl;
+import L from "leaflet";
+import { Icon } from "@blueprintjs/core";
+import { useAppDispatch } from "app/hooks";
 
 const defaultOptions = {
   tileSize: 256,
@@ -26,63 +25,62 @@ const defaultOptions = {
   debounceMoveend: true,
 };
 
-class BoxSelectMap extends Map {
-  createLeafletElement(props) {
-    const map = super.createLeafletElement(props);
-    map.addHandler("boxSelect", SelectBox);
-    map.boxSelect.enable();
-    map.on("boxSelected", (e) => {
-      console.log("Box selected");
-      return app.data.selectByBox(e.bounds);
-    });
-    return map;
+class BoxSelect extends L.Map.BoxZoom {
+  dispatch: React.Dispatch<any> | null;
+  _onMouseUp(e) {
+    this._finish();
+    if (!this._moved) {
+      return;
+    }
+    const s = this._map.containerPointToLatLng(this._startPoint);
+    e = this._map.containerPointToLatLng(this._point);
+
+    const bounds = new L.LatLngBounds(s, e);
+    return this.dispatch?.({ type: "select-box", data: bounds });
   }
 }
 
-class MapControl extends Component {
-  constructor(props) {
-    let k, v;
-    super(props);
+function BoxSelectControl() {
+  const dispatch = useAppDispatch();
+  const map = useMap();
+  map.addHandler("boxSelect", BoxSelect);
+  map.boxSelect.dispatch = dispatch;
+  map.boxSelect.enable();
+  return null;
+}
 
-    const cfg = {};
+function useMapBounds() {
+  const res = useAPIResult(
+    process.env.ORIENTEER_API_BASE + "/models/rpc/project_bounds"
+  );
+  console.log(res);
+  const data = res;
+  if (res == null) return null;
+  return L.geoJson(res).getBounds();
+}
 
-    this.state = {
-      center: [0, 0],
-    };
+function MapControl(props) {
+  // Add base layers
+  const { center, zoom, layers, children } = props;
+  const c = [0, 0]; // [center[1], center[0]];
 
-    const options = {};
-    for (k in cfg) {
-      v = cfg[k];
-      if (k === "layers") {
-        continue;
-      }
-      if (options[k] == null) {
-        options[k] = v;
-      }
-    }
-
-    for (k in defaultOptions) {
-      v = defaultOptions[k];
-      if (options[k] == null) {
-        options[k] = v;
-      }
-    }
-
-    this.state.options = options;
+  let ix = 0;
+  let overlays = []; //this.props.children;
+  if (!Array.isArray(overlays)) {
+    overlays = [overlays];
   }
+  //const url = "http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}";
+  const url =
+    "https://s3-eu-west-1.amazonaws.com/whereonmars.cartodb.net/mola-gray/{z}/{x}/{-y}.png";
+  // Can't do geographic CRS right now: https://github.com/TerriaJS/terriajs/issues/1020
+  //"https://astro.arcgis.com/arcgis/rest/services/OnMars/CTX/MapServer/tile/{z}/{y}/{x}.png";
+  //const url = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+  //const subdomains = ["mt0", "mt1", "mt2", "mt3"];
+  const lyr = h(TileLayer, { maxZoom: 8, url });
+  let k = "google";
 
-  render() {
-    // Add base layers
-    const { center, zoom, layers } = this.state.options;
-    const c = [0, 0]; // [center[1], center[0]];
-
-    let ix = 0;
-    let overlays = this.props.children;
-    if (!Array.isArray(overlays)) {
-      overlays = [overlays];
-    }
-
-    /*
+  //overlays.push(lyr);
+  /*
     for (let k in app.config.layers) {
       var lyr;
       const uri = app.config.layers[k];
@@ -93,29 +91,54 @@ class MapControl extends Component {
       } else {
         lyr = h(TileLiveLayer, { id: k, uri, detectRetina: true });
       }
-
-      overlays.push(
-        h(
-          BaseLayer,
-          {
-            name: k,
-            key: k,
-            checked: ix === 0,
-          },
-          [lyr]
-        )
-      );
-      ix += 1;
-    }
     */
 
-    return h(BoxSelectMap, { center: c, zoom, boxZoom: false }, [
-      h(LayersControl, { position: "topleft" }, []),
-      //h LayersControl, position: 'topleft', overlays
-      //h ScaleControl, {imperial: false}
+  const bounds = useMapBounds();
+  console.log(bounds);
+  if (bounds == null) return null;
+
+  overlays.push(
+    h(
+      BaseLayer,
+      {
+        name: k,
+        key: k,
+        checked: ix === 0,
+      },
+      [lyr]
+    )
+  );
+  //ix += 1;
+
+  return h(
+    MapContainer,
+    {
+      boxZoom: false,
+      bounds,
+      crs: MARS949901,
+    },
+    [
+      //h(LayersControl, { position: "topleft" }, []),
+      //lyr,
+
+      children,
+      h(TileLayer, {
+        url: "https://argyre.geoscience.wisc.edu/tiles/mosaic/ctx_mosaic/tiles/{z}/{x}/{y}.png?rescale=0,255",
+      }),
+      h(TileLayer, {
+        url: "https://argyre.geoscience.wisc.edu/tiles/mosaic/hirise_red/tiles/{z}/{x}/{y}.png",
+      }),
+      h(BoxSelectControl),
+      h(
+        Control,
+        { position: "topright" },
+        h("a", null, h(Icon, { icon: "menu" }))
+      ),
+      //h(LayersControl, { position: "topleft", overlays }),
+      h(ScaleControl, { imperial: false }),
       //h BackButton # We cause major problems with back-navigation for now
-    ]);
-  }
+    ]
+  );
 }
 
-module.exports = MapControl;
+export default MapControl;

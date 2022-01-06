@@ -4,7 +4,7 @@ import { FocusStyleManager } from "@blueprintjs/core";
 //import setupMenu from "./menu";
 //import Map from "./controls/map";
 //import Frontpage from "./frontpage";
-import { DataManager, AppDataProvider, useAttitudeData } from "./data-manager";
+import { DataManager, AppDataProvider, useAppState } from "./data-manager";
 import AttitudePage from "./attitudes";
 // import Stereonet from "./endpoints/stereonet";
 // import LogHandler from "./log-handler";
@@ -119,8 +119,16 @@ class App extends React.Component {
 }
 */
 
+export default function AppRouter() {
+  return h(AppDataProvider, null, h(Router, [h(App)]));
+}
+
 const App = () => {
-  const data = useAttitudeData();
+  const data = useAppState((state) => state.data);
+  if (data == null) {
+    return null;
+  }
+
   return h("div.root", [
     h(AttitudePage, {
       settings: {},
@@ -132,6 +140,3 @@ const App = () => {
     }),
   ]);
 };
-const AppRouter = () => h(AppDataProvider, null, h(Router, [h(App)]));
-
-export default AppRouter;

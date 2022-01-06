@@ -1,23 +1,24 @@
-import React from "react";
+import { useState, Component } from "react";
 import MapControl from "../controls/map";
 import SelectionControl from "../controls/selection";
 import DataPane from "./data-pane";
-import h from "@macrostrat/hyper";
+import { hyperStyled } from "@macrostrat/hyper";
 import SplitPane from "react-split-pane";
 import {
-  Tab2,
-  Tabs2,
+  Tab,
+  Tabs,
   Hotkey,
   Hotkeys,
   HotkeysTarget,
   Button,
-  Toolbar,
+  Navbar,
 } from "@blueprintjs/core";
 import FilterPanel from "./filter";
 import MapDataLayer from "../controls/map-data-layer";
+import { useAppState, useAppDispatch } from "app/hooks";
 import * as d3 from "d3";
-
-import style from "./style.styl";
+import styles from "./style.module.styl";
+const h = hyperStyled(styles);
 
 const f = d3.format("> 6.1f");
 
@@ -26,7 +27,61 @@ const paneStyle = {
   flexDirection: "column",
 };
 
-class AttitudePage extends React.Component {
+function SidebarTab(props) {
+  const { panel, ...rest } = props;
+  return h(Tab, rest, h("div.sidebar-tab", null, panel));
+}
+
+function AttitudesPageSidebar(props) {
+  const { featureTypes, query } = props;
+  const { data, selected, hovered } = useAppState();
+  const [selectedTabId, onChangeTab] = useState(1);
+  const selection = Array.from(selected);
+  //const openGroupViewer = () => this.setState({ showGroupInfo: true });
+
+  ///let { showGroupInfo } = this.state;
+
+  return h(
+    Tabs,
+    {
+      className: "sidebar-outer",
+      selectedTabId,
+      onChange: onChangeTab,
+      renderActiveTabPanelOnly: true,
+    },
+    [
+      h(Tab, {
+        id: 1,
+        title: "Selection",
+        panel: h(
+          SelectionControl,
+          {
+            records: selection,
+            //openGroupViewer,
+          },
+          hovered
+        ),
+      }),
+      h(Tab, {
+        id: 2,
+        title: "Data",
+        panel: h(DataPane, {
+          records: selection,
+          hovered,
+          featureTypes,
+        }),
+      }),
+      h(Tab, {
+        id: 3,
+        title: "Filter",
+        panel: h(FilterPanel, { query }),
+      }),
+      h(Tab, { id: 4, title: "Options", panel: h("div") }),
+    ]
+  );
+}
+
+class AttitudePage extends Component {
   constructor(props) {
     super(props);
     this.onChangeTab = this.onChangeTab.bind(this);
@@ -35,54 +90,18 @@ class AttitudePage extends React.Component {
   }
 
   render() {
-    let pane1, panels;
+    let pane1;
     const { records, featureTypes, query, showSidebar, toggleSidebar } =
       this.props;
-    const selection = records.filter((d) => d.selected);
-    const hovered = records.find((d) => d.hovered);
-    const openGroupViewer = () => this.setState({ showGroupInfo: true });
 
-    const selectionPanel = h(
-      SelectionControl,
-      {
-        records: selection,
-        openGroupViewer,
-      },
-      hovered
-    );
-
-    const dataManagementPanel = h(DataPane, {
-      records: selection,
-      hovered,
-      featureTypes,
-    });
-
-    let { selectedTabId, showGroupInfo } = this.state;
-
-    if (this.state.splitPosition < 600) {
-      panels = [
-        h(Tab2, { id: 1, title: "Selection", panel: selectionPanel }),
-        h(Tab2, { id: 2, title: "Data", panel: dataManagementPanel }),
-      ];
-    } else {
-      if (selectedTabId === 2) {
-        selectedTabId = 1;
-      }
-      panels = [
-        h(Tab2, {
-          id: 1,
-          title: "Selection / Data",
-          panel: h("div.combined-panel", [selectionPanel, dataManagementPanel]),
-        }),
-      ];
-    }
+    let { showGroupInfo } = this.state;
 
     if (!showGroupInfo) {
       pane1 = h(MapControl, { settings: this.props.settings.map }, [
         h(MapDataLayer, { records }),
       ]);
     } else {
-      pane1 = h("div", [h(Toolbar, [h(Button, {}, "Close pane")])]);
+      pane1 = h("div", [h(Navbar, [h(Button, {}, "Close pane")])]);
     }
 
     return h(
@@ -96,26 +115,7 @@ class AttitudePage extends React.Component {
         pane2Style: showSidebar ? {} : { display: "none" },
         onChange: this.onResizePane,
       },
-      [
-        pane1,
-        h(
-          Tabs2,
-          {
-            className: "sidebar-outer",
-            selectedTabId,
-            onChange: this.onChangeTab,
-          },
-          [
-            ...panels,
-            h(Tab2, {
-              id: 3,
-              title: "Filter",
-              panel: h(FilterPanel, { query }),
-            }),
-            h(Tab2, { id: 4, title: "Options", panel: h("div") }),
-          ]
-        ),
-      ]
+      [pane1, h(AttitudesPageSidebar, { featureTypes, query })]
     );
   }
 
