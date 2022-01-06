@@ -439,7 +439,6 @@ const baseReducer: AppReducer = (
   state: AppState = initialState,
   action: AppSyncAction | AppPrivateAction
 ) => {
-  console.log(action);
   switch (action.type) {
     case "set-state":
       return action.data;

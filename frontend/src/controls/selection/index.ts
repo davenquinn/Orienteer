@@ -16,8 +16,6 @@ import { useAppDispatch, useAppState } from "app/hooks";
 
 const h = hyperStyled(styles);
 
-debugger;
-
 function SelectionControl(props) {
   const dispatch = useAppDispatch();
   const a = props.actions;

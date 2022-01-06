@@ -20,8 +20,6 @@ import * as d3 from "d3";
 import styles from "./style.module.styl";
 const h = hyperStyled(styles);
 
-debugger;
-
 const f = d3.format("> 6.1f");
 
 const paneStyle = {
