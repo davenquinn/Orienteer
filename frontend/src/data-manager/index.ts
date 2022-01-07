@@ -2,6 +2,7 @@ import tags from "../shared/data/tags";
 import { LatLng } from "leaflet";
 import _ from "underscore";
 import update from "immutability-helper";
+import pg from "./database";
 import { readFileSync } from "fs";
 import {
   createContext,
@@ -13,10 +14,9 @@ import {
 //const { storedProcedure, db } = require("./database");
 import h from "@macrostrat/hyper";
 import { APIProvider } from "@macrostrat/ui-components";
-import { PostgrestClient } from "@supabase/postgrest-js";
 import { LatLngBounds } from "leaflet";
-import { Point } from "geojson";
-import { Vector3 } from "@attitude/core/src/math";
+import { Attitude, AttitudeData, AppState } from "./types";
+import { TagAction, tagReducer, tagAsyncHandler } from "./tags";
 
 const prepareData = function (d) {
   // Transform raw data
@@ -249,22 +249,6 @@ type AppReducer = (
   action: AppSyncAction | AppPrivateAction
 ) => AppState;
 
-const POSTGREST_URL = process.env.ORIENTEER_API_BASE + "/models";
-const pg = new PostgrestClient(POSTGREST_URL);
-
-export interface Attitude {
-  strike: number;
-  dip: number;
-  rake: number;
-  center: Point;
-  in_group: boolean;
-  min_angular_error: number;
-  max_angular_error: number;
-  axes: [Vector3, Vector3, Vector3];
-  hyperbolic_axes: Vector3;
-}
-type AttitudeData = Attitude[];
-
 type AppSyncAction =
   | { type: "set-data"; data: AttitudeData }
   | { type: "toggle-selection"; data: AttitudeData }
@@ -276,20 +260,14 @@ type AppSyncAction =
   | { type: "group-add-item"; data: Attitude }
   | { type: "clear-focus" }
   | { type: "focus-item"; data: Attitude }
-  | { type: "refresh-data" };
+  | { type: "refresh-data" }
+  | TagAction;
 
 type AppPrivateAction = { type: "set-state"; data: AttitudeData };
 
 type AppAsyncAction = { type: "get-initial-data" };
 
 type AppAction = AppAsyncAction | AppSyncAction;
-
-interface AppState {
-  data: AttitudeData;
-  hovered: Attitude | null;
-  focused: Attitude | null;
-  selected: Set<Attitude>;
-}
 
 const baseReducer: AppReducer = (
   state: AppState = initialState,
@@ -322,13 +300,14 @@ const baseReducer: AppReducer = (
     case "clear-focus":
       return { ...state, focused: null };
     default:
-      return state;
+      return tagReducer(state);
   }
 };
 
 async function actionCreator(
-  dispatch,
-  action: AppAction
+  state: AppState,
+  action: AppAction,
+  dispatch
 ): Promise<AppSyncAction> {
   switch (action.type) {
     case "get-initial-data":
@@ -338,7 +317,7 @@ async function actionCreator(
         data: res.data.map(prepareData),
       };
     default:
-      return action as AppSyncAction;
+      return await tagAsyncHandler(state, action);
   }
 }
 
@@ -358,7 +337,7 @@ function useActionRunner() {
   const runAction = useCallback(
     async function runAction(action) {
       console.log(action);
-      const _action = await actionCreator(dispatch, action);
+      const _action = await actionCreator(action, state, dispatch);
       dispatch(_action);
     },
     [dispatch]
@@ -396,4 +375,4 @@ export function AppDataProvider(props) {
   );
 }
 
-export { DataManager, AppDataContext };
+export { DataManager, AppDataContext, AttitudeData };
