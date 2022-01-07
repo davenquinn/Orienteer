@@ -300,9 +300,11 @@ const baseReducer: AppReducer = (
     case "clear-focus":
       return { ...state, focused: null };
     default:
-      return tagReducer(state);
+      return tagReducer(state, action);
   }
 };
+
+console.log(pg);
 
 async function actionCreator(
   state: AppState,
@@ -312,6 +314,7 @@ async function actionCreator(
   switch (action.type) {
     case "get-initial-data":
       const res = await pg.from("attitude");
+      console.log(res);
       return {
         type: "set-data",
         data: res.data.map(prepareData),
@@ -335,12 +338,11 @@ function useActionRunner() {
     initialState
   );
   const runAction = useCallback(
-    async function runAction(action) {
-      console.log(action);
-      const _action = await actionCreator(action, state, dispatch);
-      dispatch(_action);
+    function runAction(action) {
+      console.log("Running action", action.type);
+      actionCreator(state, action, dispatch).then((res) => dispatch(res));
     },
-    [dispatch]
+    [dispatch, state]
   );
   return [state, runAction];
 }

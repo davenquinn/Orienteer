@@ -48,7 +48,6 @@ function refreshSelected(state: AppState): AppState {
 }
 
 function tagReducer(state: AppState, action: TagResultAction): string[] {
-  const { data: records } = state;
   switch (action.type) {
     case "tag-added" || "tag-removed":
       const indices = action.records.map((d) =>
