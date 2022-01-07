@@ -1,7 +1,8 @@
-import tags from "./shared/data/tags";
+import tags from "../shared/data/tags";
 import { LatLng } from "leaflet";
 import _ from "underscore";
 import update from "immutability-helper";
+import pg from "./database";
 import { readFileSync } from "fs";
 import {
   createContext,
@@ -13,10 +14,9 @@ import {
 //const { storedProcedure, db } = require("./database");
 import h from "@macrostrat/hyper";
 import { APIProvider } from "@macrostrat/ui-components";
-import { PostgrestClient } from "@supabase/postgrest-js";
 import { LatLngBounds } from "leaflet";
-import { Point } from "geojson";
-import { Vector3 } from "@attitude/core/src/math";
+import { Attitude, AttitudeData, AppState } from "./types";
+import { TagAction, tagReducer, tagAsyncHandler } from "./tags";
 
 const prepareData = function (d) {
   // Transform raw data
@@ -42,15 +42,8 @@ class DataManager {
     return d;
   }
   constructor(opts) {
-    this.clearSelection = this.clearSelection.bind(this);
-    if (opts == null) {
-      opts = {};
-    }
     this.log = opts.logger || console;
     this.onUpdated = opts.onUpdated;
-
-    // Setup requests for updated data
-    this.fetchInitialData();
 
     //@selection = Selection
     //@selection.bind "tags-updated", @filter
@@ -60,67 +53,6 @@ class DataManager {
         return this.records.filter((d) => d.selected);
       },
     });
-  }
-
-  fetchInitialData() {
-    this.featureTypes = [];
-    const sql = storedProcedure("get-types");
-    return db.query(sql).then((records) => {
-      this.featureTypes = records;
-      return this.onUpdated({ featureTypes: records });
-    });
-  }
-
-  getData(subquery, complete) {
-    // Grab data directly from postgresql dataset
-    // We used to use a Python API here but this
-    // is a factor of at least 100 quicker
-    // Transfer selection
-    this.subquery = subquery;
-    if (complete == null) {
-      complete = false;
-    }
-    const selectedIDs = this.records.filter((d) => d.selected).map((d) => d.id);
-
-    let sql = readFileSync(`${__dirname}/sql/get-dataset.sql`, "utf8");
-    if (this.subquery != null) {
-      const v = sql.replace("attitude_data", "subquery");
-      sql = `WITH subquery AS (${this.subquery}) ${v}`;
-    }
-
-    return db
-      .query(sql)
-      .map(prepareData)
-      .then((records) => {
-        let changeset;
-        console.log("Getting records");
-
-        // Only integrate changed records
-        // We could have a separate thing to completely refresh data
-        if (complete || this.records.length === 0) {
-          changeset = { $set: records };
-        } else {
-          changeset = { $push: [] };
-          // Set all to null by default
-          this.records.forEach((d, i) => (changeset[i] = { $set: null }));
-
-          // Add back records that are changed
-          for (let record of Array.from(records)) {
-            const ix = this.getRecordIndex(record.id);
-            if (ix === -1) {
-              changeset["$push"].push(record);
-            } else {
-              delete changeset[ix];
-            }
-          }
-        }
-
-        this.updateUsing(changeset);
-        return this.log.success(`Loaded ${records.length} features`);
-      })
-      .catch(function (e) {
-        throw e;
-      });
   }
 
   get(...ids) {
@@ -181,37 +113,6 @@ class DataManager {
     return this.addToSelection(...f);
   }
 
-  addToSelection(...records) {
-    const changeset = {};
-    for (let record of Array.from(records)) {
-      const ix = this.getRecordIndex(record.id);
-      changeset[ix] = { selected: { $set: true } };
-    }
-    return this.updateUsing(changeset);
-  }
-
-  removeFromSelection(...records) {
-    const changeset = {};
-    for (let record of Array.from(records)) {
-      const ix = this.getRecordIndex(record.id);
-      changeset[ix] = { selected: { $set: false } };
-    }
-    return this.updateUsing(changeset);
-  }
-
-  updateSelection(record) {
-    // Add or remove record from selection depending on membership
-    const ix = this.getRecordIndex(record.id);
-    const changeset = {};
-    changeset[ix] = { selected: { $set: !record.selected } };
-    return this.updateUsing(changeset);
-  }
-
-  clearSelection() {
-    const rec = this.records.filter((d) => d.selected);
-    return this.removeFromSelection(...rec);
-  }
-
   createGroupFromSelection() {}
 
   getRecordIndex(id) {
@@ -227,52 +128,6 @@ class DataManager {
     console.log("Updating using", changeset);
     this.records = update(this.records, changeset).filter((d) => d != null);
     return this.onUpdated({ records: this.records });
-  }
-
-  async addTag(tag, records) {
-    const sql = storedProcedure("add-tag");
-    const ids = records.map((d) => d.id);
-    records = await db.query(sql, [tag, ids]);
-
-    const changeset = {};
-    for (let rec of Array.from(records)) {
-      console.log(rec);
-      const ix = this.getRecordIndex(rec.attitude_id);
-      changeset[ix] = { tags: { $push: [rec.tag_name] } };
-    }
-
-    this.updateUsing(changeset);
-    if (this.subquery == null) {
-      return;
-    }
-    if (this.subquery.includes("tags")) {
-      return this.refreshAllData();
-    }
-  }
-
-  async removeTag(tag, records) {
-    const sql = storedProcedure("remove-tag");
-    const ids = records.map((d) => d.id);
-    records = await db.query(sql, [tag, ids]);
-
-    const changeset = {};
-    for (let rec of Array.from(records)) {
-      console.log(rec);
-      const ix = this.getRecordIndex(rec.attitude_id);
-      const tagindex = this.records[ix].tags.indexOf(tag);
-      if (tagindex === -1) {
-        continue;
-      }
-      changeset[ix] = { tags: { $splice: [[tagindex, 1]] } };
-    }
-
-    this.updateUsing(changeset);
-    if (this.subquery == null) {
-      return;
-    }
-    if (this.subquery.includes("tags")) {
-      return this.refreshAllData();
-    }
   }
 
   refreshAllData() {
@@ -394,22 +249,6 @@ type AppReducer = (
   action: AppSyncAction | AppPrivateAction
 ) => AppState;
 
-const POSTGREST_URL = process.env.ORIENTEER_API_BASE + "/models";
-const pg = new PostgrestClient(POSTGREST_URL);
-
-export interface Attitude {
-  strike: number;
-  dip: number;
-  rake: number;
-  center: Point;
-  in_group: boolean;
-  min_angular_error: number;
-  max_angular_error: number;
-  axes: [Vector3, Vector3, Vector3];
-  hyperbolic_axes: Vector3;
-}
-type AttitudeData = Attitude[];
-
 type AppSyncAction =
   | { type: "set-data"; data: AttitudeData }
   | { type: "toggle-selection"; data: AttitudeData }
@@ -420,20 +259,15 @@ type AppSyncAction =
   | { type: "group-remove-item"; data: Attitude }
   | { type: "group-add-item"; data: Attitude }
   | { type: "clear-focus" }
-  | { type: "focus-item"; data: Attitude };
+  | { type: "focus-item"; data: Attitude }
+  | { type: "refresh-data" }
+  | TagAction;
 
 type AppPrivateAction = { type: "set-state"; data: AttitudeData };
 
 type AppAsyncAction = { type: "get-initial-data" };
 
 type AppAction = AppAsyncAction | AppSyncAction;
-
-interface AppState {
-  data: AttitudeData;
-  hovered: Attitude | null;
-  focused: Attitude | null;
-  selected: Set<Attitude>;
-}
 
 const baseReducer: AppReducer = (
   state: AppState = initialState,
@@ -466,23 +300,27 @@ const baseReducer: AppReducer = (
     case "clear-focus":
       return { ...state, focused: null };
     default:
-      return state;
+      return tagReducer(state, action);
   }
 };
 
+console.log(pg);
+
 async function actionCreator(
-  dispatch,
-  action: AppAction
+  state: AppState,
+  action: AppAction,
+  dispatch
 ): Promise<AppSyncAction> {
   switch (action.type) {
     case "get-initial-data":
       const res = await pg.from("attitude");
+      console.log(res);
       return {
         type: "set-data",
         data: res.data.map(prepareData),
       };
     default:
-      return action as AppSyncAction;
+      return await tagAsyncHandler(state, action);
   }
 }
 
@@ -500,21 +338,20 @@ function useActionRunner() {
     initialState
   );
   const runAction = useCallback(
-    async function runAction(action) {
-      console.log(action);
-      const _action = await actionCreator(dispatch, action);
-      dispatch(_action);
+    function runAction(action) {
+      console.log("Running action", action.type);
+      actionCreator(state, action, dispatch).then((res) => dispatch(res));
     },
-    [dispatch]
+    [dispatch, state]
   );
   return [state, runAction];
 }
 
+type StateAccessor = (state: AppState) => any;
+
 export function useAppDispatch() {
   return useContext(AppDispatchContext);
 }
-
-type StateAccessor = (state: AppState) => any;
 
 export function useAppState(accessor: StateAccessor | null = null) {
   const state = useContext(AppDataContext);
@@ -522,7 +359,7 @@ export function useAppState(accessor: StateAccessor | null = null) {
   return accessor(state);
 }
 
-function AppDataProvider(props) {
+export function AppDataProvider(props) {
   const [state, runAction] = useActionRunner();
 
   useEffect(() => {
@@ -540,4 +377,4 @@ function AppDataProvider(props) {
   );
 }
 
-export { DataManager, AppDataContext, AppDataProvider };
+export { DataManager, AppDataContext, AttitudeData };

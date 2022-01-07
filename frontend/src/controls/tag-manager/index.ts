@@ -1,3 +1,5 @@
+import { useAppDispatch, useAppState } from "../../data-manager";
+
 /*
  * decaffeinate suggestions:
  * DS002: Fix invalid constructor
@@ -70,45 +72,36 @@ class TagForm extends React.Component {
   }
 }
 
-class TagManager extends React.Component {
-  constructor(...args) {
-    super(...args);
-    this.addTag = this.addTag.bind(this);
-    this.removeTag = this.removeTag.bind(this);
-  }
+function TagManager() {
+  const records = useAppState((state) => state.selected);
+  const hovered = useAppState((state) => state.hovered);
+  const dispatch = useAppDispatch();
 
-  render() {
-    const { hovered, records } = this.props;
+  const rec = hovered != null ? [hovered] : records;
+  const tags = buildTagData(rec);
+  const val = hovered != null ? "Hovered item" : "Selection";
 
-    const rec = hovered != null ? [hovered] : records;
-    const tags = buildTagData(rec);
-    const val = hovered != null ? "Hovered item" : "Selection";
-
-    return h("div.tag-manager", [
-      h("div.header", [h("h6", "Tags"), h("h6.info", val)]),
-      h(
-        "p.tag-list",
-        tags.map(({ all, name }) => {
-          const intent = all ? Intent.SUCCESS : null;
-          return h(
-            Tag,
-            { onRemove: this.removeTag, intent, name, className: "pt-minimal" },
-            name
-          );
-        })
-      ),
-      h(TagForm, { onUpdate: this.addTag }),
-    ]);
-  }
-
-  addTag(name) {
-    console.log(`Adding tag ${name}`);
-    return app.data.addTag(name, this.props.records);
-  }
-
-  removeTag(evt, { name }) {
-    return app.data.removeTag(name, this.props.records);
-  }
+  return h("div.tag-manager", [
+    h("div.header", [h("h6", "Tags"), h("h6.info", val)]),
+    h(
+      "p.tag-list",
+      tags.map(({ all, name }) => {
+        const intent = all ? Intent.SUCCESS : null;
+        return h(
+          Tag,
+          {
+            onRemove() {
+              dispatch({ type: "remove-tag", tag: name });
+            },
+            intent,
+            name,
+            className: "pt-minimal",
+          },
+          name
+        );
+      })
+    ),
+    h(TagForm, { onUpdate: (tag) => dispatch({ type: "add-tag", tag }) }),
+  ]);
 }
-
-module.exports = TagManager;
+export default TagManager;
