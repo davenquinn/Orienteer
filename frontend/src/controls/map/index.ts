@@ -4,7 +4,6 @@ import {
   ScaleControl,
   TileLayer,
   useMap,
-  useMapEvents,
 } from "react-leaflet";
 import h from "@macrostrat/hyper";
 import "./style.styl";
@@ -12,7 +11,7 @@ import { useAPIResult } from "@macrostrat/ui-components";
 import { MARS949901 } from "./mars-crs";
 import Control from "./custom-control";
 //const BaseTileLiveLayer = require("./tilelive-layer");
-const { BaseLayer, Overlay } = LayersControl;
+const { BaseLayer } = LayersControl;
 import L from "leaflet";
 import { Icon } from "@blueprintjs/core";
 import { useAppDispatch } from "app/hooks";
@@ -123,10 +122,7 @@ function MapControl(props) {
 
       children,
       h(TileLayer, {
-        url: "https://argyre.geoscience.wisc.edu/tiles/mosaic/ctx_mosaic/tiles/{z}/{x}/{y}.png?rescale=0,255",
-      }),
-      h(TileLayer, {
-        url: "https://argyre.geoscience.wisc.edu/tiles/mosaic/hirise_red/tiles/{z}/{x}/{y}.png",
+        url: "https://argyre.geoscience.wisc.edu/tiles/mosaic/tiles/{z}/{x}/{y}.png?mosaic=orthoimage,hirise_red,ctx_mosaic",
       }),
       h(BoxSelectControl),
       h(

@@ -10,3 +10,6 @@ format-code:
 
 frontend:
 	docker build -t orienteer-frontend -f Dockerfile.frontend .
+
+dist:
+	scripts/frontend-dist

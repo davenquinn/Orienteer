@@ -1,3 +1,4 @@
+import "regenerator-runtime/runtime";
 import h from "@macrostrat/hyper";
 import { render } from "react-dom";
 import App from "./app";
