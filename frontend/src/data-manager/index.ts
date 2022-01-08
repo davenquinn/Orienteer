@@ -3,7 +3,6 @@ import { LatLng } from "leaflet";
 import _ from "underscore";
 import update from "immutability-helper";
 import pg from "./database";
-import { readFileSync } from "fs";
 import {
   createContext,
   useContext,
