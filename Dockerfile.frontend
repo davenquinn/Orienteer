@@ -7,13 +7,15 @@
 FROM node:14 AS builder
 
 COPY ./core/deps/Attitude/frontend /app/core/deps/Attitude/frontend
-COPY ./package.json ./yarn.lock /app/
+COPY ./package.json /app/
 
 WORKDIR /app/frontend/
 
 RUN yarn
 
 COPY ./frontend /app/frontend/
+
+ENV ORIENTEER_API_BASE
 
 RUN npm run build
 

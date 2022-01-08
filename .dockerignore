@@ -1,5 +1,7 @@
 node_modules
 dist
 .parcel-cache
+yarn.lock
+package-lock.json
 electron-app
 app-container
