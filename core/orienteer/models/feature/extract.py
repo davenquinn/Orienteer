@@ -166,9 +166,9 @@ def extract(self):
     demfile = self.dataset.dem_path
 
     with rasterio.open(demfile) as dem:
-        # Transform the shape to the DEM's projection
-        projection = transformation(source_crs, dem.crs.to_dict())
-
+        dest_crs = dem.crs.to_dict()
+        # Transform the shape to the DEM's projection or the target projection if defined
+        projection = transformation(source_crs, dest_crs)
         # Add some asserts here maybe since we don't do any cleaning
 
         # for point in ((0, 0), (10, 10)):

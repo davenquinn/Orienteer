@@ -28,6 +28,13 @@ def wkb(shape):
     return from_shape(shape, srid=SRID)
 
 
+class Project(BaseModel):
+    __tablename__ = "project"
+    id = Column(Integer, primary_key=True)
+    name = Column(Text, nullable=False)
+    srid = Column(Integer, ForeignKey(table="spatial_ref_sys", column="id"))
+
+
 class FeatureClass(BaseModel):
     __tablename__ = "feature_class"
     id = Column(String, primary_key=True)
