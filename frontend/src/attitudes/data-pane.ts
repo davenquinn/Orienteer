@@ -44,13 +44,13 @@ function DataPane(props) {
     {
       onMeasure: debounce((d) => setWidth(d.width), 200),
     },
-    h("div.sidebarComponent", [
+    h("div.sidebarComponent.bp3-text", [
       h(TagManager, {
         records: props.records,
         hovered,
       }),
       h("div", null, [
-        h("h6", null, "Data type"),
+        h("h5", null, "Data type"),
         h(SelectType, {
           records,
           hovered,

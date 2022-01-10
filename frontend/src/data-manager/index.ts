@@ -1,8 +1,9 @@
 import tags from "../shared/data/tags";
 import { LatLng } from "leaflet";
 import _ from "underscore";
-import update from "immutability-helper";
+import update, { Spec } from "immutability-helper";
 import pg from "./database";
+import axios from "axios";
 import {
   createContext,
   useContext,
@@ -16,18 +17,8 @@ import { APIProvider } from "@macrostrat/ui-components";
 import { LatLngBounds } from "leaflet";
 import { Attitude, AttitudeData, AppState } from "./types";
 import { TagAction, tagReducer, tagAsyncHandler } from "./tags";
-
-function prepareData(d) {
-  // Transform raw data
-  return {
-    ...d,
-    grouped: d.type === "group",
-    selected: false,
-    hovered: false,
-    type: "Feature",
-    tags: new Set(d.tags ?? []),
-  };
-}
+import { refreshSelected, prepareData } from "./util";
+import { GroupAction, groupActionHandler } from "./groups";
 
 class DataManager {
   static initClass() {
@@ -158,80 +149,6 @@ class DataManager {
       return this.refreshAllData();
     }
   }
-
-  async destroyGroup(id) {
-    const call = Promise.promisify(app.API(`/group/${id}`).send);
-    console.log(`Destroying group ${id}`);
-    const response = await call("DELETE");
-
-    // Currently, we know that all groups that are deleted were selected
-    const groupWasSelected = true;
-
-    if (response.status !== "success") {
-      this.log.error(`Could not destroy group ${id}`);
-      return;
-    }
-
-    const ix = this.records.findIndex((d) => id === d.id);
-    const changeset = { $splice: [[ix, 1]] };
-    this.refreshRecords(response.measurements, { changeset, selected: true });
-    return app.log.success(`Destroyed group ${id}`);
-  }
-
-  async createGroup(records) {
-    const call = Promise.promisify(app.API("/group").send);
-    const data = {
-      measurements: records.map((d) => d.id),
-      same_plane: false,
-    };
-
-    console.log("Creating group");
-    const response = await call("POST", JSON.stringify(data));
-    console.log("Got response from server");
-    if (response.status !== "success") {
-      this.log.error("Could not create group");
-      return;
-    }
-    const obj = response.data;
-    const ids = obj.measurements.concat([obj.id]);
-    this.log.success(`Successfully created group ${obj.id}`);
-    // Splice empty groups
-    const changeset = {};
-    for (let record of Array.from(records)) {
-      if (!record.is_group) {
-        continue;
-      }
-      const ix = this.getRecordIndex(record.id);
-      changeset[ix] = { $set: null };
-    }
-    return this.refreshRecords(ids, { selected: true, changeset });
-  }
-
-  async refreshRecords(ids, opts = {}) {
-    // Options:
-    //   selected: boolean (should set data to be selected)
-    //   changeset: an input changeset to use
-    const changeset = opts.changeset || {};
-
-    const sql = storedProcedure("get-records-by-ids");
-    console.log("Refreshing records", ids);
-    const records = await db.query(sql, [ids]).map(prepareData);
-    for (var rec of Array.from(records)) {
-      const ix = this.records.findIndex((a) => rec.id === a.id);
-      if (opts.selected != null && !rec.in_group) {
-        rec.selected = opts.selected;
-      }
-      if (ix === -1) {
-        if (changeset["$push"] == null) {
-          changeset["$push"] = [];
-        }
-        changeset["$push"].push(rec);
-      }
-      changeset[ix] = { $set: rec };
-    }
-
-    return this.updateUsing(changeset);
-  }
 }
 DataManager.initClass();
 
@@ -252,18 +169,19 @@ type AppSyncAction =
   | { type: "toggle-selection"; data: AttitudeData }
   | { type: "hover"; data: Attitude | null }
   | { type: "select-box"; data: LatLngBounds }
-  | { type: "group-selected" }
   | { type: "clear-selection" }
+  | { type: "group-selected" }
   | { type: "group-remove-item"; data: Attitude }
   | { type: "group-add-item"; data: Attitude }
   | { type: "clear-focus" }
   | { type: "focus-item"; data: Attitude }
   | { type: "refresh-data" }
-  | TagAction;
+  | { type: "apply-spec"; spec: Spec<AppState> }
+  | { type: "run-async-action"; action: AppAction; dispatch: AppDispatch }
+  | TagAction
+  | GroupAction;
 
-type AppPrivateAction =
-  | { type: "set-state"; data: AttitudeData }
-  | { type: "run-async-action"; action: AppAction; dispatch: AppDispatch };
+type AppPrivateAction = { type: "set-state"; data: AttitudeData };
 
 type AppAsyncAction = { type: "get-initial-data" };
 
@@ -305,12 +223,12 @@ const baseReducer: AppReducer = (
       return { ...state, focused: action.data };
     case "clear-focus":
       return { ...state, focused: null };
+    case "apply-spec":
+      return refreshSelected(update(state, action.spec));
     default:
       return tagReducer(state, action);
   }
 };
-
-console.log(pg);
 
 async function actionCreator(
   state: AppState,
@@ -318,15 +236,31 @@ async function actionCreator(
   dispatch
 ): Promise<AppSyncAction> {
   switch (action.type) {
+    case "group-selected":
+      return actionCreator(
+        state,
+        {
+          type: "create-group",
+          attitudes: Array.from(state.selected),
+          samePlane: false,
+        },
+        dispatch
+      );
     case "get-initial-data":
       const res = await pg.from("attitude");
-      console.log(res);
       return {
         type: "set-data",
         data: res.data.map(prepareData),
       };
     default:
-      return await tagAsyncHandler(state, action);
+      // Try other action handlers in sequence
+      for (const k of [tagAsyncHandler, groupActionHandler]) {
+        const res = await k(state, action, dispatch);
+        if (res != action) {
+          return res;
+        }
+      }
+      return action;
   }
 }
 
@@ -357,7 +291,9 @@ export function AppDataProvider(props) {
   );
 
   const runAction = useCallback(
-    (action) => {
+    (action: AppAction) => {
+      // We run this in the reducer because the reducer always has access
+      // to the current state.
       dispatch({ type: "run-async-action", action, dispatch });
     },
     [dispatch]

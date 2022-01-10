@@ -21,13 +21,15 @@ function SelectionControl(props) {
     }),
     h("p", null, [
       h(
-        "button",
+        Button,
         {
-          className: "group pt-button pt-intent-primary pt-icon-group-objects",
-          onClick: () =>
+          className: "group",
+          intent: "primary",
+          onClick() {
             dispatch({
               type: "group-selected",
-            }),
+            });
+          },
         },
         "Group measurements"
       ),

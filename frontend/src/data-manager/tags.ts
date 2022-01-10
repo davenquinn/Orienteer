@@ -1,7 +1,7 @@
-import { Attitude, AppState } from "./types";
+import { AppState } from "./types";
 import pg from "./database";
 import update from "immutability-helper";
-import { NotifyError } from "./errors";
+import { refreshSelected, NotifyError } from "./util";
 
 type TagResultAction =
   | { type: "tag-added"; tag: string; records: number[] }
@@ -20,7 +20,7 @@ type TagLinkRecord = {
 async function tagAsyncHandler(
   state: AppState,
   action: TagAction
-): Promise<TagResultAction> {
+): Promise<TagResultAction | undefined> {
   switch (action.type) {
     case "add-tag":
     case "remove-tag":
@@ -39,21 +39,7 @@ async function tagAsyncHandler(
   }
 }
 
-function refreshSelected(state: AppState): AppState {
-  // refresh selection
-  const sel = Array.from(state.selected).map((d) => d.id);
-  const newSel = new Set(state.data.filter((d) => sel.includes(d.id)));
-  const cset = { selected: { $set: newSel } };
-
-  for (const dt of ["hovered", "focused"]) {
-    const val = state[dt];
-    if (val == null) continue;
-    cset[dt] = { $set: state.data.find((d) => state[dt].id == d.id) };
-  }
-  return update(state, cset);
-}
-
-function tagReducer(state: AppState, action: TagResultAction): string[] {
+function tagReducer(state: AppState, action: TagResultAction): AppState {
   switch (action.type) {
     case "tag-added":
     case "tag-removed":

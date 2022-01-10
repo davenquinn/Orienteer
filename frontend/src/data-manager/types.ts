@@ -16,6 +16,7 @@ interface AttitudeCore {
 export interface Attitude extends AttitudeCore {
   id: number;
   tags: Set<string>;
+  is_group: boolean;
 }
 
 export type AttitudeData = Attitude[];
