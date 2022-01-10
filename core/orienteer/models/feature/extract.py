@@ -13,6 +13,7 @@ from geoalchemy2.shape import from_shape, to_shape
 from shapely.geometry import shape, mapping, asShape, LineString
 from shapely.ops import transform
 from pg_projector import transformation
+import pyproj
 
 from ...database import db
 from .interpolation import bilinear
@@ -21,6 +22,20 @@ from ...core.proj import Projection
 from logging import getLogger
 
 log = getLogger(__name__)
+
+
+def project_array(
+    coordinates: N.array, source: pyproj.Proj, dest: pyproj.Proj
+) -> N.array:
+    """
+    Project a numpy (n,3) array in projection srcp to projection dstp
+    Returns a numpy (n,3) array.
+    """
+    coords = pyproj.transform(
+        source, dest, coordinates[:, 0], coordinates[:, 1], coordinates[:, 2]
+    )
+    # Re-create (n,3) coordinates
+    return N.vstack(coords).transpose()
 
 
 def clean_coordinates(coords, silent=False):
@@ -159,40 +174,3 @@ def extract_area(geom, dem, **kwargs):
 
 class ProjectionDifferenceError(Exception):
     pass
-
-
-def extract(self):
-    source_crs = db.session.query(Projection).get(self.geometry.srid).crs
-    demfile = self.dataset.dem_path
-
-    with rasterio.open(demfile) as dem:
-        dest_crs = dem.crs.to_dict()
-        # Transform the shape to the DEM's projection or the target projection if defined
-        projection = transformation(source_crs, dest_crs)
-        # Add some asserts here maybe since we don't do any cleaning
-
-        # for point in ((0, 0), (10, 10)):
-        #     try:
-        #         assert N.allclose(point, projection(*point))
-        #     except AssertionError:
-        #         raise ProjectionDifferenceError(
-        #             "DEM and geometry projections are different."
-        #             "This is not yet allowed."
-        #         )
-
-        geom_shape = to_shape(self.geometry)
-        geom = transform(projection, geom_shape)
-
-        if len(geom.coords) == 0:
-            raise ValueError("Trying to transform an empty geometry")
-
-        if geom.area == 0:
-            coords = extract_line(geom, dem)
-        else:
-            coords = extract_area(geom, dem)
-        # Transform coordinates back to transverse mercator?
-        # (not currently implemented)
-
-    coords = clean_coordinates(coords, silent=True)
-    assert len(coords) > 0
-    self.extracted = coords.tolist()

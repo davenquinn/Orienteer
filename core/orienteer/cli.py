@@ -123,7 +123,7 @@ def recalculate(extract=False):
                 except (AssertionError, ValueError, NotImplementedError):
                     continue
                 db.session.add(obj)
-            db.session.commit()
+                db.session.commit()
 
     secho("Updating orientation measurements", **heading)
     set = db.session.query(Attitude).all()
@@ -135,7 +135,7 @@ def recalculate(extract=False):
             except Exception:
                 pass
             db.session.add(attitude)
-        db.session.commit()
+            db.session.commit()
 
 
 @OrienteerCommand.command(name="check-integrity")
@@ -215,6 +215,7 @@ def create_tables():
 
         # Create all tables defined by SQLAlchemy ORM objects.
         Base.metadata.create_all(db.engine)
+        stored_procedure("01-schema-additions")
 
         stored_procedure("attitude-data")
         stored_procedure(

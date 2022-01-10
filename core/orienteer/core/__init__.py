@@ -91,7 +91,7 @@ def __setup_endpoints(app, db):
 SRID = None
 
 
-def setup_app():
+def setup_app(with_api=True):
     app = Flask(__name__)
     app.config.from_object("orienteer.config")
     cfg_file = environ.get("ORIENTEER_CONFIG")
@@ -103,10 +103,11 @@ def setup_app():
         app.config.update(cfg)
     global SRID
     SRID = app.config.get("srid")
-    init_projection(app, db)
+    if with_api:
+        init_projection(app, db)
 
-    __setup_endpoints(app, db)
-    log.info("App setup complete")
+        __setup_endpoints(app, db)
+        log.info("App setup complete")
 
     def within_context(func):
         @wraps(func)
