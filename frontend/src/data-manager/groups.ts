@@ -8,26 +8,33 @@ import { prepareData } from "./util";
 async function refreshRecords(
   state,
   ids,
-  opts: { selected?: boolean; changeset: Spec<Attitude[], any> }
+  opts: { selected?: number[] | null; changeset: Spec<Attitude[], any> }
 ) {
   // Options:
   //   selected: boolean (should set data to be selected)
   //   changeset: an input changeset to use
-  const { selected, changeset = {} } = opts ?? {};
+  const { selected = [], changeset = {} } = opts ?? {};
   const res = await pg.from("attitude").select("*").in("id", ids);
   const data = res.data.map(prepareData);
 
   changeset.$push ??= [];
   for (const rec of data) {
     // Remove empty groups
-    const ix = state.attitudes.findIndex((a) => rec.id === a.id);
+    const ix = state.data.findIndex((a) => rec.id === a.id);
     if (ix === -1) {
       changeset["$push"].push(rec);
     }
     changeset[ix] = { $set: rec };
   }
 
-  return { type: "apply-changeset", changeset };
+  let spec: Spec<AppState, any> = { data: changeset };
+  if (selected != null) {
+    spec.selected = {
+      $set: new Set(data.filter((d) => selected.includes(d.id))),
+    };
+  }
+
+  return { type: "apply-spec", spec };
 }
 
 type GroupAction =
@@ -64,7 +71,7 @@ async function groupActionHandler(
           const ix = state.data.findIndex((a) => id === a.id);
           changeset.$splice.push([ix, 1]);
         }
-        return refreshRecords(state, ids, { selected: true, changeset });
+        return refreshRecords(state, ids, { selected: [obj.id], changeset });
       } catch (error) {
         console.log(error);
         return { type: "error", error };
@@ -77,13 +84,14 @@ async function groupActionHandler(
 
       const { id } = attitude;
       try {
-        const res = axios.delete(baseURI + `/${id}`);
-        const newMeasurements = res.measurements;
+        const res = await axios.delete(baseURI + `/${id}`);
+        const data = res.data;
+        const newMeasurements = data.measurements;
         const ix = state.data.findIndex((d) => id === d.id);
         const changeset = { $splice: [[ix, 1]] };
         return refreshRecords(state, newMeasurements, {
           changeset,
-          selected: true,
+          selected: newMeasurements,
         });
       } catch (error) {
         console.error(error);

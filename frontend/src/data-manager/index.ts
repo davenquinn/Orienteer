@@ -224,6 +224,7 @@ const baseReducer: AppReducer = (
     case "clear-focus":
       return { ...state, focused: null };
     case "apply-spec":
+      console.log(action.spec);
       return refreshSelected(update(state, action.spec));
     default:
       return tagReducer(state, action);

@@ -4,6 +4,7 @@ import styles from "./style.module.styl";
 import { NonIdealState, Button } from "@blueprintjs/core";
 import { hyperStyled } from "@macrostrat/hyper";
 import { useAppDispatch, useAppState } from "app/hooks";
+import { ErrorBoundary } from "@macrostrat/ui-components";
 
 const h = hyperStyled(styles);
 
@@ -25,6 +26,7 @@ function SelectionControl(props) {
         {
           className: "group",
           intent: "primary",
+          disabled: props.records.length < 2,
           onClick() {
             dispatch({
               type: "group-selected",
@@ -67,12 +69,14 @@ function SelectionCore({ records, focused }) {
   };
 
   const focusedRecord = records.length == 1 ? records[0] : focused;
-  if (focused != null) {
-    return h(ViewerControl, {
-      data: focusedRecord,
-      hovered,
-      focusItem,
-    });
+  if (focusedRecord != null) {
+    return h(ErrorBoundary, [
+      h(ViewerControl, {
+        data: focusedRecord,
+        hovered,
+        focusItem,
+      }),
+    ]);
   }
   return h(SelectionControl, {
     records,
