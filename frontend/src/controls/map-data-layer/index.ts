@@ -51,6 +51,7 @@ function DataLayer(props) {
   //console.log(origin, worldBounds?.min, bounds.min, offset);
 
   //const pixelOffset = {x: .x, y: origin.y};
+  const r1 = records.filter((d) => !d.in_group);
 
   const projection = useCallback(
     (x, y) => {
@@ -86,7 +87,7 @@ function DataLayer(props) {
       [
         h(
           "g.markers",
-          records.map((d) =>
+          r1.map((d) =>
             h(StrikeDip, {
               key: d.id,
               record: d,
@@ -97,7 +98,7 @@ function DataLayer(props) {
         ),
         h(
           "g.features",
-          records.map((d) => h(Feature, { record: d, pathGenerator }))
+          r1.map((d) => h(Feature, { record: d, pathGenerator }))
         ),
       ]
     ),

@@ -4,6 +4,8 @@ import * as d3 from "d3";
 import SelectionList from "./list";
 import { Button, Intent } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
+import { useAppDispatch, useAppState } from "app/data-manager";
+import { GroupedAttitude } from "app/data-manager/types";
 const sf = d3.format(">8.1f");
 const df = d3.format(">6.1f");
 
@@ -31,40 +33,39 @@ const strikeDip = function (d) {
   ]);
 };
 
-class GroupedAttitudeControl extends React.Component {
-  constructor(...args) {
-    super(...args);
-    this.shouldDestroyGroup = this.shouldDestroyGroup.bind(this);
-  }
+function GroupedAttitudeControl(props: {
+  data: GroupedAttitude;
+  hovered: boolean;
+}) {
+  const dispatch = useAppDispatch();
+  const { data, hovered } = props;
+  const records = useAppState((d) =>
+    d.data.filter((d) => data.measurements.includes(d.id))
+  );
+  // Group type selector should go here...
 
-  render() {
-    // Group type selector should go here...
-    const rec = app.data.get(...this.props.data.measurements);
-    return h("div", null, [
-      h("h6", null, "Component planes"),
-      h(SelectionList, {
-        records: rec,
-        hovered: this.props.hovered,
-      }),
+  return h("div", null, [
+    h("h5", null, "Component planes"),
+    h(SelectionList, {
+      records,
+      hovered,
+    }),
+    h(
+      "p",
+      null,
       h(
-        "p",
-        null,
-        h(
-          Button,
-          {
-            intent: Intent.DANGER,
-            iconName: "ungroup",
-            onClick: this.shouldDestroyGroup,
+        Button,
+        {
+          intent: Intent.DANGER,
+          iconName: "ungroup",
+          onClick() {
+            dispatch({ type: "destroy-group", attitude: props.data });
           },
-          "Ungroup"
-        )
-      ),
-    ]);
-  }
-
-  shouldDestroyGroup() {
-    return app.data.destroyGroup(this.props.data.id);
-  }
+        },
+        "Ungroup"
+      )
+    ),
+  ]);
 }
 
 class DataViewer extends React.Component {
@@ -108,13 +109,6 @@ class DataViewer extends React.Component {
     });
   }
 
-  renderGroupData() {
-    return h(GroupedAttitudeControl, {
-      data: this.props.data,
-      hovered: this.props.hovered,
-    });
-  }
-
   render() {
     const grouped = this.props.data.is_group;
     const method = grouped ? this.props.focusItem : function () {};
@@ -124,7 +118,10 @@ class DataViewer extends React.Component {
         records: [this.props.data],
         focusItem: method,
       }),
-      grouped ? this.renderGroupData() : undefined,
+      h.if(grouped)(GroupedAttitudeControl, {
+        data: this.props.data,
+        hovered: this.props.hovered,
+      }),
       h("div.data-container", [
         h("h6", null, "Axis-aligned residuals"),
         h("img", {
