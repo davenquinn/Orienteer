@@ -20,7 +20,10 @@ def handle_errors(f):
             response["status"] = "success"
         except Exception as err:
             db.session.rollback()
-            response = dict(status="failure", message=str(err))
+            response = dict()
+            res = jsonify(status="failure", message=str(err))
+            res.status_code = 500
+            return res
         return jsonify(**response)
 
     return wrapped

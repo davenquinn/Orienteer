@@ -15,7 +15,7 @@ RUN yarn
 
 COPY ./frontend /app/frontend/
 
-ENV ORIENTEER_API_BASE
+ENV ORIENTEER_API_BASE ""
 
 RUN npm run build
 
