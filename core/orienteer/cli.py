@@ -120,7 +120,7 @@ def recalculate(extract=False):
             for obj in bar:
                 try:
                     obj.extract()
-                except AssertionError:
+                except (AssertionError, ValueError, NotImplementedError):
                     continue
                 db.session.add(obj)
             db.session.commit()
@@ -130,7 +130,10 @@ def recalculate(extract=False):
 
     with click.progressbar(set, length=len(set)) as bar:
         for attitude in bar:
-            attitude.calculate()
+            try:
+                attitude.calculate()
+            except Exception:
+                pass
             db.session.add(attitude)
         db.session.commit()
 

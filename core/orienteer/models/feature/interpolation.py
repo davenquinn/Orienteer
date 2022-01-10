@@ -9,7 +9,7 @@ Possible options are:
 
 """
 from __future__ import division
-from shapely.geometry import MultiLineString
+from shapely.geometry import MultiLineString, Point, LineString
 
 
 def __factory__(order):
@@ -38,11 +38,11 @@ def __factory__(order):
             return list(map(tuple, coordinates))
 
         if geometry.geom_type == "Point":
-            geometry.coords = point_handler(geometry.coords)
+            return Point(*point_handler(geometry.coords))
         elif geometry.geom_type == "MultiLineString":
             return MultiLineString([line_handler(g.coords) for g in geometry])
         else:
-            geometry.coords = line_handler(geometry.coords)
+            return LineString(line_handler(geometry.coords))
 
         return geometry
 
