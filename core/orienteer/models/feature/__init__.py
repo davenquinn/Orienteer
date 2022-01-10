@@ -32,6 +32,7 @@ class FeatureClass(BaseModel):
     __tablename__ = "feature_class"
     id = Column(String, primary_key=True)
     type = Column(String)
+    description = Column(Text)
 
 
 class DatasetFeature(BaseModel):
