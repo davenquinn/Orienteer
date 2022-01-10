@@ -33,46 +33,37 @@ CREATE FUNCTION orienteer_api.project_bounds() RETURNS geometry AS $$
 $$ LANGUAGE SQL;
 
 /* Tags */
-CREATE FUNCTION orienteer_api.add_tag(
+CREATE OR REPLACE FUNCTION orienteer_api.add_tag(
   tag text,
   attitudes integer[]
-) RETURNS orienteer.attitude_tag AS $$
-  -- First add new tag if needed (to prevent bad foreign key
-  --    relation)
-  -- We could use upsert but then we'd be limited
-  -- to PostgreSQL 9.5 or newer
+) RETURNS setof orienteer.attitude_tag AS $$
   WITH ins AS (
     INSERT INTO orienteer.tag (name)
     SELECT (tag::text)
-    WHERE NOT EXISTS (
-      SELECT name FROM orienteer.tag WHERE name=tag::text)),
-  -- Insert only tag-attitude relationships that aren't
-  -- already in database
-  a AS (
-    SELECT
-      id,
-      tag::text AS tag
-    FROM unnest(attitudes::integer[]) AS id)
-  INSERT INTO orienteer.attitude_tag (tag_name, attitude_id)
-  SELECT tag, id FROM a
-  WHERE a.id NOT IN (
-    SELECT attitude_id
-    FROM orienteer.attitude_tag
-    WHERE tag_name = tag::text)
+    ON CONFLICT DO NOTHING
+  )
+  INSERT INTO orienteer.attitude_tag (attitude_id, tag_name)
+  SELECT
+    id,
+    tag::text AS tag
+  FROM unnest(attitudes::integer[]) AS id
+  ON CONFLICT DO NOTHING
   RETURNING *;
 $$ LANGUAGE SQL;
+
 
 CREATE FUNCTION orienteer_api.remove_tag(
   tag text,
   attitudes integer[]
-) RETURNS orienteer.attitude_tag AS $$
+) RETURNS setof orienteer.attitude_tag AS $$
 WITH q1 AS (
 -- Delete from relationship table
   DELETE
   FROM orienteer.attitude_tag
   WHERE tag_name=tag::text
     AND attitude_id IN (SELECT * FROM unnest(attitudes::integer[]) AS a)
-  RETURNING *),
+  RETURNING *
+),
 -- Delete tag from tag table if not represented in dataset
 --   if we add any sort of persistent data to tags, it might
 --   be good to revisit this subquery
@@ -82,7 +73,8 @@ q2 AS (
   AND (
     SELECT count(tag_name)
     FROM orienteer.attitude_tag
-    WHERE tag_name=tag::text) = 0)
+    WHERE tag_name=tag::text) = 0
+)
 -- Return results of first query
 SELECT * FROM q1;
 $$ LANGUAGE SQL;

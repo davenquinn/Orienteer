@@ -17,18 +17,17 @@ import { LatLngBounds } from "leaflet";
 import { Attitude, AttitudeData, AppState } from "./types";
 import { TagAction, tagReducer, tagAsyncHandler } from "./tags";
 
-const prepareData = function (d) {
+function prepareData(d) {
   // Transform raw data
-  d = _.clone(d);
-  d.grouped = d.type === "group";
-  d.selected = false;
-  d.hovered = false;
-  d.type = "Feature";
-  if (d.tags == null) {
-    d.tags = [];
-  }
-  return d;
-};
+  return {
+    ...d,
+    grouped: d.type === "group",
+    selected: false,
+    hovered: false,
+    type: "Feature",
+    tags: new Set(d.tags ?? []),
+  };
+}
 
 class DataManager {
   static initClass() {
@@ -238,7 +237,7 @@ DataManager.initClass();
 
 const noOpDispatch = () => {};
 
-type AppDispatch = React.Dispatch<AppAction>;
+type AppDispatch = React.Dispatch<AppAction | AppPrivateAction>;
 
 const AppDataContext = createContext(null);
 const AppDispatchContext = createContext<AppDispatch>(noOpDispatch);
@@ -262,7 +261,9 @@ type AppSyncAction =
   | { type: "refresh-data" }
   | TagAction;
 
-type AppPrivateAction = { type: "set-state"; data: AttitudeData };
+type AppPrivateAction =
+  | { type: "set-state"; data: AttitudeData }
+  | { type: "run-async-action"; action: AppAction; dispatch: AppDispatch };
 
 type AppAsyncAction = { type: "get-initial-data" };
 
@@ -273,6 +274,12 @@ const baseReducer: AppReducer = (
   action: AppSyncAction | AppPrivateAction
 ) => {
   switch (action.type) {
+    case "run-async-action":
+      actionCreator(state, action.action, action.dispatch).then((d) => {
+        if (d == null) return;
+        action.dispatch(d);
+      });
+      return state;
     case "set-state":
       return action.data;
     case "set-data":
@@ -330,22 +337,6 @@ const initialState: AppState = {
   selected: new Set(),
 };
 
-function useActionRunner() {
-  // @ts-ignore
-  const [state, dispatch] = useReducer<AppReducer, AppState>(
-    baseReducer,
-    initialState
-  );
-  const runAction = useCallback(
-    function runAction(action) {
-      console.log("Running action", action.type);
-      actionCreator(state, action, dispatch).then((res) => dispatch(res));
-    },
-    [dispatch, state]
-  );
-  return [state, runAction];
-}
-
 type StateAccessor = (state: AppState) => any;
 
 export function useAppDispatch() {
@@ -359,7 +350,18 @@ export function useAppState(accessor: StateAccessor | null = null) {
 }
 
 export function AppDataProvider(props) {
-  const [state, runAction] = useActionRunner();
+  const [state, dispatch] = useReducer<AppReducer, AppState>(
+    baseReducer,
+    initialState,
+    undefined
+  );
+
+  const runAction = useCallback(
+    (action) => {
+      dispatch({ type: "run-async-action", action, dispatch });
+    },
+    [dispatch]
+  );
 
   useEffect(() => {
     runAction({ type: "get-initial-data" });

@@ -13,9 +13,9 @@ const style = require("./style.styl");
 const h = require("react-hyperscript");
 const { Tag, Intent } = require("@blueprintjs/core");
 
-const buildTagData = function (records) {
+function buildTagData(records) {
   let func = function (a, d) {
-    Array.prototype.push.apply(a, d.tags);
+    Array.prototype.push.apply(a, Array.from(d.tags));
     return a;
   };
   let arr = records.reduce(func, []);
@@ -36,7 +36,7 @@ const buildTagData = function (records) {
     });
   }
   return arr;
-};
+}
 
 class TagForm extends React.Component {
   constructor(props) {
@@ -77,7 +77,7 @@ function TagManager() {
   const hovered = useAppState((state) => state.hovered);
   const dispatch = useAppDispatch();
 
-  const rec = hovered != null ? [hovered] : records;
+  const rec = hovered != null ? [hovered] : Array.from(records);
   const tags = buildTagData(rec);
   const val = hovered != null ? "Hovered item" : "Selection";
 

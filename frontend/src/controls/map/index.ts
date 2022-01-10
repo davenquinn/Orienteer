@@ -10,7 +10,6 @@ import "./style.styl";
 import { useAPIResult } from "@macrostrat/ui-components";
 import { MARS949901 } from "./mars-crs";
 import Control from "./custom-control";
-//const BaseTileLiveLayer = require("./tilelive-layer");
 const { BaseLayer } = LayersControl;
 import L from "leaflet";
 import { Icon } from "@blueprintjs/core";
@@ -52,7 +51,6 @@ function useMapBounds() {
   const res = useAPIResult(
     process.env.ORIENTEER_API_BASE + "/models/rpc/project_bounds"
   );
-  console.log(res);
   const data = res;
   if (res == null) return null;
   return L.geoJson(res).getBounds();
@@ -93,7 +91,6 @@ function MapControl(props) {
     */
 
   const bounds = useMapBounds();
-  console.log(bounds);
   if (bounds == null) return null;
 
   overlays.push(
@@ -122,7 +119,10 @@ function MapControl(props) {
 
       children,
       h(TileLayer, {
-        url: "https://argyre.geoscience.wisc.edu/tiles/mosaic/tiles/{z}/{x}/{y}.png?mosaic=orthoimage,hirise_red,ctx_mosaic",
+        url: "https://argyre.geoscience.wisc.edu/tiles/mosaic/ctx_mosaic/tiles/{z}/{x}/{y}.png",
+      }),
+      h(TileLayer, {
+        url: "https://argyre.geoscience.wisc.edu/tiles/mosaic/tiles/{z}/{x}/{y}.png?mosaic=orthoimage,hirise_red",
       }),
       h(BoxSelectControl),
       h(

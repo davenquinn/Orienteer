@@ -1,10 +1,12 @@
 import { Attitude, AppState } from "./types";
 import pg from "./database";
 import update from "immutability-helper";
+import { NotifyError } from "./errors";
 
 type TagResultAction =
   | { type: "tag-added"; tag: string; records: number[] }
-  | { type: "tag-removed"; tag: string; records: number[] };
+  | { type: "tag-removed"; tag: string; records: number[] }
+  | NotifyError;
 
 type TagAction =
   | { type: "add-tag"; tag: string }
@@ -20,14 +22,18 @@ async function tagAsyncHandler(
   action: TagAction
 ): Promise<TagResultAction> {
   switch (action.type) {
-    case "add-tag" || "remove-tag":
+    case "add-tag":
+    case "remove-tag":
       const { tag } = action;
       const { selected } = state;
       const attitudes = Array.from(selected).map((d) => d.id);
       const proc = action.type === "add-tag" ? "add_tag" : "remove_tag";
       const type = action.type === "add-tag" ? "tag-added" : "tag-removed";
-      const res: TagLinkRecord[] = await pg.rpc(proc, { tag, attitudes });
-      return { type, tag, records: res.map((d) => d.attitude_id) };
+      const res = await pg.rpc(proc, { tag, attitudes });
+      //if (res.error) return { type: "error", error: res.error };
+      console.log(res);
+      const data: TagLinkRecord[] = res.data;
+      return { type, tag, records: data.map((d) => d.attitude_id) };
     default:
       return action;
   }
@@ -49,7 +55,8 @@ function refreshSelected(state: AppState): AppState {
 
 function tagReducer(state: AppState, action: TagResultAction): string[] {
   switch (action.type) {
-    case "tag-added" || "tag-removed":
+    case "tag-added":
+    case "tag-removed":
       const indices = action.records.map((d) =>
         state.data.findIndex((rec) => rec.id === d)
       );
