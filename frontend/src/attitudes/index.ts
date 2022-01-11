@@ -27,6 +27,25 @@ const paneStyle = {
   flexDirection: "column",
 };
 
+function ClearSelectionButton() {
+  const dispatch = useAppDispatch();
+  const hasSelection = useAppState((d) => d.selected.size > 0);
+  if (!hasSelection) return null;
+  return h(
+    Button,
+    {
+      className: "clear-selection",
+      minimal: true,
+      icon: "cross",
+      intent: "danger",
+      onClick: () => {
+        dispatch({ type: "clear-selection" });
+      },
+    },
+    "Clear selection"
+  );
+}
+
 function SidebarTab(props) {
   const { panel, ...rest } = props;
   return h(Tab, rest, h("div.sidebar-tab", null, panel));
@@ -52,7 +71,16 @@ function AttitudesPageSidebar(props) {
     [
       h(Tab, {
         id: 1,
-        title: "Selection",
+        title: "Data",
+        panel: h(DataPane, {
+          records: selection,
+          hovered,
+          featureTypes,
+        }),
+      }),
+      h(Tab, {
+        id: 2,
+        title: "Details",
         panel: h(
           SelectionControl,
           {
@@ -61,15 +89,6 @@ function AttitudesPageSidebar(props) {
           },
           hovered
         ),
-      }),
-      h(Tab, {
-        id: 2,
-        title: "Data",
-        panel: h(DataPane, {
-          records: selection,
-          hovered,
-          featureTypes,
-        }),
       }),
       h(Tab, {
         id: 3,
@@ -99,6 +118,7 @@ class AttitudePage extends Component {
     if (!showGroupInfo) {
       pane1 = h(MapControl, { settings: this.props.settings.map }, [
         h(MapDataLayer, { records }),
+        h(ClearSelectionButton),
       ]);
     } else {
       pane1 = h("div", [h(Navbar, [h(Button, {}, "Close pane")])]);

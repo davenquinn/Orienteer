@@ -83,7 +83,7 @@ function DataPane(props) {
         }),
         h(Tab, {
           id: "old-stereonet-tab",
-          title: "Stereonet",
+          title: "Legacy",
           panel: h(ErrorBoundary, [
             h(InteractiveStereonetComponent, {
               data: records.map(transformRecord),
