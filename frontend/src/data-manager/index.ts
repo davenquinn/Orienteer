@@ -165,7 +165,7 @@ type AppReducer = (
 ) => AppState;
 
 type AppSyncAction =
-  | { type: "set-data"; data: AttitudeData }
+  | { type: "set-data"; data: AttitudeData; filter: Function | null }
   | { type: "toggle-selection"; data: AttitudeData }
   | { type: "hover"; data: Attitude | null }
   | { type: "select-box"; data: LatLngBounds }
@@ -182,8 +182,9 @@ type AppSyncAction =
   | GroupAction;
 
 type AppPrivateAction = { type: "set-state"; data: AttitudeData };
-
-type AppAsyncAction = { type: "get-initial-data" };
+type AppAsyncAction =
+  | { type: "get-initial-data" }
+  | { type: "set-filter"; filter: Function | null };
 
 type AppAction = AppAsyncAction | AppSyncAction;
 
@@ -201,7 +202,7 @@ const baseReducer: AppReducer = (
     case "set-state":
       return action.data;
     case "set-data":
-      return { ...state, data: action.data };
+      return { ...state, data: action.data, filter: action.filter };
     case "toggle-selection":
       const _action = state.selected.has(action.data) ? "$remove" : "$add";
       return update(state, { selected: { [_action]: [action.data] } });
@@ -247,11 +248,16 @@ async function actionCreator(
         },
         dispatch
       );
+    case "set-filter":
+      const newState = { ...state, filter: action.filter };
+      return actionCreator(newState, { type: "get-initial-data" }, dispatch);
     case "get-initial-data":
-      const res = await pg.from("attitude");
+      const filter = state.filter ?? ((d) => d);
+      const res = await filter(pg.from("attitude").select("*"));
       return {
         type: "set-data",
         data: res.data.map(prepareData),
+        filter: state.filter,
       };
     default:
       // Try other action handlers in sequence
@@ -270,6 +276,7 @@ const initialState: AppState = {
   hovered: null,
   focused: null,
   selected: new Set(),
+  filter: null,
 };
 
 type StateAccessor = (state: AppState) => any;

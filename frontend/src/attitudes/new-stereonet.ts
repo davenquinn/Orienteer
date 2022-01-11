@@ -2,6 +2,7 @@ import h from "@macrostrat/hyper";
 import {
   Globe,
   FeatureLayer,
+  Feature,
   GraticuleLabels,
   useMap,
   CoordinateAxis,
@@ -11,10 +12,6 @@ import { Orientation } from "@attitude/core";
 import { Attitude } from "app/data-manager/types";
 import { errorEllipse } from "@attitude/core/src/functions";
 import { useAppState } from "app/hooks";
-import { useState } from "react";
-import useAsyncEffect from "use-async-effect";
-import { get } from "axios";
-import { feature } from "topojson-client";
 import { geoAzimuthalEqualArea } from "d3-geo";
 import chroma from "chroma-js";
 
@@ -26,9 +23,7 @@ export function transformRecord(record: Attitude): Orientation {
   };
 }
 
-function SelectedPlanes(props) {
-  const data = useAppState((d) => Array.from(d.selected));
-  const color = chroma("#888888");
+function ErrorEllipses({ data, baseOpacity = 0.2, defaultColor = "#888888" }) {
   const fn = errorEllipse({
     level: 1,
     color: "#ddd",
@@ -39,12 +34,40 @@ function SelectedPlanes(props) {
   const features = data.map((d) => {
     let f = fn(transformRecord(d));
     f.id = d.id;
+    f.color = d.color ?? defaultColor;
     return f;
   });
-  return h(FeatureLayer, {
-    features,
-    style: { fill: color.alpha(0.2).css(), stroke: color.alpha(0.4).css() },
-    useCanvas: true,
+  return h(
+    FeatureLayer,
+    { useCanvas: false },
+    features.map((feature, i) => {
+      const color = chroma(feature.color ?? defaultColor);
+      return h(Feature, {
+        feature,
+        style: {
+          fill: color.alpha(baseOpacity).css(),
+          stroke: color.alpha(baseOpacity + 0.2).css(),
+        },
+      });
+    })
+  );
+}
+
+function SelectedPlanes(props) {
+  const data = useAppState((d) => Array.from(d.selected));
+  return h(ErrorEllipses, {
+    data,
+    baseOpacity: 0.2,
+  });
+}
+
+function HoveredPlane(props) {
+  const data = useAppState((d) => d.hovered);
+  if (data == null) return null;
+  return h(ErrorEllipses, {
+    data: [data],
+    baseOpacity: 0.4,
+    defaultColor: "red",
   });
 }
 
@@ -109,6 +132,7 @@ export function NewStereonet({
       onClick() {},
     },
     [
+      h(HoveredPlane, { key: "hovered-plane" }),
       h(SelectedPlanes, { key: "selected-planes" }),
       h(DipLabels, { spacing: dipLabelSpacing }),
       h(AzimuthLabels),

@@ -64,7 +64,6 @@ function DataPane(props) {
             h(FormGroup, { label: "Scale", inline: true }, [
               h(NumericInput, {
                 value: scale,
-                stepSize: 0.01,
                 onValueChange(v) {
                   setScale(v);
                 },
@@ -73,7 +72,6 @@ function DataPane(props) {
             h(FormGroup, { label: "Dip label spacing", inline: true }, [
               h(NumericInput, {
                 value: dipLabelSpacing,
-                stepSize: 1,
                 onValueChange(v) {
                   setDipLabelSpacing(v);
                 },

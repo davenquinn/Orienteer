@@ -27,30 +27,6 @@ selected = darken(lightgreen,10%);
     hovered_feature = darken(hovered,20%);
     path {
       fill: transparent;
-      stroke: transparentify(strike_dip_feature, 0.5);
-      stroke-width: 2;
-      &.Polygon, &.MultiPolygon {
-        fill: transparentify(strike_dip_feature, 0.7);
-        &.selected {
-          fill: transparentify(selected_feature, 0.3);
-          &.hovered {
-            fill: transparentify(darken(selected_feature,10%), 0.3);
-          }
-        }
-        &.hovered {
-          fill: transparentify(hovered_feature, 0.5);
-        }
-      }
-      &.hovered {
-        stroke: hovered_feature;
-        stroke-width: 3px;
-      }
-      &.selected {
-        stroke: selected_feature;
-        &.hovered {
-          stroke: darken(selected_feature,10%);
-        }
-      }
     }
   }
   .markers {

@@ -33,4 +33,5 @@ export interface AppState {
   hovered: Attitude | null;
   focused: Attitude | null;
   selected: Set<Attitude>;
+  filter: Function | null;
 }

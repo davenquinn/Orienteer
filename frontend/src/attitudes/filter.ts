@@ -8,6 +8,7 @@ import {
   Position,
 } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
+import { useAppDispatch, useAppState } from "app/data-manager";
 //import { db, storedProcedure } from "../database";
 
 const udtmap = {
@@ -36,7 +37,7 @@ const formatType = function (row) {
   return [column_name, data_type];
 };
 
-class FilterPanel extends Component {
+class _FilterPanel extends Component {
   constructor(props) {
     super(props);
 
@@ -61,7 +62,7 @@ class FilterPanel extends Component {
   componentWillReceiveProps(nextProps) {
     const { query } = nextProps;
     if (query !== this.state.value) {
-      return this.setState({ value: query.trim() });
+      return this.setState({ value: (query ?? "").trim() });
     }
   }
 
@@ -75,10 +76,10 @@ class FilterPanel extends Component {
         onConfirm: this.onConfirm,
         onChange: this.onChange,
       }),
-      h(Popover, { content: this.menu(), position: Position.RIGHT }, [
-        h(Button, { text: "Stored query", iconName: "database" }),
-      ]),
-      this.columnDefs(),
+      // h(Popover, { content: this.menu(), position: Position.RIGHT }, [
+      //   h(Button, { text: "Stored query", iconName: "database" }),
+      // ]),
+      // this.columnDefs(),
     ]);
   }
 
@@ -126,12 +127,20 @@ class FilterPanel extends Component {
     if (value === this.props.value) {
       return;
     }
-    return app.runQuery(value);
+    return this.props.runQuery(value);
   }
 
   reset() {
-    return app.runQuery(app.defaultSubquery);
+    return this.props.runQuery(null);
   }
+}
+
+function FilterPanel() {
+  const { query } = useAppState();
+  const dispatch = useAppDispatch();
+  const runQuery = (query) =>
+    dispatch({ type: "set-filter", filter: eval(query) ?? null });
+  return h(_FilterPanel, { query, runQuery });
 }
 
 module.exports = FilterPanel;

@@ -6,6 +6,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import * as d3 from "d3";
+import { geoPath } from "d3-geo";
 import L from "leaflet";
 import { Pane, useMapEvent } from "react-leaflet";
 import { useState, useCallback, useEffect } from "react";
@@ -13,6 +14,7 @@ import h from "@macrostrat/hyper";
 import classNames from "classnames";
 import { useAppDispatch, useAppState } from "app/hooks";
 import { useAPIHelpers } from "@macrostrat/ui-components/lib/types";
+import chroma from "chroma-js";
 
 const fmt = d3.format(".0f");
 
@@ -70,7 +72,7 @@ function DataLayer(props) {
       return this.stream.point(point.x, point.y);
     },
   });
-  const pathGenerator = d3.geoPath().projection(transform);
+  const pathGenerator = geoPath(transform);
 
   if (projection == null || origin == null) return null;
 
@@ -123,10 +125,23 @@ function Feature(props) {
   const classes = useSelectedState(record);
 
   const className = classNames(record.geometry.type, classes);
+  let stroke = null;
+  let alpha = 0.4;
+  if (classes.selected) {
+    alpha += 0.3;
+  }
+  if (classes.hovered) {
+    alpha += 0.3;
+  }
+  if (record.color) {
+    stroke = chroma(record.color ?? "blue")
+      .alpha(alpha)
+      .css();
+  }
 
   const d = pathGenerator(record);
 
-  return h("path", { className, d, ...handlers });
+  return h("path", { className, d, stroke, ...handlers });
 }
 
 function StrikeDip(props) {
