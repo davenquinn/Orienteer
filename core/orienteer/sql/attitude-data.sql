@@ -93,6 +93,7 @@ CREATE OR REPLACE VIEW orienteer.attitude_data AS
     b.geometry,
     b.measurements,
     b.class,
+    fc.color,
     a.type,
     a.strike,
     a.dip,
@@ -112,7 +113,10 @@ CREATE OR REPLACE VIEW orienteer.attitude_data AS
     instrument
   FROM orienteer.attitude a
   RIGHT JOIN b ON a.id = b.id
-  LEFT JOIN tagged ON a.id = tagged.fid
+  JOIN orienteer.feature_class fc
+    ON b.class = fc.id
+  LEFT JOIN tagged
+    ON a.id = tagged.fid
   LEFT JOIN instrument_attitude ia
          ON a.id = ia.id
 

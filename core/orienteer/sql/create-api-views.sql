@@ -2,6 +2,9 @@
 DROP SCHEMA orienteer_api CASCADE;
 CREATE SCHEMA orienteer_api;
 
+CREATE VIEW orienteer_api.feature_class AS
+SELECT * FROM orienteer.feature_class;
+
 CREATE VIEW orienteer_api.attitude AS
 SELECT
   id,
@@ -13,6 +16,7 @@ SELECT
   dip,
   rake,
   class,
+  color,
   is_group,
   in_group,
   max_angular_error,
