@@ -82,7 +82,7 @@ function TagManager() {
   const val = hovered != null ? "Hovered item" : "Selection";
 
   return h("div.tag-manager", [
-    h("div.header", [h("h6", "Tags"), h("h6.info", val)]),
+    h("div.header", [h("h4", "Tags"), h("h4.info", val)]),
     h(
       "p.tag-list",
       tags.map(({ all, name }) => {

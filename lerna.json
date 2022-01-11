@@ -1,0 +1,7 @@
+{
+  "packages": [
+    "./frontend/packages/*",
+    "./core/deps/Attitude/frontend/packages/*"
+  ],
+  "version": "independent"
+}

@@ -4,37 +4,30 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import React from "react";
+import { useState } from "react";
 import Measure from "react-measure";
 //import Stereonet from "../controls/stereonet";
 import TagManager from "../controls/tag-manager";
 import SelectType from "../controls/select-type";
 import { debounce } from "underscore";
 import styles from "./style.module.styl";
-import hyper, { hyperStyled } from "@macrostrat/hyper";
-import { Orientation } from "@attitude/core";
-import { Attitude } from "app/data-manager";
+import { hyperStyled } from "@macrostrat/hyper";
+
 import { InteractiveStereonetComponent } from "@attitude/notebook-ui/src/components/stereonet";
 import { ErrorBoundary } from "@macrostrat/ui-components";
 import { useAppState } from "app/hooks";
-import "d3-selection-multi";
+import { NumericInput, Tab, Tabs, FormGroup } from "@blueprintjs/core";
+import { NewStereonet, transformRecord } from "./new-stereonet";
 
 const h = hyperStyled(styles);
 
-function transformRecord(record: Attitude): Orientation {
-  return {
-    strike: record.strike,
-    dip: record.dip,
-    rake: record.rake,
-    minError: record.min_angular_error,
-    maxError: record.max_angular_error,
-  };
-}
-
 function DataPane(props) {
-  const [width, setWidth] = React.useState(300);
+  const [width, setWidth] = useState(300);
   const { records } = props;
   const hovered = useAppState((d) => d.hovered);
+  const [scale, setScale] = useState(200);
+  const [dipLabelSpacing, setDipLabelSpacing] = useState(5);
+
   let hoveredRec = [];
   if (hovered != null) {
     hoveredRec = [transformRecord(hovered)];
@@ -50,18 +43,54 @@ function DataPane(props) {
         hovered,
       }),
       h("div", null, [
-        h("h5", null, "Data type"),
+        h("h4", null, "Data type"),
         h(SelectType, {
           records,
           hovered,
           featureTypes: props.featureTypes,
         }),
       ]),
-      h(ErrorBoundary, [
-        h(InteractiveStereonetComponent, {
-          data: records.map(transformRecord),
-          hovered: hoveredRec,
-          width,
+      h(Tabs, { id: "stereonet-tabs", renderActiveTabPanelOnly: true }, [
+        h(Tab, {
+          id: "new-stereonet-tab",
+          title: "New stereonet",
+          panel: h(ErrorBoundary, null, [
+            h(NewStereonet, {
+              width,
+              height: width,
+              scale: (scale * width) / 200,
+              dipLabelSpacing,
+            }),
+            h(FormGroup, { label: "Scale", inline: true }, [
+              h(NumericInput, {
+                value: scale,
+                stepSize: 0.01,
+                onValueChange(v) {
+                  setScale(v);
+                },
+              }),
+            ]),
+            h(FormGroup, { label: "Dip label spacing", inline: true }, [
+              h(NumericInput, {
+                value: dipLabelSpacing,
+                stepSize: 1,
+                onValueChange(v) {
+                  setDipLabelSpacing(v);
+                },
+              }),
+            ]),
+          ]),
+        }),
+        h(Tab, {
+          id: "old-stereonet-tab",
+          title: "Stereonet",
+          panel: h(ErrorBoundary, [
+            h(InteractiveStereonetComponent, {
+              data: records.map(transformRecord),
+              hovered: hoveredRec,
+              width,
+            }),
+          ]),
         }),
       ]),
     ])

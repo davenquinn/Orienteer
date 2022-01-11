@@ -22,11 +22,10 @@
       border-bottom: 5px solid rgba(255, 255, 255, 0);
       cursor: row-resize;
       width: 100%;
-    }
-
-    &.horizontal:hover {
+      &:hover {
         border-top: 5px solid rgba(0, 0, 0, 0.5);
         border-bottom: 5px solid rgba(0, 0, 0, 0.5);
+      }
     }
 
     &.vertical {
@@ -49,12 +48,12 @@
     }
   }
 
+
   body
     user-select: none
 
   .sidebar-outer.bp3-tabs
-    &>div
-      padding: 0 1rem
+    padding 0 1em
     user-select: none
     height: 100vh
     display: flex
@@ -66,11 +65,10 @@
       position relative
       display flex
       flex-direction: column
-      overflow: hidden
+      overflow-y: scroll
     .combined-panel
       margin: 0 -1rem
     .bp3-tab-panel, .combined-panel>div
-      margin: 0 1rem
       padding: 0
 
   table
@@ -99,3 +97,8 @@
 .data-filter
 .code-window, table td
   font-family: "Droid Sans Mono", "Consolas", monospace
+
+:global
+  .macrostrat-map.globe
+    path.background
+      fill: white
