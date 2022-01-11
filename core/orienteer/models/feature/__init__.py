@@ -48,6 +48,7 @@ class FeatureClass(BaseModel):
     id = Column(String, primary_key=True)
     type = Column(String)
     description = Column(Text)
+    color = Column(Text)
 
 
 class DatasetFeature(BaseModel):

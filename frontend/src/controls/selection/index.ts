@@ -106,4 +106,5 @@ function Sidebar({ records }) {
   ]);
 }
 
+export { CloseButton };
 export default Sidebar;

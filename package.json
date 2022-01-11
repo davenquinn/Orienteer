@@ -4,14 +4,17 @@
   "source": "frontend/src/index.html",
   "scripts": {
     "dev": "parcel",
-    "build": "parcel build --no-autoinstall --public-url ."
+    "build": "parcel build --no-autoinstall --public-url .",
+    "postinstall": "lerna bootstrap --hoist"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
     "@parcel/babel-plugin-transform-runtime": "^2.1.1",
     "@parcel/babel-preset-env": "^2.1.1",
     "@parcel/transformer-stylus": "^2.1.1",
+    "lerna": "^4.0.0",
     "parcel": "^2.1.1",
+    "postcss": "^8.4.5",
     "stylus": "^0.55.0",
     "typescript": "^4.5.2"
   },
@@ -25,7 +28,10 @@
     }
   },
   "alias": {
-    "app": "./frontend/src"
+    "app": "./frontend/src",
+    "react": "./node_modules/react",
+    "react-dom": "./node_modules/react-dom",
+    "@macrostrat/map-components": "@macrostrat/map-components/src"
   },
   "browserslist": [
     "since 2019-06"
@@ -36,6 +42,7 @@
     "@blueprintjs/core": "^3.51.3",
     "@blueprintjs/table": "^3.9.12",
     "@macrostrat/hyper": "^1.4.2",
+    "@macrostrat/map-components": "*",
     "@macrostrat/ui-components": "^1.0.2",
     "@supabase/postgrest-js": "^0.35.0",
     "@types/leaflet": "^1.7.6",
@@ -75,7 +82,9 @@
     "react-tap-event-plugin": "^0.2.1",
     "regenerator-runtime": "0.13.9",
     "spine": "^1.6.2",
+    "topojson-client": "^3.1.0",
     "underscore": "^1.8.3",
+    "use-async-effect": "^2.2.3",
     "velocity-animate": "^1.2.2"
   },
   "prettier": {}
