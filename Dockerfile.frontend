@@ -8,6 +8,7 @@ FROM node:14 AS builder
 
 COPY ./core/deps/Attitude/frontend /app/core/deps/Attitude/frontend
 COPY ./package.json /app/
+COPY ./lerna.json /app/
 
 WORKDIR /app/frontend/
 

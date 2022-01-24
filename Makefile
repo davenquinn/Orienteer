@@ -1,6 +1,6 @@
 all: install
 
-.PHONY: install format-code frontend
+.PHONY: install format-code frontend dist
 
 install:
 	poetry install
