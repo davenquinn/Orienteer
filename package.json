@@ -4,19 +4,33 @@
   "source": "frontend/src/index.html",
   "scripts": {
     "dev": "parcel",
-    "build": "parcel build --no-autoinstall --public-url .",
-    "postinstall": "lerna bootstrap --hoist"
+    "build": "parcel build --no-autoinstall --public-url ."
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-react": "^7.16.7",
+    "@babel/preset-typescript": "^7.16.7",
     "@parcel/babel-plugin-transform-runtime": "^2.1.1",
     "@parcel/babel-preset-env": "^2.1.1",
     "@parcel/transformer-stylus": "^2.1.1",
+    "babel-loader": "^8.2.3",
+    "css-loader": "^6.5.1",
+    "dotenv-webpack": "^7.0.3",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^5.5.0",
     "lerna": "^4.0.0",
     "parcel": "^2.1.1",
     "postcss": "^8.4.5",
+    "regenerator-runtime": "^0.13.9",
+    "source-map-loader": "^3.0.1",
+    "style-loader": "^3.3.1",
     "stylus": "^0.55.0",
-    "typescript": "^4.5.2"
+    "stylus-loader": "^6.2.0",
+    "typescript": "^4.5.2",
+    "webpack": "^5.67.0",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.7.3"
   },
   "workspaces": [
     "./frontend/packages/*",
@@ -31,11 +45,9 @@
     "app": "./frontend/src",
     "react": "./node_modules/react",
     "react-dom": "./node_modules/react-dom",
+    "regenerator-runtime": "./node_modules/regenerator-runtime",
     "@macrostrat/map-components": "@macrostrat/map-components/src"
   },
-  "browserslist": [
-    "since 2019-06"
-  ],
   "dependencies": {
     "@attitude/core": "*",
     "@attitude/notebook-ui": "*",
@@ -80,7 +92,6 @@
     "react-split-pane": "^0.1.51",
     "react-switch-button": "^2.0.1",
     "react-tap-event-plugin": "^0.2.1",
-    "regenerator-runtime": "0.13.9",
     "spine": "^1.6.2",
     "topojson-client": "^3.1.0",
     "underscore": "^1.8.3",
