@@ -133,7 +133,7 @@ const App = () => {
   }
 
   return h("div.root", [
-    h("div.canary", { display: "none" }, canaryText),
+    h("div.canary", { style: { display: "none" } }, canaryText),
     h(AttitudePage, {
       settings: {},
       records: data,
