@@ -3,38 +3,40 @@
   "private": true,
   "source": "frontend/src/index.html",
   "scripts": {
-    "dev": "parcel",
-    "build": "parcel build --no-autoinstall --public-url .",
-    "postinstall": "lerna bootstrap --hoist"
+    "dev": "webpack serve",
+    "build": "NODE_ENV=production webpack build",
+    "test": "NODE_ENV=test jest"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
-    "@parcel/babel-plugin-transform-runtime": "^2.1.1",
-    "@parcel/babel-preset-env": "^2.1.1",
-    "@parcel/transformer-stylus": "^2.1.1",
-    "lerna": "^4.0.0",
-    "parcel": "^2.1.1",
-    "postcss": "^8.4.5",
+    "@babel/plugin-transform-modules-commonjs": "^7.16.8",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-react": "^7.16.7",
+    "@babel/preset-typescript": "^7.16.7",
+    "@testing-library/jest-dom": "^5.16.1",
+    "@testing-library/react": "^12.1.2",
+    "babel-jest": "^27.4.0",
+    "babel-loader": "^8.2.3",
+    "css-loader": "^6.5.1",
+    "dotenv-webpack": "^7.0.3",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^5.5.0",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^27.0.0",
+    "jest-environment-jsdom": "^27.4.6",
+    "regenerator-runtime": "^0.13.9",
+    "source-map-loader": "^3.0.1",
+    "style-loader": "^3.3.1",
     "stylus": "^0.55.0",
-    "typescript": "^4.5.2"
+    "stylus-loader": "^6.2.0",
+    "typescript": "^4.5.2",
+    "webpack": "^5.67.0",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.7.3"
   },
   "workspaces": [
     "./frontend/packages/*",
     "./core/deps/Attitude/frontend/packages/*"
-  ],
-  "targets": {
-    "default": {
-      "distDir": "./frontend/dist"
-    }
-  },
-  "alias": {
-    "app": "./frontend/src",
-    "react": "./node_modules/react",
-    "react-dom": "./node_modules/react-dom",
-    "@macrostrat/map-components": "@macrostrat/map-components/src"
-  },
-  "browserslist": [
-    "since 2019-06"
   ],
   "dependencies": {
     "@attitude/core": "*",
@@ -80,12 +82,15 @@
     "react-split-pane": "^0.1.51",
     "react-switch-button": "^2.0.1",
     "react-tap-event-plugin": "^0.2.1",
-    "regenerator-runtime": "0.13.9",
     "spine": "^1.6.2",
     "topojson-client": "^3.1.0",
     "underscore": "^1.8.3",
     "use-async-effect": "^2.2.3",
     "velocity-animate": "^1.2.2"
   },
-  "prettier": {}
+  "prettier": {},
+  "engines": {
+    "npm": "please-use-yarn",
+    "yarn": ">= 1.19.1"
+  }
 }

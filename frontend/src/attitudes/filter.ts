@@ -143,4 +143,4 @@ function FilterPanel() {
   return h(_FilterPanel, { query, runQuery });
 }
 
-module.exports = FilterPanel;
+export default FilterPanel;

@@ -8,19 +8,21 @@ FROM node:14 AS builder
 
 COPY ./core/deps/Attitude/frontend /app/core/deps/Attitude/frontend
 COPY ./package.json /app/
-COPY ./lerna.json /app/
+COPY ./yarn.lock /app/
+COPY ./.npmrc /app/
 
-WORKDIR /app/frontend/
+WORKDIR /app/
 
 RUN yarn
 
-COPY ./frontend /app/frontend/
+COPY . .
 
 ENV ORIENTEER_API_BASE "https://argyre.geoscience.wisc.edu/orienteer/api"
 
-RUN npm run build
+RUN yarn test
+RUN yarn run build
 
 # Run a basic web server
 FROM nginx AS runner
 
-COPY --from=builder /app/frontend/dist /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html

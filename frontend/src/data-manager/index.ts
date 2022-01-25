@@ -322,4 +322,4 @@ export function AppDataProvider(props) {
   );
 }
 
-export { DataManager, AppDataContext, AttitudeData };
+export { DataManager, AppDataContext };
