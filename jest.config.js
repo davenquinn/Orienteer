@@ -1,3 +1,5 @@
+// We currently have to jump through hoops to make sure we can work
+// with esModules that should not be transpiled.
 const esModules = [
   "d3-array",
   "leaflet",
@@ -10,14 +12,6 @@ const esModules = [
 ].join("|");
 
 module.exports = {
-  // globals: {
-  //   "ts-jest": {
-  //     tsConfigFile: "tsconfig.json",
-  //     babelConfig: true,
-  //   },
-  // },
-  //automock: true,
-  //rootDir: "frontend",
   moduleFileExtensions: ["ts", "tsx", "js"],
   testMatch: ["**/*.test.+(ts|tsx|js)"],
   testEnvironment: "jest-environment-jsdom",
@@ -29,7 +23,6 @@ module.exports = {
     "<rootDir>/core/",
     "<rootDir>/__archive",
   ],
-  //testEnvironment: "jsdom",
   transform: {
     /* Use babel-jest to transpile tests with the next/babel preset
         https://jestjs.io/docs/configuration#transform-objectstring-pathtotransformer--pathtotransformer-object */

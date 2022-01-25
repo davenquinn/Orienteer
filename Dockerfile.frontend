@@ -19,7 +19,8 @@ COPY . .
 
 ENV ORIENTEER_API_BASE "https://argyre.geoscience.wisc.edu/orienteer/api"
 
-RUN npm run build
+RUN yarn test
+RUN yarn run build
 
 # Run a basic web server
 FROM nginx AS runner

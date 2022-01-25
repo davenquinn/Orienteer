@@ -119,8 +119,8 @@ class App extends React.Component {
 }
 */
 
-export const testText =
-  "This element is used to test whether rendering was successful.";
+export const canaryText =
+  "This element is used to test whether the app has successfully rendered.";
 
 export default function AppRouter() {
   return h(AppDataProvider, null, h(Router, [h(App)]));
@@ -133,7 +133,7 @@ const App = () => {
   }
 
   return h("div.root", [
-    h("div.does-it-work", { display: "none" }, testText),
+    h("div.canary", { display: "none" }, canaryText),
     h(AttitudePage, {
       settings: {},
       records: data,

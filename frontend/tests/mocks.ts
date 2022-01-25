@@ -1,4 +1,6 @@
+// Basic setup
 import "@testing-library/jest-dom";
+import "regenerator-runtime/runtime";
 
 Object.defineProperty(window, "matchMedia", {
   writable: true,
