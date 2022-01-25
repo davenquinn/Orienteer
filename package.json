@@ -3,25 +3,19 @@
   "private": true,
   "source": "frontend/src/index.html",
   "scripts": {
-    "dev": "parcel",
-    "build": "parcel build --no-autoinstall --public-url ."
+    "dev": "webpack serve",
+    "build": "NODE_ENV=production webpack build"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-react": "^7.16.7",
     "@babel/preset-typescript": "^7.16.7",
-    "@parcel/babel-plugin-transform-runtime": "^2.1.1",
-    "@parcel/babel-preset-env": "^2.1.1",
-    "@parcel/transformer-stylus": "^2.1.1",
     "babel-loader": "^8.2.3",
     "css-loader": "^6.5.1",
     "dotenv-webpack": "^7.0.3",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
-    "lerna": "^4.0.0",
-    "parcel": "^2.1.1",
-    "postcss": "^8.4.5",
     "regenerator-runtime": "^0.13.9",
     "source-map-loader": "^3.0.1",
     "style-loader": "^3.3.1",
@@ -36,18 +30,6 @@
     "./frontend/packages/*",
     "./core/deps/Attitude/frontend/packages/*"
   ],
-  "targets": {
-    "default": {
-      "distDir": "./frontend/dist"
-    }
-  },
-  "alias": {
-    "app": "./frontend/src",
-    "react": "./node_modules/react",
-    "react-dom": "./node_modules/react-dom",
-    "regenerator-runtime": "./node_modules/regenerator-runtime",
-    "@macrostrat/map-components": "@macrostrat/map-components/src"
-  },
   "dependencies": {
     "@attitude/core": "*",
     "@attitude/notebook-ui": "*",
