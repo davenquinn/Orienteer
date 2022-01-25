@@ -119,6 +119,9 @@ class App extends React.Component {
 }
 */
 
+export const testText =
+  "This element is used to test whether rendering was successful.";
+
 export default function AppRouter() {
   return h(AppDataProvider, null, h(Router, [h(App)]));
 }
@@ -130,6 +133,7 @@ const App = () => {
   }
 
   return h("div.root", [
+    h("div.does-it-work", { display: "none" }, testText),
     h(AttitudePage, {
       settings: {},
       records: data,
