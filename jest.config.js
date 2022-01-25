@@ -1,4 +1,11 @@
-const esModules = ["d3-array"].join("|");
+const esModules = [
+  "d3-array",
+  "leaflet",
+  "attitude/src",
+  "d3-jetpack",
+  "d3-selection-multi",
+  "kld-intersections",
+].join("|");
 
 module.exports = {
   // globals: {
@@ -8,14 +15,18 @@ module.exports = {
   //   },
   // },
   //automock: true,
-  rootDir: "frontend",
+  //rootDir: "frontend",
   moduleFileExtensions: ["ts", "tsx", "js"],
   testMatch: ["**/*.test.+(ts|tsx|js)"],
   testEnvironment: "jest-environment-jsdom",
-  setupFilesAfterEnv: ["<rootDir>/tests/mocks.ts"],
+  setupFilesAfterEnv: ["<rootDir>/frontend/tests/mocks.ts"],
   //setupFilesAfterEnv: ["@testing-library/jest-dom/extend-expect"],
   //transformIgnorePatterns: [],
-  //testPathIgnorePatterns: ["<rootDir>/node_modules/"],
+  testPathIgnorePatterns: [
+    "<rootDir>/node_modules/",
+    "<rootDir>/core/",
+    "<rootDir>/__archive",
+  ],
   //testEnvironment: "jsdom",
   transform: {
     /* Use babel-jest to transpile tests with the next/babel preset
@@ -24,12 +35,12 @@ module.exports = {
   },
   moduleNameMapper: {
     "\\.(css|less|styl)$": "identity-obj-proxy",
-    "^app(.*)$": "<rootDir>/src/$1",
+    "^app(.*)$": "<rootDir>/frontend/src/$1",
     "@macrostrat/map-components": "@macrostrat/map-components/src",
   },
 
   transformIgnorePatterns: [
-    //`node_modules/(?!(d3-array|d3)/)`,
+    `node_modules/(?!(${esModules})/)`,
     "^.+\\.module\\.(css|sass|scss|styl)$",
   ],
 };
