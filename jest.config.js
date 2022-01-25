@@ -5,6 +5,8 @@ const esModules = [
   "d3-jetpack",
   "d3-selection-multi",
   "kld-intersections",
+  "@macrostrat/ui-components/node_modules/d3-array",
+  "internmap",
 ].join("|");
 
 module.exports = {

@@ -1,3 +1,5 @@
+import "@testing-library/jest-dom";
+
 Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: jest.fn().mockImplementation((query) => ({
@@ -11,3 +13,6 @@ Object.defineProperty(window, "matchMedia", {
     dispatchEvent: jest.fn(),
   })),
 });
+
+// Mock environment variables
+process.env.ORIENTEER_API_BASE = "https://orienteer.test";
