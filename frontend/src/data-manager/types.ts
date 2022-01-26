@@ -1,7 +1,8 @@
 import { Point } from "geojson";
 import { Vector3 } from "@attitude/core/src/math";
+import { AttitudeFilterData } from "./filter";
 
-interface AttitudeCore {
+export interface AttitudeCore {
   strike: number;
   dip: number;
   rake: number;
@@ -33,5 +34,15 @@ export interface AppState {
   hovered: Attitude | null;
   focused: Attitude | null;
   selected: Set<Attitude>;
-  filter: Function | null;
+  showSidebar: boolean;
+  filterData: AttitudeFilterData | null;
 }
+
+export const initialState: AppState = {
+  data: [],
+  hovered: null,
+  focused: null,
+  selected: new Set(),
+  filterData: null,
+  showSidebar: true,
+};

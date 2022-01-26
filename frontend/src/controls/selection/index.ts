@@ -1,15 +1,49 @@
 import SelectionList from "./list";
 import ViewerControl from "./viewer";
 import styles from "./style.module.styl";
-import { NonIdealState, Button } from "@blueprintjs/core";
+import {
+  NonIdealState,
+  Button,
+  ButtonGroup,
+  FormGroup,
+} from "@blueprintjs/core";
 import { hyperStyled } from "@macrostrat/hyper";
 import { useAppDispatch, useAppState } from "app/hooks";
 import { ErrorBoundary } from "@macrostrat/ui-components";
+import { useState } from "react";
 
 const h = hyperStyled(styles);
 
+function PlaneTypeControl({ samePlane, setSamePlane }) {
+  return h(FormGroup, { label: "Plane type" }, [
+    h(ButtonGroup, { horizontal: true }, [
+      h(
+        Button,
+        {
+          active: samePlane,
+          onClick() {
+            setSamePlane(true);
+          },
+        },
+        "Same"
+      ),
+      h(
+        Button,
+        {
+          active: !samePlane,
+          onClick() {
+            setSamePlane(false);
+          },
+        },
+        "Parallel"
+      ),
+    ]),
+  ]);
+}
+
 function SelectionControl(props) {
   const dispatch = useAppDispatch();
+  const [samePlane, setSamePlane] = useState(false);
   const a = props.actions;
   if (a == null) return null;
   return h("div.sidebar-inner", [
@@ -30,11 +64,13 @@ function SelectionControl(props) {
           onClick() {
             dispatch({
               type: "group-selected",
+              samePlane,
             });
           },
         },
         "Group measurements"
       ),
+      h(PlaneTypeControl, { samePlane, setSamePlane }),
     ]),
   ]);
 }
@@ -98,7 +134,6 @@ function Sidebar({ records }) {
 
   return h("div.selection-panel.flex.flex-container", [
     h(SelectionCore, { records, focused }),
-    h(SelectionControl, { records, focused }),
     h("div.modal-controls", [
       //h(Button, { onClick: openGroupViewer }, "View group"),
       h(CloseButton, { focused }),

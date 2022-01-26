@@ -39,6 +39,14 @@ const styleLoaders = [
 module.exports = {
   // Enable sourcemaps for debugging webpack's output.
   devtool: "source-map",
+  mode: process.env.NODE_ENV || "development",
+  devServer: {
+    compress: true,
+    port: 3000,
+    hot: true,
+    open: true,
+    historyApiFallback: true,
+  },
   resolve: {
     extensions: [".ts", ".tsx", ".js"],
     alias: {

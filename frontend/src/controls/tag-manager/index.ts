@@ -72,7 +72,7 @@ class TagForm extends React.Component {
   }
 }
 
-function TagManager() {
+export default function TagManager() {
   const records = useAppState((state) => state.selected);
   const hovered = useAppState((state) => state.hovered);
   const dispatch = useAppDispatch();
@@ -95,7 +95,7 @@ function TagManager() {
             },
             intent,
             name,
-            className: "pt-minimal",
+            minimal: true,
           },
           name
         );
@@ -104,4 +104,3 @@ function TagManager() {
     h(TagForm, { onUpdate: (tag) => dispatch({ type: "add-tag", tag }) }),
   ]);
 }
-export default TagManager;
