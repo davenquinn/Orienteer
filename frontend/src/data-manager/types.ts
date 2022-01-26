@@ -1,7 +1,7 @@
 import { Point } from "geojson";
 import { Vector3 } from "@attitude/core/src/math";
 
-interface AttitudeCore {
+export interface AttitudeCore {
   strike: number;
   dip: number;
   rake: number;

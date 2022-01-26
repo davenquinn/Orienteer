@@ -4,6 +4,7 @@ import pg from "./database";
 import axios from "axios";
 import { Attitude, AppState } from "./types";
 import { prepareData } from "./util";
+import { ORIENTEER_API_BASE } from "../config";
 
 async function refreshRecords(
   state,
@@ -40,24 +41,24 @@ async function refreshRecords(
 type GroupAction =
   | { type: "create-group"; attitudes: Attitude[]; samePlane: boolean }
   | { type: "destroy-group"; attitude: Attitude }
-  | { type: "group-selected" }
-  | { type: "group-deleted" };
+  | { type: "group-selected"; samePlane: boolean }
+  | { type: "group-deleted" }
+  | { type: "group-remove-item"; data: Attitude }
+  | { type: "group-add-item"; data: Attitude };
 
 async function groupActionHandler(
   state: AppState,
   action: GroupAction,
   dispatch
 ) {
-  const baseURI = process.env.ORIENTEER_API_BASE + "/api/group";
+  const baseURI = ORIENTEER_API_BASE + "/api/group";
   switch (action.type) {
     case "create-group":
       const { attitudes } = action;
-      console.log(attitudes);
-
       try {
         const data = {
           measurements: attitudes.map((d) => d.id),
-          same_plane: false,
+          same_plane: action.samePlane,
         };
         const res = await axios.post(baseURI, data);
         const { data: obj, status, deleted_groups, message } = res.data;

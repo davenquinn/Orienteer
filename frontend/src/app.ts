@@ -4,7 +4,7 @@ import { FocusStyleManager } from "@blueprintjs/core";
 //import setupMenu from "./menu";
 //import Map from "./controls/map";
 //import Frontpage from "./frontpage";
-import { DataManager, AppDataProvider, useAppState } from "./data-manager";
+import { AppDataProvider, useAppState } from "./data-manager";
 import AttitudePage from "./attitudes";
 // import Stereonet from "./endpoints/stereonet";
 // import LogHandler from "./log-handler";

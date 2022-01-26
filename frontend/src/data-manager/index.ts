@@ -170,9 +170,6 @@ type AppSyncAction =
   | { type: "hover"; data: Attitude | null }
   | { type: "select-box"; data: LatLngBounds }
   | { type: "clear-selection" }
-  | { type: "group-selected" }
-  | { type: "group-remove-item"; data: Attitude }
-  | { type: "group-add-item"; data: Attitude }
   | { type: "clear-focus" }
   | { type: "focus-item"; data: Attitude }
   | { type: "refresh-data" }
@@ -225,7 +222,6 @@ const baseReducer: AppReducer = (
     case "clear-focus":
       return { ...state, focused: null };
     case "apply-spec":
-      console.log(action.spec);
       return refreshSelected(update(state, action.spec));
     default:
       return tagReducer(state, action);
@@ -239,12 +235,13 @@ async function actionCreator(
 ): Promise<AppSyncAction> {
   switch (action.type) {
     case "group-selected":
+      const { samePlane } = action;
       return actionCreator(
         state,
         {
           type: "create-group",
           attitudes: Array.from(state.selected),
-          samePlane: false,
+          samePlane,
         },
         dispatch
       );
