@@ -74,7 +74,7 @@ def group():
         msg = "Cannot create group from less than two features"
         raise InvalidUsage(msg)
     log.info("Creating group from {} features".format(len(features)))
-    group = AttitudeGroup(features)
+    group = AttitudeGroup(features, same_plane=data.get("same_plane", False))
     db.session.add(group)
     # Delete unreferenced groups
     deleted_ids = []
