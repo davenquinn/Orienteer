@@ -5,6 +5,10 @@ CREATE SCHEMA orienteer_api;
 CREATE VIEW orienteer_api.feature_class AS
 SELECT * FROM orienteer.feature_class;
 
+-- Tags
+CREATE VIEW orienteer_api.tag AS
+SELECT * FROM orienteer.tag;
+
 CREATE VIEW orienteer_api.attitude AS
 SELECT
   id,
@@ -82,3 +86,6 @@ q2 AS (
 -- Return results of first query
 SELECT * FROM q1;
 $$ LANGUAGE SQL;
+
+/* If the API is running, make sure it is refreshed */
+NOTIFY pgrst, 'reload schema';

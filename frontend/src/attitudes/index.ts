@@ -13,7 +13,7 @@ import {
   Button,
   Navbar,
 } from "@blueprintjs/core";
-import FilterPanel from "./filter";
+import FilterPanel from "./filter-pane";
 import MapDataLayer from "../controls/map-data-layer";
 import { useAppState, useAppDispatch } from "app/hooks";
 import * as d3 from "d3";
@@ -40,6 +40,10 @@ function ClearSelectionButton() {
       intent: "danger",
       onClick: () => {
         dispatch({ type: "clear-selection" });
+      },
+      style: {
+        backgroundColor: "white",
+        border: "2px solid rgba(0,0,0,0.2)",
       },
     },
     "Clear selection"
