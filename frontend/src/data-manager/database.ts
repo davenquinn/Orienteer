@@ -3,7 +3,9 @@ import {
   PostgrestFilterBuilder,
 } from "@supabase/postgrest-js";
 import { useState, useEffect } from "react";
-const POSTGREST_URL = process.env.ORIENTEER_API_BASE + "/models";
+import { ORIENTEER_API_BASE } from "../config";
+
+const POSTGREST_URL = ORIENTEER_API_BASE + "/models";
 const pg = new PostgrestClient(POSTGREST_URL);
 
 type FilterFunc<T = any> = (

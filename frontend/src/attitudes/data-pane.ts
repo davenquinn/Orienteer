@@ -42,14 +42,8 @@ function DataPane(props) {
         records: props.records,
         hovered,
       }),
-      h("div", null, [
-        h("h4", null, "Data type"),
-        h(SelectType, {
-          records,
-          hovered,
-          featureTypes: props.featureTypes,
-        }),
-      ]),
+      h("h4", null, "Feature class"),
+      h(SelectType),
       h(Tabs, { id: "stereonet-tabs", renderActiveTabPanelOnly: true }, [
         h(Tab, {
           id: "new-stereonet-tab",

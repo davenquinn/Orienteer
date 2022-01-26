@@ -145,7 +145,7 @@ export function useAppDispatch() {
 }
 
 export function useAppState(accessor: StateAccessor | null = null) {
-  const state = useContext(AppDataContext);
+  const state: AppState = useContext(AppDataContext);
   if (accessor == null) return state;
   return accessor(state);
 }
