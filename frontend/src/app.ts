@@ -4,7 +4,7 @@ import { FocusStyleManager } from "@blueprintjs/core";
 //import setupMenu from "./menu";
 //import Map from "./controls/map";
 //import Frontpage from "./frontpage";
-import { AppDataProvider, useAppState } from "./data-manager";
+import { AppDataProvider, useAppDispatch, useAppState } from "./data-manager";
 import AttitudePage from "./attitudes";
 // import Stereonet from "./endpoints/stereonet";
 // import LogHandler from "./log-handler";
@@ -128,6 +128,8 @@ export default function AppRouter() {
 
 const App = () => {
   const data = useAppState((state) => state.data);
+  const dispatch = useAppDispatch();
+  const showSidebar = useAppState((state) => state.showSidebar);
   if (data == null) {
     return null;
   }
@@ -139,8 +141,7 @@ const App = () => {
       records: data,
       query: "",
       featureTypes: [],
-      showSidebar: true,
-      //toggleSidebar,
+      showSidebar,
     }),
   ]);
 };

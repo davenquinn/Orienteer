@@ -37,6 +37,7 @@ type AppSyncAction =
       data: AttitudeData;
     }
   | { type: "toggle-selection"; data: AttitudeData }
+  | { type: "toggle-sidebar" }
   | { type: "hover"; data: Attitude | null }
   | { type: "select-box"; data: LatLngBounds }
   | { type: "clear-selection" }
@@ -73,6 +74,8 @@ const baseReducer: AppReducer = (
     case "toggle-selection":
       const _action = state.selected.has(action.data) ? "$remove" : "$add";
       return update(state, { selected: { [_action]: [action.data] } });
+    case "toggle-sidebar":
+      return update(state, { showSidebar: { $set: !state.showSidebar } });
     case "select-box":
       const bounds = action.data;
       let data = state.data

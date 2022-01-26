@@ -120,10 +120,11 @@ class AttitudePage extends Component {
     let { showGroupInfo } = this.state;
 
     if (!showGroupInfo) {
-      pane1 = h(MapControl, { settings: this.props.settings.map }, [
-        h(MapDataLayer, { records }),
-        h(ClearSelectionButton),
-      ]);
+      pane1 = h(
+        MapControl,
+        { settings: this.props.settings.map, toggleSidebar },
+        [h(MapDataLayer, { records }), h(ClearSelectionButton)]
+      );
     } else {
       pane1 = h("div", [h(Navbar, [h(Button, {}, "Close pane")])]);
     }

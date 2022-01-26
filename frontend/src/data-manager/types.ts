@@ -34,6 +34,7 @@ export interface AppState {
   hovered: Attitude | null;
   focused: Attitude | null;
   selected: Set<Attitude>;
+  showSidebar: boolean;
   filterData: AttitudeFilterData | null;
 }
 
@@ -43,4 +44,5 @@ export const initialState: AppState = {
   focused: null,
   selected: new Set(),
   filterData: null,
+  showSidebar: true,
 };

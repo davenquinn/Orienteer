@@ -56,9 +56,22 @@ function useMapBounds() {
   return L.geoJson(res).getBounds();
 }
 
+function SidebarToggleButton() {
+  const dispatch = useAppDispatch();
+  return h(
+    "a",
+    {
+      onClick() {
+        dispatch({ type: "toggle-sidebar" });
+      },
+    },
+    h(Icon, { icon: "menu" })
+  );
+}
+
 function MapControl(props) {
   // Add base layers
-  const { center, zoom, layers, children } = props;
+  const { center, zoom, layers, children, toggleSidebar } = props;
   const c = [0, 0]; // [center[1], center[0]];
 
   let ix = 0;
@@ -125,11 +138,7 @@ function MapControl(props) {
         url: "https://argyre.geoscience.wisc.edu/tiles/mosaic/tiles/{z}/{x}/{y}.png?mosaic=orthoimage,hirise_red",
       }),
       h(BoxSelectControl),
-      h(
-        Control,
-        { position: "topright" },
-        h("a", null, h(Icon, { icon: "menu" }))
-      ),
+      h(Control, { position: "topright" }, h(SidebarToggleButton)),
       //h(LayersControl, { position: "topleft", overlays }),
       h(ScaleControl, { imperial: false }),
       //h BackButton # We cause major problems with back-navigation for now
