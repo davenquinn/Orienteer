@@ -1,7 +1,7 @@
 import sys
 import logging
 from functools import wraps
-from flask import Flask, Blueprint, Response, render_template
+from flask import Flask, Blueprint, Response
 from os import environ
 from json import load
 from .proj import init_projection
@@ -17,7 +17,6 @@ from ..database import db
 stdout_logger = logging.StreamHandler(sys.stdout)
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
-# log.addHandler(stdout_logger)
 
 log2 = logging.getLogger("attitude")
 log2.setLevel(logging.INFO)
@@ -38,43 +37,30 @@ def image(fig):
     return Response(i_.read(), mimetype="image/png")
 
 
-@elevation.route("/attitude/<id>/data.html")
-def attitude_data(id):
-    import numpy as N
-
-    attitude = get_attitude(id)
-    pca = attitude.pca()
-    return render_template(
-        "data-area.html",
-        id=id,
-        server_url="http://localhost:8000",
-        a=attitude,
-        pca=pca,
-        angular_errors=tuple(N.degrees(i) for i in pca.angular_errors()[::-1]),
-    )
-
-
 @elevation.route("/attitude/<id>/errorbars.png")
 def errorbars(id):
     from attitude.plot import error_comparison
 
-    attitude = get_attitude(id)
-    fig = error_comparison(attitude.pca(), do_bootstrap=False)
-    return image(fig)
+    with db.session_scope():
+        attitude = get_attitude(id)
+        fig = error_comparison(attitude.pca(), do_bootstrap=False)
+        return image(fig)
 
 
 @elevation.route("/attitude/<id>/axis-aligned.png")
 def principal_components(id):
-    attitude = get_attitude(id)
-    fig = attitude.plot_aligned()
-    return image(fig)
+    with db.session_scope():
+        attitude = get_attitude(id)
+        fig = attitude.plot_aligned()
+        return image(fig)
 
 
 @elevation.route("/attitude/<id>/error.png")
 def error_ellipse(id):
-    attitude = get_attitude(id)
-    fig = attitude.error_ellipse()
-    return image(fig)
+    with db.session_scope():
+        attitude = get_attitude(id)
+        fig = attitude.error_ellipse()
+        return image(fig)
 
 
 def __setup_endpoints(app, db):
