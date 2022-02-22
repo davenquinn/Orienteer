@@ -1,6 +1,7 @@
 import hyper from "@macrostrat/hyper";
 import { useAppState, useAppDispatch } from "app/data-manager";
 import { usePostgrestSelect } from "../data-manager/database";
+import { ErrorBoundary } from "@macrostrat/ui-components";
 import styles from "./style.module.styl";
 
 import { Button, MenuItem, Tag, Intent } from "@blueprintjs/core";
@@ -16,7 +17,12 @@ const _TagSelect = Select.ofType<ITag>();
 
 const h = hyper.styled(styles);
 
-function TagSelect({ tags, children, onSelect, textRenderer = (t) => t.name }) {
+function TagSelect({
+  tags = [],
+  children,
+  onSelect,
+  textRenderer = (t) => t.name,
+}) {
   return h(
     _TagSelect,
     {
@@ -108,28 +114,31 @@ export default function FilterPanel() {
   const dispatch = useAppDispatch();
   const { classes = [], tags = [] } = filterData ?? {};
 
-  return h("div.filter-panel", [
-    h("h2", "Filter data"),
-    h("div.filter-pane", [
-      h(TagFilterPanel, {
-        tags,
-        onChange(tags) {
-          console.log(tags);
-          dispatch({
-            type: "set-filter-data",
-            data: { ...filterData, tags },
-          });
-        },
-      }),
-      h(ClassFilterPanel, {
-        classes,
-        onChange(classes) {
-          dispatch({
-            type: "set-filter-data",
-            data: { ...filterData, classes },
-          });
-        },
-      }),
-    ]),
-  ]);
+  return h(
+    ErrorBoundary,
+    h("div.filter-panel", [
+      h("h2", "Filter data"),
+      h("div.filter-pane", [
+        h(TagFilterPanel, {
+          tags,
+          onChange(tags) {
+            console.log(tags);
+            dispatch({
+              type: "set-filter-data",
+              data: { ...filterData, tags },
+            });
+          },
+        }),
+        h(ClassFilterPanel, {
+          classes,
+          onChange(classes) {
+            dispatch({
+              type: "set-filter-data",
+              data: { ...filterData, classes },
+            });
+          },
+        }),
+      ]),
+    ])
+  );
 }
