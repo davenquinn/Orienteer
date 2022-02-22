@@ -37,6 +37,9 @@ CREATE FUNCTION orienteer_api.project_bounds() RETURNS geometry AS $$
 $$ LANGUAGE SQL;
 
 /* Tags */
+CREATE VIEW orienteer_api.tag AS
+SELECT * FROM orienteer.tag;
+
 CREATE OR REPLACE FUNCTION orienteer_api.add_tag(
   tag text,
   attitudes integer[]
@@ -81,4 +84,68 @@ q2 AS (
 )
 -- Return results of first query
 SELECT * FROM q1;
+$$ LANGUAGE SQL;
+
+CREATE VIEW orienteer_api.feature_trace AS
+SELECT
+  id,
+  ST_Transform(geometry, :geographic_srid) geometry,
+  class,
+  color,
+  tags
+FROM
+  orienteer.attitude_data
+WHERE correlation_coefficient < 1;
+
+
+
+CREATE OR REPLACE FUNCTION
+  imagery.tile_envelope(
+    _x integer,
+    _y integer,
+    _z integer,
+    _tms text = 'mars_mercator'
+  ) RETURNS geometry(Polygon, 949900)
+AS $$
+  SELECT ST_Transform(
+    ST_TileEnvelope(
+      _z, _x, _y,
+      (SELECT bounds FROM imagery.tms WHERE name = _tms)
+    ),
+    949900
+  );
+$$ LANGUAGE SQL;
+
+/* A function to create vector tiles that doesn't require a separate tile server.
+  This could be upgraded to pg_tileserv eventually.
+ */
+CREATE OR REPLACE FUNCTION orienteer_api.vector_tile(
+  x integer,
+  y integer,
+  z integer
+) RETURNS bytea AS $$
+  WITH features AS (
+    -- Features in tile envelope
+    SELECT * FROM orienteer.attitude_data
+    WHERE geometry && imagery.tile_envelope(x, y, z) 
+  ), trace AS (
+    SELECT
+      id,
+      ST_AsMVTGeom(geometry, imagery.tile_envelope(x, y, z)) AS geom,
+      class,
+      color,
+      tags
+    FROM features
+  ), orientation AS (
+    SELECT
+      id,
+      ST_AsMVTGeom(center, imagery.tile_envelope(x, y, z)) AS geom,
+      class,
+      color,
+      tags
+    FROM features
+  )
+  -- Concat the layers together...
+  SELECT ST_AsMVT(trace, 'trace') || ST_AsMVT(orientation, 'orientation')
+  FROM trace, orientation;
 $$ LANGUAGE SQL;
