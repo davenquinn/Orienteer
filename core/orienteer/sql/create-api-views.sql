@@ -114,7 +114,7 @@ AS $$
     ),
     949900
   );
-$$ LANGUAGE SQL;
+$$ LANGUAGE SQL STABLE;
 
 /* A function to create vector tiles that doesn't require a separate tile server.
   This could be upgraded to pg_tileserv eventually.
@@ -148,4 +148,4 @@ CREATE OR REPLACE FUNCTION orienteer_api.vector_tile(
   -- Concat the layers together...
   SELECT ST_AsMVT(trace, 'trace') || ST_AsMVT(orientation, 'orientation')
   FROM trace, orientation;
-$$ LANGUAGE SQL;
+$$ LANGUAGE SQL STABLE;
