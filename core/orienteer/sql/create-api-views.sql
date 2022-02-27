@@ -124,26 +124,32 @@ CREATE OR REPLACE FUNCTION orienteer_api.vector_tile(
   y integer,
   z integer
 ) RETURNS bytea AS $$
-  WITH features AS (
+  WITH tile_loc AS (
+    SELECT ST_Transform(
+      imagery.tile_envelope(x, y, z),
+      (SELECT ST_SRID(bounds) FROM imagery.tms WHERE name = 'mars_mercator')
+    ) envelope 
+  ),
+  features AS (
     -- Features in tile envelope
-    SELECT * FROM orienteer.attitude_data
-    WHERE geometry && imagery.tile_envelope(x, y, z) 
+    SELECT * FROM orienteer.attitude_data, tile_loc
+    WHERE geometry && tile_loc.envelope 
   ), trace AS (
     SELECT
       id,
-      ST_AsMVTGeom(geometry, imagery.tile_envelope(x, y, z)) AS geom,
+      ST_AsMVTGeom(geometry, tile_loc.envelope) AS geom,
       class,
       color,
       tags
-    FROM features
+    FROM features, tile_loc
   ), orientation AS (
     SELECT
       id,
-      ST_AsMVTGeom(center, imagery.tile_envelope(x, y, z)) AS geom,
+      ST_AsMVTGeom(center, tile_loc.envelope) AS geom,
       class,
       color,
       tags
-    FROM features
+    FROM features, tile_loc
   )
   -- Concat the layers together...
   SELECT ST_AsMVT(trace, 'trace') || ST_AsMVT(orientation, 'orientation')
