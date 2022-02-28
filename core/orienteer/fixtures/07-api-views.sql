@@ -125,19 +125,20 @@ CREATE OR REPLACE FUNCTION orienteer_api.vector_tile(
   z integer
 ) RETURNS bytea AS $$
   WITH tile_loc AS (
-    SELECT ST_Transform(
-      imagery.tile_envelope(x, y, z),
-      (SELECT ST_SRID(bounds) FROM imagery.tms WHERE name = 'mars_mercator')
-    ) envelope 
+    SELECT tile_utils.envelope(x, y, z, 'mars_mercator') envelope 
   ),
   features AS (
     -- Features in tile envelope
     SELECT * FROM orienteer.attitude_data, tile_loc
-    WHERE geometry && tile_loc.envelope 
+    WHERE geometry && tile_loc.envelope
+      AND (ST_XMax(geometry)-ST_XMin(geometry)) > tile_utils.tile_width(z)/1024
   ), trace AS (
     SELECT
       id,
-      ST_AsMVTGeom(geometry, tile_loc.envelope) AS geom,
+      ST_AsMVTGeom(
+        ST_Simplify(geometry, tile_utils.tile_width(z)/1024),
+        tile_loc.envelope
+      ) AS geom,
       class,
       color,
       tags

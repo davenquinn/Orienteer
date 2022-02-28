@@ -218,5 +218,5 @@ def create_tables():
         Base.metadata.create_all(db.engine)
 
         directory = Path(path.dirname(__file__)) / "fixtures"
-        for file in directory.glob("*.sql"):
+        for file in sorted(directory.glob("*.sql")):
             db.exec_sql(str(file), {"geographic_srid": GEOGRAPHIC_SRID})
