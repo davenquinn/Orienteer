@@ -155,3 +155,5 @@ CREATE OR REPLACE FUNCTION orienteer_api.vector_tile(
   SELECT ST_AsMVT(trace, 'trace') || ST_AsMVT(orientation, 'orientation')
   FROM trace, orientation;
 $$ LANGUAGE SQL STABLE;
+
+NOTIFY pgrst, 'reload schema';
