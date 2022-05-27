@@ -2,6 +2,7 @@ import click
 from click import Group, echo, secho, style, option
 from collections import defaultdict
 from os import path, environ
+from pathlib import Path
 
 from .core import setup_app
 from .config import HOST, GEOGRAPHIC_SRID
@@ -215,11 +216,7 @@ def create_tables():
 
         # Create all tables defined by SQLAlchemy ORM objects.
         Base.metadata.create_all(db.engine)
-        stored_procedure("01-schema-additions")
 
-        stored_procedure("attitude-data")
-        stored_procedure(
-            "create-api-views", params={"geographic_srid": GEOGRAPHIC_SRID}
-        )
-        # Reload PostgREST schema cache
-        db.engine.execute("NOTIFY pgrst, 'reload schema'")
+        directory = Path(path.dirname(__file__)) / "fixtures"
+        for file in sorted(directory.glob("*.sql")):
+            db.exec_sql(str(file), {"geographic_srid": GEOGRAPHIC_SRID})

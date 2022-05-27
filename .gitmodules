@@ -13,3 +13,6 @@
 [submodule "core/deps/python-tools"]
 	path = core/deps/python-tools
 	url = https://github.com/UW-Macrostrat/python-tools.git
+[submodule "deps/postgis-tile-utils"]
+	path = core/deps/postgis-tile-utils
+	url = https://github.com/UW-Macrostrat/postgis-tile-utils.git
