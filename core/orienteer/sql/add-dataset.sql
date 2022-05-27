@@ -2,15 +2,22 @@
 Add mapboard features to dataset_features table if available.
 */
 INSERT INTO orienteer.dataset_feature ("type", geometry, source_polygon)
-SELECT 'Attitude', ST_SetSRID(ST_GeometryN(geometry,1), 949901), id FROM map_data.linework WHERE type = 'bedding-area'
+SELECT 'Attitude', ST_SetSRID(ST_GeometryN(geometry,1), 949901), id FROM map_data.polygon WHERE type = 'bedding-area'
   AND id NOT IN (SELECT source_polygon FROM orienteer.dataset_feature WHERE source_polygon IS NOT NULL);
   
 INSERT INTO orienteer.dataset_feature ("type", geometry, source_line)
 SELECT 'Attitude', ST_SetSRID(St_LineMerge(geometry), 949901), id FROM map_data.linework WHERE type = 'trace'
   AND id NOT IN (SELECT source_line FROM orienteer.dataset_feature WHERE source_line IS NOT NULL);
 
+-- We only have one project ID so we can take this grisly shortcut for now
 UPDATE orienteer.dataset_feature SET project = 1;
 
+-- Add appropriate feature classes for traces where polygons are not yet computed
+UPDATE orienteer.dataset_feature d
+	SET "class" = m.unit_id
+FROM map_topology.map_face m
+WHERE ST_ContainsProperly(m.geometry, d.geometry)
+  AND "class" IS null;
 
 -- Adds dataset for dataset_feature based on overlap
 -- If you don't want this to be autoset, set it on feature
