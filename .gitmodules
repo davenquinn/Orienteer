@@ -1,12 +1,15 @@
 [submodule "bundled-deps/Attitude"]
-	path = bundled-deps/Attitude
+	path = core/deps/Attitude
 	url = git://github.com/davenquinn/Attitude.git
 [submodule "bundled-deps/gis-core"]
-	path = bundled-deps/gis-core
+	path = __archive/gis-core
 	url = git://github.com/davenquinn/gis-core.git
 [submodule "bundled-deps/pg-projector"]
-	path = bundled-deps/pg-projector
+	path = core/deps/pg-projector
 	url = git://github.com/davenquinn/pg-projector.git
 [submodule "bundled-deps/subdivide"]
-	path = bundled-deps/subdivide
+	path = core/deps/subdivide
 	url = git://github.com/davenquinn/subdivide.git
+[submodule "core/deps/python-tools"]
+	path = core/deps/python-tools
+	url = https://github.com/UW-Macrostrat/python-tools.git

@@ -1,0 +1,36 @@
+[tool.poetry]
+authors = ["Daven Quinn <dev@davenquinn.com>"]
+description = ""
+name = "Orienteer"
+version = "2.0.0"
+
+[tool.poetry.dependencies]
+Attitude = {path = "./deps/Attitude", develop = true}
+Fiona = "^1.8.20"
+Flask = "^2.0.2"
+GeoAlchemy2 = "^0.9.4"
+SQLAlchemy = "^1.4.27"
+Shapely = "^1.8.0"
+ipython = "^7.29.0"
+numpy = "^1.21.4"
+pandas = "^1.3.4"
+pg_projector = {path = "./deps/pg-projector", develop = true}
+psycopg2-binary = "^2.9.2"
+pyproj = "^3.3.0"
+python = ">=3.8,<3.11"
+rasterio = "^1.2.10"
+scipy = "^1.7.2"
+"sparrow.birdbrain" = {path = "./deps/python-tools/birdbrain", develop = true}
+"sparrow.dinosaur" = {path = "./deps/python-tools/dinosaur", develop = true}
+"sparrow.utils" = {path = "./deps/python-tools/utils", develop = true}
+subdivide = {path = "./deps/subdivide", develop = true}
+
+[tool.poetry.dev-dependencies]
+black = "^21.11b1"
+
+[tool.poetry.scripts]
+orienteer = "orienteer.cli:OrienteerCommand"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]

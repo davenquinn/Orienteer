@@ -1,0 +1,83 @@
+strike_dip = lighten(#ff0000,20%);
+hovered = darken(#ff0000,10%);
+selected = darken(lightgreen,10%);
+
+.data-layer-container
+  z-index: 600
+  position relative
+
+.data-layer {
+  pointer-events: all;
+  z-index: 800
+  #markerCircle circle, #markerArrow path {
+    fill: strike-dip;
+  }
+  #hoverCircle circle, #hoverArrow path {
+    fill: hovered;
+  }
+  #selectedArrow path {
+    fill: selected;
+  }
+  .features,.markers {
+    cursor: crosshair;
+  }
+  .features {
+    strike_dip_feature = darken(strike_dip,30%);
+    selected_feature = darken(selected,30%);
+    hovered_feature = darken(hovered,20%);
+    path {
+      fill: transparent;
+    }
+  }
+  .markers {
+    line {
+      stroke-width: 1px;
+    }
+    .hovered {
+      circle, line {
+        fill: hovered;
+        stroke-width: 2px;
+        stroke: hovered;
+      }
+    }
+    .selected {
+      circle, line {
+        fill: selected;
+        stroke: selected;
+      }
+      &.hovered {
+        c = darken(selected, 10%);
+        circle, line {
+          stroke: c;
+          fill: c;
+        }
+      }
+    }
+}
+}
+
+.leaflet-container {
+  flex-grow: 1;
+  height: 100vh;
+}
+
+.leaflet-overlay-pane svg {
+    pointer-events: all;
+  }
+
+  .leaflet-overlay-pane path, .leaflet-marker-icon {
+      cursor: pointer;
+      }
+
+// .leaflet-control-layers {
+//   min-width: 34px;
+//   min-height: 34px;
+// }
+// .leaflet-container .leaflet-control-layers-toggle {
+//   width: inherit;
+//   height: inherit;
+//   font-size: inherit
+//   line-height: 30px;
+//   text-align: center;
+//   color: black;
+// }
